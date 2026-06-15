@@ -5,8 +5,8 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)export default function Giris() {
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+export default function Giris() {
   const [adim, setAdim] = useState<"tel" | "bilgi">("tel");
   const [tel, setTel] = useState("");
   const [ad, setAd] = useState("");
