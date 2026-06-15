@@ -52,7 +52,7 @@ export default function Giris() {
           <div className="text-6xl mb-4">🎉</div>
           <div className="font-black text-2xl mb-2">Hoş geldin!</div>
           <p className="text-gray-500 text-sm mb-8">Hesabın hazır.</p>
-          <Link href="/" className="block w-full bg-[#FF4D00] text-white font-bold py-3.5 rounded-xl text-center hover:bg-[#CC3D00] transition">
+          <Link href="/musteri" className="block w-full bg-[#FF4D00] text-white font-bold py-3.5 rounded-xl text-center hover:bg-[#CC3D00] transition">
             Ana Sayfaya Git →
           </Link>
         </div>
