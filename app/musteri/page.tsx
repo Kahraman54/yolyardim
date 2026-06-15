@@ -52,8 +52,7 @@ export default function MusteriAna() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0D0D0D] text-white flex flex-col max-w-md mx-auto relative">
-      {/* HEADER */}
+<main className="h-screen bg-[#0D0D0D] text-white flex flex-col max-w-md mx-auto relative overflow-hidden">      {/* HEADER */}
       <header className="h-14 flex items-center justify-between px-4 bg-[#1A1A1A] border-b border-white/5 flex-shrink-0 sticky top-0 z-40">
         <div>
           <div className="text-xs text-gray-500">Merhaba 👋</div>
