@@ -1,8 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
-
+import { supabase } from "../../lib/supabase";
 export default function Giris() {
   const [adim, setAdim] = useState<"tel" | "bilgi">("tel");
   const [tel, setTel] = useState("");
