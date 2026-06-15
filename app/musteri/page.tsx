@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from "@react-google-maps/api";
 import { supabase } from "../../lib/supabase";
@@ -9,8 +9,6 @@ const DEMO_FIRMALAR = [
   { id: "2", firma_ad: "Güven Yol Yardım", sahip_ad: "Ali Güven", puan: 4.6, yorum: 87, sure: 12, km: 2.1, arac: 2, hizmetler: ["🚛 Çekici", "🔋 Akü", "⛽ Yakıt"], lat: 40.9758, lng: 29.0506 },
   { id: "3", firma_ad: "Hızlı Kurtarma", sahip_ad: "Hasan Demir", puan: 4.9, yorum: 203, sure: 6, km: 0.8, arac: 4, hizmetler: ["🚛 Çekici", "🔧 Kurtarma", "🔄 Lastik", "🔋 Akü"], lat: 40.9858, lng: 28.9906 },
 ];
-
-const MAP_CENTER = { lat: 40.9837, lng: 29.0210 };
 
 const MAP_STYLE = [
   { elementType: "geometry", stylers: [{ color: "#1a2332" }] },
@@ -35,12 +33,28 @@ export default function MusteriAna() {
   const [gonderildi, setGonderildi] = useState(false);
   const [yukleniyor, setYukleniyor] = useState(false);
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [MAP_CENTER, setMapCenter] = useState({ lat: 40.9837, lng: 29.0210 });
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!,
   });
-
+useEffect(() => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setMapCenter({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        });
+      },
+      () => {
+        // İzin verilmezse İstanbul merkezi kalır
+        console.log("Konum izni reddedildi");
+      }
+    );
+  }
+}, []);
   const onLoad = useCallback((map: google.maps.Map) => setMap(map), []);
   const onUnmount = useCallback(() => setMap(null), []);
 
