@@ -327,9 +327,22 @@ export default function FirmaPanel() {
                   </div>
                   <div className="p-4">
                     {(t.musteri_ad || t.musteri_tel) && (
-                      <div className="grid grid-cols-2 gap-3 mb-3">
-                        {t.musteri_ad && <div><div className="text-[10px] text-gray-500 uppercase tracking-wide font-bold mb-1">Müşteri</div><div className="font-semibold text-sm">{t.musteri_ad}</div></div>}
-                        {t.musteri_tel && <div><div className="text-[10px] text-gray-500 uppercase tracking-wide font-bold mb-1">Telefon</div><div className="font-semibold text-sm">{t.musteri_tel}</div></div>}
+                      <div className="mb-3">
+                        {t.musteri_ad && <div className="font-semibold text-sm mb-2">{t.musteri_ad}</div>}
+                        {t.musteri_tel && (() => {
+                          const n = t.musteri_tel.replace(/\D/g, "");
+                          const g = n.startsWith("0") ? n : "0" + n;
+                          return (
+                            <a href={`tel:${g}`} className="flex items-center gap-3 bg-blue-500/8 border border-blue-500/20 rounded-xl p-3">
+                              <span className="text-lg">📞</span>
+                              <div className="flex-1">
+                                <div className="text-[10px] text-gray-500 uppercase font-bold">Müşteri Telefonu</div>
+                                <div className="font-bold text-blue-400 text-sm mt-0.5">{g}</div>
+                              </div>
+                              <span className="text-[10px] font-bold text-blue-400 bg-blue-500/15 px-2 py-1 rounded-lg">Ara →</span>
+                            </a>
+                          );
+                        })()}
                       </div>
                     )}
                     {t.arac_plaka && (
