@@ -35,6 +35,14 @@ export default function MusteriAna() {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [MAP_CENTER, setMapCenter] = useState({ lat: 40.9837, lng: 29.0210 });
   const [konumYukleniyor, setKonumYukleniyor] = useState(false);
+  const [appHeight, setAppHeight] = useState("100dvh");
+
+  useEffect(() => {
+    const update = () => setAppHeight(`${window.innerHeight}px`);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -82,7 +90,7 @@ export default function MusteriAna() {
   }
 
   return (
-    <main className="bg-[#0D0D0D] text-white flex flex-col relative overflow-hidden" style={{ height: "100dvh" }}>
+    <main className="bg-[#0D0D0D] text-white flex flex-col relative overflow-hidden" style={{ height: appHeight }}>
       {/* HEADER */}
       <header className="h-14 flex items-center justify-between px-4 bg-[#1A1A1A] border-b border-white/5 flex-shrink-0 z-40">
         <div>
