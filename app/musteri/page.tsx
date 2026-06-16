@@ -503,9 +503,10 @@ export default function MusteriAna() {
 
       {/* SOS MODAL */}
       {sosModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-end justify-center z-50">
+        <div className="fixed inset-0 bg-black/80 flex items-end justify-center z-50" onClick={() => { setSosModal(false); setGonderildi(false); }}>
           <div
             className="bg-[#1A1A1A] rounded-t-2xl w-full max-w-md p-5 pb-10 max-h-[88vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
             onTouchStart={e => { (e.currentTarget as HTMLElement).dataset.ty = String(e.touches[0].clientY); }}
             onTouchEnd={e => {
               if (e.changedTouches[0].clientY - Number((e.currentTarget as HTMLElement).dataset.ty) > 80) {
