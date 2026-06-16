@@ -35,7 +35,6 @@ export default function MusteriAna() {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [MAP_CENTER, setMapCenter] = useState({ lat: 40.9837, lng: 29.0210 });
   const [konumYukleniyor, setKonumYukleniyor] = useState(false);
-  const [konumAlindi, setKonumAlindi] = useState(false);
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -43,19 +42,21 @@ export default function MusteriAna() {
   });
   function konumIste() {
     if (!navigator.geolocation) return;
-    setKonumYukleniyor(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setMapCenter(c);
         map?.panTo(c);
         setKonumYukleniyor(false);
-        setKonumAlindi(true);
       },
       (err) => { console.log("Konum hatası:", err.code, err.message); setKonumYukleniyor(false); },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
+    setKonumYukleniyor(true);
   }
+
+  // Sayfa açılınca konum iste
+  useEffect(() => { konumIste(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Harita yüklenince konuma pan et
   useEffect(() => {
@@ -157,23 +158,6 @@ export default function MusteriAna() {
             <div className="w-full h-full flex items-center justify-center bg-[#1a2332]">
               <div className="text-gray-500 text-sm">🗺️ Harita yükleniyor...</div>
             </div>
-          )}
-
-          {/* Konum izni banner - alınmadıysa göster */}
-          {!konumAlindi && (
-            <button
-              onClick={konumIste}
-              className="absolute top-3 left-3 right-14 z-10 flex items-center gap-2 bg-[#1A1A1A]/95 border border-[#FF4D00]/40 rounded-xl px-3 py-2.5 text-left active:scale-95 transition"
-            >
-              <span className="text-lg">📍</span>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-bold text-white">Konumunu paylaş</div>
-                <div className="text-[10px] text-gray-400">Yakındaki firmaları bul</div>
-              </div>
-              <span className="text-[10px] font-bold text-[#FF4D00] whitespace-nowrap">
-                {konumYukleniyor ? "⏳" : "İzin Ver →"}
-              </span>
-            </button>
           )}
 
           {/* Harita kontrolleri */}
