@@ -14,6 +14,8 @@ type Talep = {
   id: string; tip: string; durum: string; created_at: string;
   musteri_ad?: string; musteri_tel?: string;
   konum_adres?: string; hedef_adres?: string; arac_plaka?: string; aciklama?: string;
+  toplam_km?: number; ise_baslama_zamani?: string; ise_bitis_zamani?: string;
+  foto_teslim_alma?: string[]; foto_yukleme?: string[]; foto_teslim?: string[];
 };
 
 export default function FirmaPanel() {
@@ -87,7 +89,7 @@ export default function FirmaPanel() {
   const taleplerYukle = useCallback(async (id: string) => {
     const { data } = await supabase
       .from("talepler")
-      .select("id, tip, durum, created_at, musteri_ad, musteri_tel, konum_adres, hedef_adres, arac_plaka, aciklama")
+      .select("id, tip, durum, created_at, musteri_ad, musteri_tel, konum_adres, hedef_adres, arac_plaka, aciklama, toplam_km, ise_baslama_zamani, ise_bitis_zamani, foto_teslim_alma, foto_yukleme, foto_teslim")
       .or(`durum.eq.yeni,firma_id.eq.${id}`)
       .order("created_at", { ascending: false });
     setTalepler(data || []);
@@ -374,6 +376,27 @@ export default function FirmaPanel() {
                         className="w-full bg-[#2A2A2A] border border-white/10 hover:border-[#00C853]/40 text-white font-bold py-2.5 rounded-xl transition text-sm">
                         ✔ Hizmeti Tamamla
                       </button>
+                    )}
+                    {t.durum === "tamamlandi" && (t.toplam_km || t.ise_baslama_zamani) && (
+                      <div className="bg-[#0D0D0D] border border-white/5 rounded-xl p-3 mt-1">
+                        <div className="text-[10px] text-gray-500 uppercase font-bold mb-2">İş Özeti</div>
+                        <div className="grid grid-cols-3 gap-2 text-center mb-2">
+                          {t.toplam_km != null && (
+                            <div><div className="font-black text-base text-[#FF4D00]">{t.toplam_km.toFixed(1)}</div><div className="text-[9px] text-gray-500">km</div></div>
+                          )}
+                          {t.ise_baslama_zamani && t.ise_bitis_zamani && (
+                            <div><div className="font-black text-base">
+                              {(() => { const ms = new Date(t.ise_bitis_zamani).getTime() - new Date(t.ise_baslama_zamani).getTime(); const dk = Math.floor(ms/60000); const sa = Math.floor(dk/60); return sa > 0 ? `${sa}s ${dk%60}dk` : `${dk}dk`; })()}
+                            </div><div className="text-[9px] text-gray-500">süre</div></div>
+                          )}
+                          <div>
+                            <div className="font-black text-base text-[#00C853]">
+                              {((t.foto_teslim_alma?.length || 0) + (t.foto_yukleme?.length || 0) + (t.foto_teslim?.length || 0))}
+                            </div>
+                            <div className="text-[9px] text-gray-500">fotoğraf</div>
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </div>
                 </div>
