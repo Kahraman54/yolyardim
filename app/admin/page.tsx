@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const ADMIN_SIFRE = "tulpar2024admin";
+const ADMIN_SIFRE = "356890Tuna";
 
 export default function AdminGiris() {
   const router = useRouter();
