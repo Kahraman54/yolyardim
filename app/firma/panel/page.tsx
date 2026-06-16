@@ -7,7 +7,7 @@ type Arac = { id: string; plaka: string; tur: string; marka?: string; model?: st
 type FirmaDetay = {
   firma_ad: string; sahip_ad: string; sahip_soyad: string; tel: string; email: string;
   il: string; ilce: string; adres: string; vergi_no: string; vergi_dairesi: string;
-  banka: string; iban: string;
+  banka: string; iban: string; lat: string; lng: string;
 };
 type Sofor = { id: string; ad: string; soyad: string; tel: string; };
 type Talep = {
@@ -48,7 +48,7 @@ export default function FirmaPanel() {
   const [basari, setBasari] = useState("");
 
   // Profil
-  const [profil, setProfil] = useState<FirmaDetay>({ firma_ad:"", sahip_ad:"", sahip_soyad:"", tel:"", email:"", il:"", ilce:"", adres:"", vergi_no:"", vergi_dairesi:"", banka:"", iban:"" });
+  const [profil, setProfil] = useState<FirmaDetay>({ firma_ad:"", sahip_ad:"", sahip_soyad:"", tel:"", email:"", il:"", ilce:"", adres:"", vergi_no:"", vergi_dairesi:"", banka:"", iban:"", lat:"", lng:"" });
   const [profilKayit, setProfilKayit] = useState(false);
 
   const [mobil, setMobil] = useState(false);
@@ -70,8 +70,8 @@ export default function FirmaPanel() {
   }, [router]);
 
   const profilYukle = useCallback(async (id: string) => {
-    const { data } = await supabase.from("firmalar").select("firma_ad, sahip_ad, sahip_soyad, tel, email, il, ilce, adres, vergi_no, vergi_dairesi, banka, iban").eq("id", id).single();
-    if (data) setProfil({ firma_ad: data.firma_ad||"", sahip_ad: data.sahip_ad||"", sahip_soyad: data.sahip_soyad||"", tel: data.tel||"", email: data.email||"", il: data.il||"", ilce: data.ilce||"", adres: data.adres||"", vergi_no: data.vergi_no||"", vergi_dairesi: data.vergi_dairesi||"", banka: data.banka||"", iban: data.iban||"" });
+    const { data } = await supabase.from("firmalar").select("firma_ad, sahip_ad, sahip_soyad, tel, email, il, ilce, adres, vergi_no, vergi_dairesi, banka, iban, lat, lng").eq("id", id).single();
+    if (data) setProfil({ firma_ad: data.firma_ad||"", sahip_ad: data.sahip_ad||"", sahip_soyad: data.sahip_soyad||"", tel: data.tel||"", email: data.email||"", il: data.il||"", ilce: data.ilce||"", adres: data.adres||"", vergi_no: data.vergi_no||"", vergi_dairesi: data.vergi_dairesi||"", banka: data.banka||"", iban: data.iban||"", lat: data.lat ? String(data.lat) : "", lng: data.lng ? String(data.lng) : "" });
   }, []);
 
   const araclarYukle = useCallback(async (id: string) => {
@@ -108,10 +108,26 @@ export default function FirmaPanel() {
       firma_ad: profil.firma_ad, tel: profil.tel, email: profil.email,
       adres: profil.adres, vergi_no: profil.vergi_no, vergi_dairesi: profil.vergi_dairesi,
       banka: profil.banka, iban: profil.iban,
+      lat: profil.lat ? parseFloat(profil.lat) : null,
+      lng: profil.lng ? parseFloat(profil.lng) : null,
     }).eq("id", firmaId);
     setProfilKayit(false);
     if (!error) { setBasari("Profil kaydedildi."); setTimeout(() => setBasari(""), 3000); }
     else setHata("Kayıt hatası: " + error.message);
+  }
+
+  function konumBelirle() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      pos => setProfil(p => ({ ...p, lat: String(pos.coords.latitude), lng: String(pos.coords.longitude) })),
+      () => setHata("Konum alınamadı. Tarayıcı izinlerini kontrol edin."),
+      { timeout: 10000 }
+    );
+  }
+
+  async function talepTamamla(talepId: string) {
+    await supabase.from("talepler").update({ durum: "tamamlandi" }).eq("id", talepId);
+    if (firmaId) taleplerYukle(firmaId);
   }
 
   async function aracEkle() {
@@ -340,6 +356,12 @@ export default function FirmaPanel() {
                         </button>
                       </div>
                     )}
+                    {t.durum === "kabul" && (
+                      <button onClick={() => talepTamamla(t.id)}
+                        className="w-full bg-[#2A2A2A] border border-white/10 hover:border-[#00C853]/40 text-white font-bold py-2.5 rounded-xl transition text-sm">
+                        ✔ Hizmeti Tamamla
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -466,6 +488,27 @@ export default function FirmaPanel() {
                 <div>
                   <label className="block text-xs font-semibold text-gray-400 mb-1.5">IBAN</label>
                   <input value={profil.iban} onChange={e => setProfil({...profil, iban: e.target.value.toUpperCase()})} placeholder="TR00 0000 0000 0000 0000 0000 00" className="w-full bg-[#1A1A1A] border border-white/8 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition font-mono tracking-wide" />
+                </div>
+
+                <div className="pt-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest">Harita Konumu</div>
+                <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4">
+                  <p className="text-xs text-gray-500 mb-3">Müşteriler firmanızı haritada görebilsin için konumunuzu belirleyin.</p>
+                  <button onClick={konumBelirle} className="w-full bg-[#2A2A2A] border border-white/10 hover:border-[#FF4D00]/40 text-white text-sm font-bold py-2.5 rounded-lg transition mb-3">
+                    📍 GPS ile Konum Belirle
+                  </button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-400 mb-1.5">Enlem</label>
+                      <input value={profil.lat} onChange={e => setProfil({...profil, lat: e.target.value})} placeholder="41.01234" className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-[#FF4D00] font-mono" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-400 mb-1.5">Boylam</label>
+                      <input value={profil.lng} onChange={e => setProfil({...profil, lng: e.target.value})} placeholder="29.01234" className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-[#FF4D00] font-mono" />
+                    </div>
+                  </div>
+                  {profil.lat && profil.lng && (
+                    <div className="mt-2 text-[10px] text-green-400">✓ Konum ayarlı — müşteri haritasında görüneceksiniz</div>
+                  )}
                 </div>
 
                 <button onClick={profilKaydet} disabled={profilKayit} className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-3 rounded-xl transition text-sm mt-2">
