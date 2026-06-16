@@ -49,34 +49,36 @@ export default function MusteriAna() {
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!,
   });
+  const pendingCenterRef = useRef<{ lat: number; lng: number } | null>(null);
+
   function konumIste() {
     if (!navigator.geolocation) return;
+    setKonumYukleniyor(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setMapCenter(c);
-        // ref her zaman güncel map instance'ını tutar, stale closure sorunu yok
-        mapRef.current?.panTo(c);
+        if (mapRef.current) {
+          mapRef.current.setCenter(c);
+        } else {
+          pendingCenterRef.current = c;
+        }
         setKonumYukleniyor(false);
       },
       (err) => { console.log("Konum hatası:", err.code, err.message); setKonumYukleniyor(false); },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      { timeout: 10000, maximumAge: 30000 }
     );
-    setKonumYukleniyor(true);
   }
 
-  // Sayfa açılınca konum iste
   useEffect(() => { konumIste(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Harita yüklendikten sonra GPS zaten geldiyse pan et
   const onLoad = useCallback((m: google.maps.Map) => {
     mapRef.current = m;
     setMap(m);
-    // Harita geç yüklendiyse GPS koordinatı zaten state'te olabilir
-    setMapCenter(prev => {
-      if (prev.lat !== 40.9837) m.panTo(prev);
-      return prev;
-    });
+    if (pendingCenterRef.current) {
+      m.setCenter(pendingCenterRef.current);
+      pendingCenterRef.current = null;
+    }
   }, []);
   const onUnmount = useCallback(() => { mapRef.current = null; setMap(null); }, []);
 
