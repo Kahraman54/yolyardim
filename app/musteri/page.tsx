@@ -531,7 +531,7 @@ export default function MusteriAna() {
           {aktivTalepler.length > 0 && <span className="absolute top-2 right-3 w-2 h-2 bg-[#FF4D00] rounded-full"></span>}
         </button>
         <div className="flex-1 flex items-center justify-center">
-          <button onClick={sosAc} className="w-12 h-12 rounded-full bg-[#FF4D00] border-2 border-[#0D0D0D] text-xl -mt-4" style={{ boxShadow: "0 0 0 3px rgba(255,77,0,.4)" }}>🆘</button>
+          <button onClick={() => sosAc()} className="w-12 h-12 rounded-full bg-[#FF4D00] border-2 border-[#0D0D0D] text-xl -mt-4" style={{ boxShadow: "0 0 0 3px rgba(255,77,0,.4)" }}>🆘</button>
         </div>
         <button onClick={() => setSayfa("gecmis")} className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 ${sayfa === "gecmis" ? "text-[#FF4D00]" : "text-gray-600"}`}>
           <span className="text-lg">🕐</span><span className="text-[9px] font-bold">Geçmiş</span>
