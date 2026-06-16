@@ -13,7 +13,7 @@ type Sofor = { id: string; ad: string; soyad: string; tel: string; };
 type Talep = {
   id: string; tip: string; durum: string; created_at: string;
   musteri_ad?: string; musteri_tel?: string;
-  konum_adres?: string; hedef_adres?: string; arac_plaka?: string; not?: string;
+  konum_adres?: string; hedef_adres?: string; arac_plaka?: string; aciklama?: string;
 };
 
 export default function FirmaPanel() {
@@ -87,8 +87,8 @@ export default function FirmaPanel() {
   const taleplerYukle = useCallback(async (id: string) => {
     const { data } = await supabase
       .from("talepler")
-      .select("id, tip, durum, created_at, musteri_ad, musteri_tel, konum_adres, hedef_adres, arac_plaka, not")
-      .eq("firma_id", id)
+      .select("id, tip, durum, created_at, musteri_ad, musteri_tel, konum_adres, hedef_adres, arac_plaka, aciklama")
+      .or(`durum.eq.yeni,firma_id.eq.${id}`)
       .order("created_at", { ascending: false });
     setTalepler(data || []);
   }, []);
@@ -147,12 +147,12 @@ export default function FirmaPanel() {
   }
 
   async function talepKabul() {
-    if (!seciliSofor || !seciliArac || !seciliTalep) return;
+    if (!seciliSofor || !seciliArac || !seciliTalep || !firmaId) return;
     setYukleniyor(true);
-    await supabase.from("talepler").update({ durum: "kabul", atanan_sofor: seciliSofor, atanan_arac: seciliArac }).eq("id", seciliTalep.id);
+    await supabase.from("talepler").update({ durum: "kabul", firma_id: firmaId, atanan_sofor: seciliSofor, atanan_arac: seciliArac }).eq("id", seciliTalep.id);
     setYukleniyor(false);
     setAtamaTamam(true);
-    if (firmaId) taleplerYukle(firmaId);
+    taleplerYukle(firmaId);
   }
 
   async function talepReddet(talepId: string) {
@@ -160,7 +160,7 @@ export default function FirmaPanel() {
     if (firmaId) taleplerYukle(firmaId);
   }
 
-  const yeniTalepler = talepler.filter(t => t.durum === "yeni" || t.durum === "bekliyor");
+  const yeniTalepler = talepler.filter(t => t.durum === "yeni");
 
   const navItems = [
     { id: "panel", icon: "📊", label: "Panel" },
@@ -328,7 +328,7 @@ export default function FirmaPanel() {
                         {t.hedef_adres && <div className="flex items-start gap-2"><span>🎯</span><div><div className="text-[10px] text-gray-500 uppercase font-bold">Hedef</div><div className="text-xs font-semibold mt-0.5">{t.hedef_adres}</div></div></div>}
                       </div>
                     )}
-                    {t.not && <div className="bg-yellow-500/5 border border-yellow-500/15 rounded-lg p-3 text-xs text-yellow-200 mb-4">💬 &ldquo;{t.not}&rdquo;</div>}
+                    {t.aciklama && <div className="bg-yellow-500/5 border border-yellow-500/15 rounded-lg p-3 text-xs text-yellow-200 mb-4">💬 &ldquo;{t.aciklama}&rdquo;</div>}
                     {(t.durum === "yeni" || t.durum === "bekliyor") && (
                       <div className="flex gap-2">
                         <button onClick={() => { setSeciliTalep(t); setAtamaModal(true); setAtamaTamam(false); setSeciliSofor(""); setSeciliArac(""); }}

@@ -30,6 +30,9 @@ export default function MusteriAna() {
   const [hedef, setHedef] = useState("belirli");
   const [hedefAdres, setHedefAdres] = useState("");
   const [not, setNot] = useState("");
+  const [musteriAd, setMusteriAd] = useState("");
+  const [musteriTel, setMusteriTel] = useState("");
+  const [aracPlaka, setAracPlaka] = useState("");
   const [gonderildi, setGonderildi] = useState(false);
   const [yukleniyor, setYukleniyor] = useState(false);
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -83,17 +86,26 @@ export default function MusteriAna() {
   const onUnmount = useCallback(() => { mapRef.current = null; setMap(null); }, []);
 
   async function talepGonder() {
-    if (!sorunTip) return;
+    if (!sorunTip || !musteriAd || !musteriTel) return;
     setYukleniyor(true);
     const { error } = await supabase.from("talepler").insert({
-      firma_id: seciliFirma?.id || null,
-      hizmet_turu: sorunTip,
-      hedef_adres: hedefAdres || null,
-      musteri_not: not || null,
-      durum: "bekliyor",
+      tip: sorunTip,
+      durum: "yeni",
+      musteri_ad: musteriAd,
+      musteri_tel: musteriTel,
+      arac_plaka: aracPlaka || null,
+      hedef_adres: hedef === "belirli" ? (hedefAdres || null) : (hedef === "bilmiyorum" ? "Sonradan belirlenecek" : "Firma önersin"),
+      aciklama: not || null,
+      konum_lat: MAP_CENTER.lat,
+      konum_lng: MAP_CENTER.lng,
+      konum_adres: `${MAP_CENTER.lat.toFixed(5)}, ${MAP_CENTER.lng.toFixed(5)}`,
     });
     setYukleniyor(false);
-    if (!error) setGonderildi(true);
+    if (!error) {
+      setGonderildi(true);
+    } else {
+      alert("Hata: " + error.message);
+    }
   }
 
   return (
@@ -271,7 +283,21 @@ export default function MusteriAna() {
             {!gonderildi ? (
               <>
                 <div className="font-black text-lg mb-1">Talep Oluştur</div>
-                <div className="text-xs text-gray-500 mb-4">{seciliFirma ? seciliFirma.firma_ad : "En yakın firma seçilecek"}</div>
+                <div className="text-xs text-gray-500 mb-4">Yakındaki tüm aktif firmalar talebi görecek</div>
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 mb-1.5">Ad Soyad *</label>
+                    <input value={musteriAd} onChange={e=>setMusteriAd(e.target.value)} placeholder="Ahmet Yılmaz" className="w-full bg-[#2A2A2A] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#FF4D00]" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 mb-1.5">Telefon *</label>
+                    <input value={musteriTel} onChange={e=>setMusteriTel(e.target.value)} placeholder="05XX XXX XX XX" type="tel" className="w-full bg-[#2A2A2A] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#FF4D00]" />
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <label className="block text-xs font-bold text-gray-400 mb-1.5">Araç Plakası</label>
+                  <input value={aracPlaka} onChange={e=>setAracPlaka(e.target.value.toUpperCase())} placeholder="34 ABC 123" className="w-full bg-[#2A2A2A] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#FF4D00]" />
+                </div>
                 <div className="mb-4">
                   <label className="block text-xs font-bold text-gray-400 mb-2">Ne yardımı istiyorsun? *</label>
                   <div className="grid grid-cols-3 gap-2">
@@ -303,7 +329,7 @@ export default function MusteriAna() {
                   <label className="block text-xs font-bold text-gray-400 mb-2">Not</label>
                   <textarea value={not} onChange={e=>setNot(e.target.value)} placeholder="Araç sağ tarafında, lastik patlak..." rows={2} className="w-full bg-[#2A2A2A] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-[#FF4D00] resize-none" />
                 </div>
-                <button onClick={talepGonder} disabled={!sorunTip || yukleniyor} className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-3.5 rounded-xl transition text-sm">
+                <button onClick={talepGonder} disabled={!sorunTip || !musteriAd || !musteriTel || yukleniyor} className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-3.5 rounded-xl transition text-sm">
                   {yukleniyor ? "Gönderiliyor..." : "🚨 Talebi Gönder"}
                 </button>
               </>
@@ -311,8 +337,8 @@ export default function MusteriAna() {
               <div className="text-center py-6">
                 <div className="text-5xl mb-3">✅</div>
                 <div className="font-black text-xl mb-2">Talep Gönderildi!</div>
-                <p className="text-gray-500 text-sm mb-6 leading-relaxed">Firma kabul ettiğinde seni arayacak.</p>
-                <button onClick={() => { setTalepModal(false); setGonderildi(false); setSorunTip(""); setNot(""); }} className="w-full bg-[#FF4D00] text-white font-bold py-3 rounded-xl">Tamam →</button>
+                <p className="text-gray-500 text-sm mb-6 leading-relaxed">Aktif firmalar talebi görecek, kabul ettiğinde seni arayacaklar.</p>
+                <button onClick={() => { setTalepModal(false); setGonderildi(false); setSorunTip(""); setNot(""); setMusteriAd(""); setMusteriTel(""); setAracPlaka(""); }} className="w-full bg-[#FF4D00] text-white font-bold py-3 rounded-xl">Tamam →</button>
               </div>
             )}
           </div>
