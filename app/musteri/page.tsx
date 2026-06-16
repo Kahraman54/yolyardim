@@ -60,6 +60,7 @@ export default function MusteriAna() {
   const [firmalar, setFirmalar] = useState<Firma[]>([]);
   const [talepler, setTalepler] = useState<Talep[]>([]);
   const [appHeight, setAppHeight] = useState("100dvh");
+  const [gorunum, setGorunum] = useState<"harita" | "liste">("harita");
 
   // Harita
   const [mapCenter, setMapCenter] = useState({ lat: 40.9837, lng: 29.021 });
@@ -239,69 +240,111 @@ export default function MusteriAna() {
       {/* CONTENT */}
       <div className="flex-1 overflow-hidden">
 
-        {/* ANA — HARİTA */}
+        {/* ANA — HARİTA / LİSTE */}
         {sayfa === "ana" && (
-          <div className="h-full relative">
-            {loadError ? (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-[#1a2332] gap-3 px-6 text-center">
-                <div className="text-4xl">🗺️</div>
-                <div className="text-white font-bold text-sm">Harita yüklenemedi</div>
-                <div className="text-gray-500 text-xs leading-relaxed">
-                  Google Maps API anahtarı bu domain için yetkilendirilmemiş olabilir. SOS butonunu yine de kullanabilirsiniz.
+          <div className="h-full flex flex-col">
+          {/* Toggle */}
+          <div className="flex gap-2 px-3 py-2 bg-[#1A1A1A] border-b border-white/5 flex-shrink-0">
+            <button onClick={() => setGorunum("harita")} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${gorunum==="harita"?"bg-[#FF4D00] text-white":"border border-white/10 text-gray-500"}`}>🗺️ Harita</button>
+            <button onClick={() => setGorunum("liste")} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${gorunum==="liste"?"bg-[#FF4D00] text-white":"border border-white/10 text-gray-500"}`}>📋 Firmalar ({firmalar.length})</button>
+          </div>
+          <div className="flex-1 relative overflow-hidden">
+            {/* HARİTA GÖRÜNÜMÜ */}
+            {gorunum === "harita" && (
+              <>
+                {loadError ? (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-[#1a2332] gap-3 px-6 text-center">
+                    <div className="text-4xl">🗺️</div>
+                    <div className="text-white font-bold text-sm">Harita yüklenemedi</div>
+                    <div className="text-gray-500 text-xs leading-relaxed">SOS butonunu yine de kullanabilirsiniz.</div>
+                  </div>
+                ) : isLoaded ? (
+                  <GoogleMap
+                    mapContainerStyle={{ width: "100%", height: "100%" }}
+                    center={mapCenter}
+                    zoom={13}
+                    onLoad={onLoad}
+                    onUnmount={onUnmount}
+                    options={{ styles: MAP_STYLE, disableDefaultUI: true }}
+                  >
+                    <Marker
+                      position={mapCenter}
+                      icon={{
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 10,
+                        fillColor: "#0A84FF",
+                        fillOpacity: 1,
+                        strokeColor: "#ffffff",
+                        strokeWeight: 3,
+                      }}
+                    />
+                    {firmalar.filter(f => f.lat && f.lng).map(f => (
+                      <Marker
+                        key={f.id}
+                        position={{ lat: f.lat!, lng: f.lng! }}
+                        icon={{
+                          url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="130" height="42"><rect x="0" y="0" width="130" height="34" rx="8" fill="#1A1A1A" stroke="#FF4D00" stroke-width="2"/><text x="10" y="22" font-family="Arial" font-size="12" font-weight="bold" fill="white">🚛 ${f.firma_ad.slice(0, 12)}</text><polygon points="60,34 70,34 65,42" fill="#FF4D00"/></svg>`)}`,
+                          scaledSize: new google.maps.Size(130, 42),
+                          anchor: new google.maps.Point(65, 42),
+                        }}
+                      />
+                    ))}
+                  </GoogleMap>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-[#1a2332]">
+                    <div className="text-gray-500 text-sm">🗺️ Harita yükleniyor...</div>
+                  </div>
+                )}
+                <div className="absolute right-3 top-3 flex flex-col gap-2 z-10">
+                  <button onClick={() => map?.setZoom((map.getZoom() || 13) + 1)} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-lg shadow-lg">＋</button>
+                  <button onClick={() => map?.setZoom((map.getZoom() || 13) - 1)} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-lg shadow-lg">－</button>
+                  <button onClick={konumIste} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-base shadow-lg">{konumYukleniyor ? "⏳" : "📍"}</button>
                 </div>
-                <div className="mt-2 text-[10px] text-gray-600 bg-[#0D0D0D] rounded-lg px-3 py-2 font-mono">
-                  {firmalar.filter(f => f.lat && f.lng).length} aktif firma · {firmalar.length} toplam
+                <div className="absolute top-3 left-3 bg-[#1A1A1A]/90 border border-white/10 rounded-xl px-3 py-2 text-xs text-white z-10">
+                  🚛 {firmalar.filter(f => f.lat && f.lng).length} aktif firma
                 </div>
-              </div>
-            ) : isLoaded ? (
-              <GoogleMap
-                mapContainerStyle={{ width: "100%", height: "100%" }}
-                center={mapCenter}
-                zoom={13}
-                onLoad={onLoad}
-                onUnmount={onUnmount}
-                options={{ styles: MAP_STYLE, disableDefaultUI: true }}
-              >
-                {/* Benim konumum */}
-                <Marker
-                  position={mapCenter}
-                  icon={{
-                    path: google.maps.SymbolPath.CIRCLE,
-                    scale: 10,
-                    fillColor: "#0A84FF",
-                    fillOpacity: 1,
-                    strokeColor: "#ffffff",
-                    strokeWeight: 3,
-                  }}
-                />
-                {/* Aktif firmalar */}
-                {firmalar.filter(f => f.lat && f.lng).map(f => (
-                  <Marker
-                    key={f.id}
-                    position={{ lat: f.lat!, lng: f.lng! }}
-                    icon={{
-                      url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="130" height="42"><rect x="0" y="0" width="130" height="34" rx="8" fill="#1A1A1A" stroke="#FF4D00" stroke-width="2"/><text x="10" y="22" font-family="Arial" font-size="12" font-weight="bold" fill="white">🚛 ${f.firma_ad.slice(0, 12)}</text><polygon points="60,34 70,34 65,42" fill="#FF4D00"/></svg>`)}`,
-                      scaledSize: new google.maps.Size(130, 42),
-                      anchor: new google.maps.Point(65, 42),
-                    }}
-                  />
-                ))}
-              </GoogleMap>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-[#1a2332]">
-                <div className="text-gray-500 text-sm">🗺️ Harita yükleniyor...</div>
+              </>
+            )}
+
+            {/* LİSTE GÖRÜNÜMÜ */}
+            {gorunum === "liste" && (
+              <div className="h-full overflow-y-auto p-3">
+                {firmalar.length === 0 ? (
+                  <div className="text-center py-14">
+                    <div className="text-4xl mb-3">🚛</div>
+                    <div className="text-gray-500 text-sm">Yakında aktif firma bulunamadı</div>
+                  </div>
+                ) : firmalar.map(f => {
+                  const km = f.lat && f.lng ? haversine(mapCenter.lat, mapCenter.lng, f.lat, f.lng) : null;
+                  return (
+                    <div key={f.id} className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-11 h-11 rounded-xl bg-[#FF4D00]/10 border border-[#FF4D00]/20 flex items-center justify-center text-xl flex-shrink-0">🚛</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-sm">{f.firma_ad}</div>
+                          <div className="flex gap-2 mt-1">
+                            <span className="text-[10px] font-bold bg-[#00C853]/10 text-[#00C853] border border-[#00C853]/25 px-2 py-0.5 rounded-full">✓ AKTİF</span>
+                            {km !== null && <span className="text-[10px] text-gray-500">📍 {km.toFixed(1)} km</span>}
+                          </div>
+                        </div>
+                        {km !== null && (
+                          <div className="text-right flex-shrink-0">
+                            <div className="font-black text-lg">{km.toFixed(1)}</div>
+                            <div className="text-[10px] text-gray-500">km</div>
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => { setGorunum("harita"); sosAc(); }}
+                        className="w-full bg-[#FF4D00] text-white font-bold py-2.5 rounded-xl text-sm">
+                        🆘 Yardım İste
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
-            {/* Harita kontrolleri */}
-            <div className="absolute right-3 top-3 flex flex-col gap-2 z-10">
-              <button onClick={() => map?.setZoom((map.getZoom() || 13) + 1)} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-lg shadow-lg">＋</button>
-              <button onClick={() => map?.setZoom((map.getZoom() || 13) - 1)} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-lg shadow-lg">－</button>
-              <button onClick={konumIste} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-base shadow-lg">{konumYukleniyor ? "⏳" : "📍"}</button>
-            </div>
-            {/* Firma sayısı */}
-            <div className="absolute top-3 left-3 bg-[#1A1A1A]/90 border border-white/10 rounded-xl px-3 py-2 text-xs text-white z-10">
-              🚛 {firmalar.filter(f => f.lat && f.lng).length} aktif firma
-            </div>
+          </div>
           </div>
         )}
 
