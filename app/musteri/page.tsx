@@ -83,7 +83,7 @@ export default function MusteriAna() {
   const [profilKayit, setProfilKayit] = useState(false);
   const [profilBasari, setProfilBasari] = useState("");
 
-  const { isLoaded } = useJsApiLoader({
+  const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!,
   });
@@ -242,7 +242,18 @@ export default function MusteriAna() {
         {/* ANA — HARİTA */}
         {sayfa === "ana" && (
           <div className="h-full relative">
-            {isLoaded ? (
+            {loadError ? (
+              <div className="w-full h-full flex flex-col items-center justify-center bg-[#1a2332] gap-3 px-6 text-center">
+                <div className="text-4xl">🗺️</div>
+                <div className="text-white font-bold text-sm">Harita yüklenemedi</div>
+                <div className="text-gray-500 text-xs leading-relaxed">
+                  Google Maps API anahtarı bu domain için yetkilendirilmemiş olabilir. SOS butonunu yine de kullanabilirsiniz.
+                </div>
+                <div className="mt-2 text-[10px] text-gray-600 bg-[#0D0D0D] rounded-lg px-3 py-2 font-mono">
+                  {firmalar.filter(f => f.lat && f.lng).length} aktif firma · {firmalar.length} toplam
+                </div>
+              </div>
+            ) : isLoaded ? (
               <GoogleMap
                 mapContainerStyle={{ width: "100%", height: "100%" }}
                 center={mapCenter}
