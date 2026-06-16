@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const talepler = [
@@ -13,11 +14,19 @@ const talepler = [
 ];
 
 export default function FirmaPanel() {
+  const router = useRouter();
   const [sayfa, setSayfa] = useState("panel");
   const [atamaModal, setAtamaModal] = useState(false);
   const [seciliSofor, setSeciliSofor] = useState("");
   const [seciliArac, setSeciliArac] = useState("");
   const [atamaTamam, setAtamaTamam] = useState(false);
+  const [firmaAd, setFirmaAd] = useState("Firma");
+
+  useEffect(() => {
+    const kayit = localStorage.getItem("firma");
+    if (!kayit) { router.replace("/firma/giris"); return; }
+    try { setFirmaAd(JSON.parse(kayit).firma_ad || "Firma"); } catch { router.replace("/firma/giris"); }
+  }, [router]);
 
   function atama() {
     if (!seciliSofor || !seciliArac) return;
@@ -35,7 +44,7 @@ export default function FirmaPanel() {
         <div className="p-3 border-b border-white/5 flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-[#FF4D00]/15 flex items-center justify-center text-sm">🚛</div>
           <div>
-            <div className="text-xs font-bold">Yıldız Çekici</div>
+            <div className="text-xs font-bold">{firmaAd}</div>
             <div className="text-[10px] text-[#00C853] flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[#00C853] animate-pulse"></span>Aktif</div>
           </div>
         </div>
@@ -53,7 +62,7 @@ export default function FirmaPanel() {
           ))}
         </nav>
         <div className="p-2 border-t border-white/5">
-          <Link href="/" className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-600 hover:text-white transition">🚪 Çıkış</Link>
+          <button onClick={() => { localStorage.removeItem("firma"); router.push("/firma/giris"); }} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-600 hover:text-white transition">🚪 Çıkış</button>
         </div>
       </aside>
 

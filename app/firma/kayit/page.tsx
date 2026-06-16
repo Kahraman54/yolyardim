@@ -331,14 +331,14 @@ export default function FirmaKayit() {
           <div className="max-w-lg text-center py-10">
             <div className="text-6xl mb-5">⏳</div>
             <h1 className="font-black text-2xl mb-3">Başvurun alındı!</h1>
-            <p className="text-gray-500 text-sm mb-8 leading-relaxed">Belgelerini inceliyoruz. Genellikle <strong className="text-white">24–48 saat</strong> içinde sonuçlandırılır.</p>
+            <p className="text-gray-500 text-sm mb-8 leading-relaxed">Belgelerini inceliyoruz. Genellikle <strong className="text-white">24–48 saat</strong> içinde onaylanır. Onay sonrası <strong className="text-white">Firma Girişi</strong> ekranından panele erişebilirsiniz.</p>
             <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-5 text-left space-y-3 mb-8">
               {["Firma bilgileri kaydedildi ✓","Belgeler yüklendi ✓","Araç bilgileri kaydedildi ✓","Şoför bilgileri kaydedildi ✓"].map(i => (
                 <div key={i} className="flex items-center gap-3 text-sm"><span className="text-[#00C853]">●</span>{i}</div>
               ))}
               <div className="flex items-center gap-3 text-sm"><span className="text-[#FF4D00] animate-pulse">●</span>Admin incelemesi bekleniyor</div>
             </div>
-            <Link href="/firma/panel" className="inline-block bg-[#FF4D00] hover:bg-[#CC3D00] text-white font-bold px-8 py-3 rounded-xl transition text-sm">Firma Paneline Git →</Link>
+            <Link href="/" className="inline-block bg-[#FF4D00] hover:bg-[#CC3D00] text-white font-bold px-8 py-3 rounded-xl transition text-sm">Ana Sayfaya Dön →</Link>
           </div>
         )}
       </div>
