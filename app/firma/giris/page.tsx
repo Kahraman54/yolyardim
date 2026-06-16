@@ -15,15 +15,21 @@ export default function FirmaGiris() {
     setHata("");
     setYukleniyor(true);
 
-    const { data, error } = await supabase
+    // Sadece rakamları al, format farkı olsa da eşleştir
+    const sadeceSayi = tel.replace(/\D/g, "");
+    const sonOnHane = sadeceSayi.slice(-10);
+
+    const { data: tumFirmalar } = await supabase
       .from("firmalar")
-      .select("id, firma_ad, tel, durum")
-      .eq("tel", tel.trim())
-      .single();
+      .select("id, firma_ad, tel, durum");
+
+    const data = (tumFirmalar || []).find(f =>
+      f.tel.replace(/\D/g, "").slice(-10) === sonOnHane
+    );
 
     setYukleniyor(false);
 
-    if (error || !data) {
+    if (!data) {
       setHata("Bu telefon numarasıyla kayıtlı firma bulunamadı.");
       return;
     }
