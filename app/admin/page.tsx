@@ -21,7 +21,7 @@ export default function Admin() {
       {/* SIDEBAR */}
       <aside className="w-48 bg-[#141414] border-r border-white/5 flex flex-col flex-shrink-0">
         <div className="p-4 border-b border-white/5">
-          <div className="font-black text-base mb-0.5">Yol<span className="text-[#FF4D00]">Yardım</span></div>
+          <div className="font-black text-base mb-0.5">Tulpar<span className="text-[#FF4D00]"> Assist</span></div>
           <div className="text-[9px] text-[#FF4D00] font-bold tracking-widest uppercase">Admin Paneli</div>
         </div>
         <div className="p-3 border-b border-white/5 flex items-center gap-2">

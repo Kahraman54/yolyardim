@@ -65,7 +65,7 @@ export default function Giris() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Link href="/" className="font-black text-2xl">
-            Yol<span className="text-[#FF4D00]">Yardım</span>
+            Tulpar<span className="text-[#FF4D00]"> Assist</span>
           </Link>
         </div>
         <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-7">

@@ -4,7 +4,7 @@ export default function Home() {
       {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-[#0D0D0D]/90 backdrop-blur-md border-b border-white/5">
         <div className="font-black text-xl tracking-tight">
-          Yol<span className="text-[#FF4D00]">Yardım</span>
+          Tulpar<span className="text-[#FF4D00]"> Assist</span>
         </div>
         <div className="flex gap-3">
           <a href="/firma/kayit" className="px-4 py-2 rounded-lg border border-white/10 text-sm font-semibold text-gray-400 hover:text-white transition">
@@ -179,14 +179,14 @@ export default function Home() {
       {/* FOOTER */}
       <footer className="border-t border-white/5 py-10 px-6">
         <div className="max-w-4xl mx-auto flex items-center justify-between flex-wrap gap-6">
-          <div className="font-black text-lg">Yol<span className="text-[#FF4D00]">Yardım</span></div>
+          <div className="font-black text-lg">Tulpar<span className="text-[#FF4D00]"> Assist</span></div>
           <div className="flex gap-6 text-sm text-gray-500">
             <a href="#" className="hover:text-white transition">Hakkımızda</a>
             <a href="#" className="hover:text-white transition">Gizlilik</a>
             <a href="#" className="hover:text-white transition">Kullanım Şartları</a>
             <a href="#" className="hover:text-white transition">İletişim</a>
           </div>
-          <div className="text-sm text-gray-600">© 2025 YolYardım</div>
+          <div className="text-sm text-gray-600">© 2025 Tulpar Assist</div>
         </div>
       </footer>
     </main>

@@ -86,7 +86,7 @@ export default function FirmaKayit() {
     <main className="min-h-screen bg-[#0D0D0D] text-white flex">
       {/* SOL PANEL */}
       <div className="w-52 bg-[#1A1A1A] border-r border-white/5 p-5 flex flex-col flex-shrink-0">
-        <Link href="/" className="font-black text-base mb-1">Yol<span className="text-[#FF4D00]">Yardım</span></Link>
+        <Link href="/" className="font-black text-base mb-1">Tulpar<span className="text-[#FF4D00]"> Assist</span></Link>
         <div className="text-[9px] text-[#FF4D00] font-bold tracking-widest uppercase mb-6">Firma Kaydı</div>
         <div className="flex flex-col gap-1 flex-1">
           {adimlar.map(a => (
