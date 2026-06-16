@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
@@ -40,6 +40,13 @@ export default function FirmaPanel() {
   const [atamaTamam, setAtamaTamam] = useState(false);
 
   const [hata, setHata] = useState("");
+  const [mobil, setMobil] = useState(false);
+  useEffect(() => {
+    const check = () => setMobil(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     const kayit = localStorage.getItem("firma");
@@ -121,63 +128,90 @@ export default function FirmaPanel() {
 
   const yeniTalepler = talepler.filter(t => t.durum === "yeni" || t.durum === "bekliyor");
 
+  const navItems = [
+    { id: "panel", icon: "📊", label: "Panel" },
+    { id: "talepler", icon: "📋", label: "Talepler", badge: yeniTalepler.length || undefined },
+    { id: "araclar", icon: "🚛", label: "Araçlar", badge: araclar.length || undefined },
+    { id: "soforler", icon: "👤", label: "Şoförler", badge: soforler.length || undefined },
+  ];
+
   return (
     <main className="min-h-screen bg-[#0D0D0D] text-white flex">
-      {/* SIDEBAR */}
-      <aside className="w-48 bg-[#1A1A1A] border-r border-white/5 flex flex-col flex-shrink-0">
-        <div className="p-4 border-b border-white/5">
-          <div className="font-black text-base mb-0.5">Tulpar<span className="text-[#FF4D00]"> Assist</span></div>
-          <div className="text-[9px] text-gray-500">Firma Paneli</div>
-        </div>
-        <div className="p-3 border-b border-white/5 flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[#FF4D00]/15 flex items-center justify-center text-sm">🚛</div>
-          <div>
-            <div className="text-xs font-bold truncate w-28">{firmaAd}</div>
-            <div className="text-[10px] text-[#00C853] flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#00C853] animate-pulse"></span>Aktif
+      {/* SIDEBAR — sadece masaüstü */}
+      {!mobil && (
+        <aside className="w-48 bg-[#1A1A1A] border-r border-white/5 flex flex-col flex-shrink-0">
+          <div className="p-4 border-b border-white/5">
+            <div className="font-black text-base mb-0.5">Tulpar<span className="text-[#FF4D00]"> Assist</span></div>
+            <div className="text-[9px] text-gray-500">Firma Paneli</div>
+          </div>
+          <div className="p-3 border-b border-white/5 flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[#FF4D00]/15 flex items-center justify-center text-sm">🚛</div>
+            <div>
+              <div className="text-xs font-bold truncate w-28">{firmaAd}</div>
+              <div className="text-[10px] text-[#00C853] flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00C853] animate-pulse"></span>Aktif
+              </div>
             </div>
           </div>
-        </div>
-        <nav className="flex-1 p-2">
-          {[
-            { id: "panel", icon: "📊", label: "Panel" },
-            { id: "talepler", icon: "📋", label: "Talepler", badge: yeniTalepler.length || undefined },
-            { id: "araclar", icon: "🚛", label: "Araçlarım", badge: araclar.length || undefined },
-            { id: "soforler", icon: "👨‍✈️", label: "Şoförlerim", badge: soforler.length || undefined },
-          ].map(m => (
-            <button key={m.id} onClick={() => setSayfa(m.id)} className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium mb-0.5 transition text-left ${sayfa === m.id ? "bg-[#FF4D00]/10 text-[#FF4D00] font-semibold" : "text-gray-500 hover:bg-white/5 hover:text-white"}`}>
-              <span className="text-sm">{m.icon}</span>{m.label}
-              {m.badge ? <span className="ml-auto bg-[#FF4D00] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">{m.badge}</span> : null}
+          <nav className="flex-1 p-2">
+            {navItems.map(m => (
+              <button key={m.id} onClick={() => setSayfa(m.id)} className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium mb-0.5 transition text-left ${sayfa === m.id ? "bg-[#FF4D00]/10 text-[#FF4D00] font-semibold" : "text-gray-500 hover:bg-white/5 hover:text-white"}`}>
+                <span className="text-sm">{m.icon}</span>{m.label}
+                {m.badge ? <span className="ml-auto bg-[#FF4D00] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">{m.badge}</span> : null}
+              </button>
+            ))}
+          </nav>
+          <div className="p-2 border-t border-white/5">
+            <button onClick={() => { localStorage.removeItem("firma"); router.push("/firma/giris"); }} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-600 hover:text-white transition">
+              🚪 Çıkış
             </button>
-          ))}
-        </nav>
-        <div className="p-2 border-t border-white/5">
-          <button onClick={() => { localStorage.removeItem("firma"); router.push("/firma/giris"); }} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-600 hover:text-white transition">
-            🚪 Çıkış
-          </button>
-        </div>
-      </aside>
+          </div>
+        </aside>
+      )}
 
       {/* ANA İÇERİK */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="h-12 bg-[#1A1A1A] border-b border-white/5 flex items-center justify-between px-5 flex-shrink-0">
-          <div className="font-black text-sm">
-            {sayfa === "panel" ? "Panel" : sayfa === "talepler" ? "Talepler" : sayfa === "araclar" ? "Araçlarım" : "Şoförlerim"}
-          </div>
-          {yeniTalepler.length > 0 && (
-            <button onClick={() => setSayfa("talepler")} className="text-[11px] text-[#FF4D00] font-bold bg-[#FF4D00]/10 border border-[#FF4D00]/25 px-3 py-1.5 rounded-lg animate-pulse">
-              🔴 {yeniTalepler.length} Yeni Talep
+        {/* Mobil header */}
+        {mobil ? (
+          <div className="bg-[#1A1A1A] border-b border-white/5 px-4 py-3 flex items-center justify-between flex-shrink-0">
+            <div>
+              <div className="font-black text-sm truncate max-w-[200px]">{firmaAd}</div>
+              <div className="text-[10px] text-[#00C853] flex items-center gap-1 mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00C853] animate-pulse"></span>Aktif
+              </div>
+            </div>
+            <button onClick={() => { localStorage.removeItem("firma"); router.push("/firma/giris"); }} className="text-xs text-gray-500 border border-white/10 rounded-lg px-3 py-1.5">
+              Çıkış
             </button>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="h-12 bg-[#1A1A1A] border-b border-white/5 flex items-center justify-between px-5 flex-shrink-0">
+            <div className="font-black text-sm">
+              {sayfa === "panel" ? "Panel" : sayfa === "talepler" ? "Talepler" : sayfa === "araclar" ? "Araçlarım" : "Şoförlerim"}
+            </div>
+            {yeniTalepler.length > 0 && (
+              <button onClick={() => setSayfa("talepler")} className="text-[11px] text-[#FF4D00] font-bold bg-[#FF4D00]/10 border border-[#FF4D00]/25 px-3 py-1.5 rounded-lg animate-pulse">
+                🔴 {yeniTalepler.length} Yeni Talep
+              </button>
+            )}
+          </div>
+        )}
 
         {hata && (
-          <div className="mx-5 mt-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl">
+          <div className="mx-4 mt-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl">
             ⚠️ {hata} <button onClick={() => setHata("")} className="ml-2 underline">Kapat</button>
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto p-5">
+        <div className={`flex-1 overflow-y-auto ${mobil ? "p-4 pb-24" : "p-5"}`}>
+
+          {/* Mobil yeni talep banner */}
+          {mobil && yeniTalepler.length > 0 && sayfa === "panel" && (
+            <button onClick={() => setSayfa("talepler")} className="w-full bg-[#FF4D00]/10 border border-[#FF4D00]/30 rounded-xl px-4 py-3 flex items-center justify-between mb-4 animate-pulse">
+              <span className="text-sm font-bold text-[#FF4D00]">🔴 {yeniTalepler.length} Yeni Talep</span>
+              <span className="text-[#FF4D00]">→</span>
+            </button>
+          )}
 
           {/* PANEL */}
           {sayfa === "panel" && (
@@ -333,6 +367,19 @@ export default function FirmaPanel() {
           )}
 
         </div>
+
+        {/* MOBİL ALT NAVİGASYON */}
+        {mobil && (
+          <nav className="fixed bottom-0 left-0 right-0 bg-[#1A1A1A] border-t border-white/8 flex z-40">
+            {navItems.map(m => (
+              <button key={m.id} onClick={() => setSayfa(m.id)} className={`flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 relative transition ${sayfa === m.id ? "text-[#FF4D00]" : "text-gray-600"}`}>
+                <span className="text-xl leading-none">{m.icon}</span>
+                <span className="text-[10px] font-semibold">{m.label}</span>
+                {m.badge ? <span className="absolute top-1.5 right-1/4 bg-[#FF4D00] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{m.badge}</span> : null}
+              </button>
+            ))}
+          </nav>
+        )}
       </div>
 
       {/* ARAÇ EKLE MODAL */}
