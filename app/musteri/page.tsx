@@ -258,7 +258,15 @@ export default function MusteriAna() {
       {/* TALEP MODAL */}
       {talepModal && (
         <div className="fixed inset-0 bg-black/75 flex items-end justify-center z-50" onClick={() => { setTalepModal(false); setGonderildi(false); }}>
-          <div className="bg-[#1A1A1A] rounded-t-2xl w-full max-w-md p-5 pb-8 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+          <div
+            className="bg-[#1A1A1A] rounded-t-2xl w-full max-w-md p-5 pb-8 max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+            onTouchStart={e => { (e.currentTarget as HTMLElement).dataset.touchY = String(e.touches[0].clientY); }}
+            onTouchEnd={e => {
+              const startY = Number((e.currentTarget as HTMLElement).dataset.touchY);
+              if (e.changedTouches[0].clientY - startY > 80) { setTalepModal(false); setGonderildi(false); }
+            }}
+          >
             <div className="w-9 h-1 bg-[#2A2A2A] rounded-full mx-auto mb-4"></div>
             {!gonderildi ? (
               <>
