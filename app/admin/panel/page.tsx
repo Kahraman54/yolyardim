@@ -24,6 +24,11 @@ type Firma = {
 };
 type Arac = { id: string; plaka: string; tur: string; marka?: string; model?: string; model_yili?: string; arac_turu?: string; };
 type Sofor = { id: string; ad: string; soyad: string; tel: string; };
+type Musteri = {
+  id: string; tel: string; ad?: string; soyad?: string;
+  arac_marka?: string; arac_model?: string; arac_plaka?: string;
+  cekis_turu?: string; yakit_tipi?: string; created_at: string;
+};
 
 const cagriData = [
   { ad:"Ayşe Kaya", tel:"0532 xxx xx xx", c:"👩 Kadın", z:"3 dk önce", tip:"🚛 Çekici", konum:"Kadıköy, Moda Cad. No:45", hedef:"Kadıköy Ford Servisi", arac:"34 ABC 123 · Ford Focus · Kırmızı · ÖÇ", not:'"Araç sağ tarafta, lastik patlak."', acil:true },
@@ -54,6 +59,12 @@ export default function AdminPanel() {
   const [firmaSoforler, setFirmaSoforler] = useState<Sofor[]>([]);
   const [firmaDetayYukleniyor, setFirmaDetayYukleniyor] = useState(false);
   const [firmaArama, setFirmaArama] = useState("");
+
+  // Kullanıcılar state
+  const [musteriler, setMusteriler] = useState<Musteri[]>([]);
+  const [musteriYukleniyor, setMusteriYukleniyor] = useState(false);
+  const [musteriArama, setMusteriArama] = useState("");
+  const [seciliMusteri, setSeciliMusteri] = useState<Musteri | null>(null);
 
   useEffect(() => {
     if (!localStorage.getItem("admin")) { router.replace("/admin"); }
@@ -109,10 +120,21 @@ export default function AdminPanel() {
     istatistikYukle();
   }, [istatistikYukle]);
 
+  const musteriYukle = useCallback(async () => {
+    setMusteriYukleniyor(true);
+    const { data } = await supabase
+      .from("musteriler")
+      .select("id, tel, ad, soyad, arac_marka, arac_model, arac_plaka, cekis_turu, yakit_tipi, created_at")
+      .order("created_at", { ascending: false });
+    setMusteriler(data || []);
+    setMusteriYukleniyor(false);
+  }, []);
+
   useEffect(() => {
     if (sayfa === "belgeler") bekleyenleriYukle();
     if (sayfa === "firmalar") tumFirmalariYukle();
-  }, [sayfa, bekleyenleriYukle, tumFirmalariYukle]);
+    if (sayfa === "kullanicilar") musteriYukle();
+  }, [sayfa, bekleyenleriYukle, tumFirmalariYukle, musteriYukle]);
 
   async function belgeleriGoster(firma: Firma) {
     setSeciliFirmaDetay(firma);
@@ -172,6 +194,7 @@ export default function AdminPanel() {
           {[
             { id:"belgeler", icon:"📄", label:"Belge Onayı" },
             { id:"firmalar", icon:"🏢", label:"Firmalar" },
+            { id:"kullanicilar", icon:"👥", label:"Kullanıcılar" },
             { id:"istatistik", icon:"📈", label:"İstatistikler" },
           ].map(m => (
             <button key={m.id} onClick={() => setSayfa(m.id)} className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-medium mb-0.5 transition text-left ${sayfa===m.id?"bg-[#FF4D00]/10 text-[#FF4D00] font-semibold":"text-gray-500 hover:bg-white/5 hover:text-white"}`}>
@@ -190,7 +213,7 @@ export default function AdminPanel() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="h-12 bg-[#141414] border-b border-white/5 flex items-center justify-between px-5 flex-shrink-0">
           <div className="font-black text-sm">
-            {sayfa==="panel"?"Genel Bakış":sayfa==="cagri"?"Çağrı Merkezi":sayfa==="belgeler"?"Belge Onayı":sayfa==="firmalar"?"Firmalar":sayfa==="istatistik"?"İstatistikler":"Tüm Talepler"}
+            {sayfa==="panel"?"Genel Bakış":sayfa==="cagri"?"Çağrı Merkezi":sayfa==="belgeler"?"Belge Onayı":sayfa==="firmalar"?"Firmalar":sayfa==="kullanicilar"?"Kullanıcılar":sayfa==="istatistik"?"İstatistikler":"Tüm Talepler"}
           </div>
           <button onClick={() => setSayfa("cagri")} className="bg-[#FF4D00] text-white text-xs font-bold px-3 py-1.5 rounded-lg">📞 Çağrı Merkezi</button>
         </div>
@@ -500,6 +523,143 @@ export default function AdminPanel() {
                   )
                 ) : (
                   <div className="flex-1 flex items-center justify-center text-gray-600 text-sm">← Firma seçin</div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* KULLANICILAR */}
+          {sayfa==="kullanicilar" && (
+            <div className="grid grid-cols-2 gap-4 h-full">
+              {/* Sol: kullanıcı listesi */}
+              <div className="flex flex-col gap-3">
+                <input
+                  value={musteriArama}
+                  onChange={e => setMusteriArama(e.target.value)}
+                  placeholder="🔍 İsim veya telefon ara..."
+                  className="w-full bg-[#141414] border border-white/8 rounded-lg px-4 py-2.5 text-sm text-white outline-none focus:border-[#FF4D00] transition"
+                />
+                <div className="text-xs text-gray-500">
+                  {musteriYukleniyor ? "Yükleniyor..." : `${musteriler.length} kayıtlı kullanıcı`}
+                </div>
+                <div className="space-y-2 overflow-y-auto">
+                  {musteriler
+                    .filter(m => !musteriArama ||
+                      `${m.ad || ""} ${m.soyad || ""}`.toLowerCase().includes(musteriArama.toLowerCase()) ||
+                      m.tel.includes(musteriArama)
+                    )
+                    .map(m => (
+                      <div
+                        key={m.id}
+                        onClick={() => setSeciliMusteri(m)}
+                        className={`p-3 rounded-xl border cursor-pointer transition ${seciliMusteri?.id === m.id ? "border-[#FF4D00] bg-[#FF4D00]/4" : "border-white/8 bg-[#141414] hover:border-white/20"}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-[#2A2A2A] flex items-center justify-center text-xs font-bold flex-shrink-0 text-gray-300">
+                            {m.ad ? m.ad[0].toUpperCase() : "?"}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-bold text-sm truncate">
+                              {m.ad ? `${m.ad}${m.soyad ? " " + m.soyad : ""}` : "İsimsiz"}
+                            </div>
+                            <div className="text-xs text-gray-500">{m.tel}</div>
+                          </div>
+                          {m.arac_plaka && (
+                            <span className="text-[10px] font-mono bg-[#2A2A2A] text-gray-400 px-2 py-0.5 rounded flex-shrink-0">
+                              {m.arac_plaka}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  {!musteriYukleniyor && musteriler.length === 0 && (
+                    <div className="bg-[#141414] border border-white/5 rounded-xl p-8 text-center text-gray-500 text-sm">
+                      Henüz kayıtlı kullanıcı yok.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Sağ: kullanıcı detayı */}
+              <div className="bg-[#141414] border border-white/5 rounded-xl overflow-hidden flex flex-col">
+                {seciliMusteri ? (
+                  <div className="flex-1 overflow-y-auto">
+                    {/* Başlık */}
+                    <div className="p-4 border-b border-white/5 flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-[#FF4D00]/15 border border-[#FF4D00]/20 flex items-center justify-center text-xl font-black text-[#FF4D00] flex-shrink-0">
+                        {seciliMusteri.ad ? seciliMusteri.ad[0].toUpperCase() : "👤"}
+                      </div>
+                      <div>
+                        <div className="font-black text-base">
+                          {seciliMusteri.ad ? `${seciliMusteri.ad}${seciliMusteri.soyad ? " " + seciliMusteri.soyad : ""}` : "İsim girilmemiş"}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-0.5">{seciliMusteri.tel}</div>
+                        <div className="text-[10px] text-gray-600 mt-0.5">
+                          Kayıt: {new Date(seciliMusteri.created_at).toLocaleDateString("tr-TR", { day:"numeric", month:"long", year:"numeric" })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Kişisel bilgiler */}
+                    <div className="p-4 border-b border-white/5">
+                      <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">Kişisel Bilgiler</div>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Ad Soyad</span>
+                          <span className="font-semibold">
+                            {seciliMusteri.ad ? `${seciliMusteri.ad} ${seciliMusteri.soyad || ""}`.trim() : "—"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Telefon</span>
+                          <span className="font-semibold">{seciliMusteri.tel}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Kayıt Tarihi</span>
+                          <span className="font-semibold">
+                            {new Date(seciliMusteri.created_at).toLocaleDateString("tr-TR")}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Araç bilgileri */}
+                    <div className="p-4">
+                      <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">Araç Bilgileri</div>
+                      {(seciliMusteri.arac_marka || seciliMusteri.arac_plaka) ? (
+                        <div className="bg-[#1E1E1E] border border-white/5 rounded-xl p-4 space-y-2 text-sm">
+                          {seciliMusteri.arac_marka && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Marka / Model</span>
+                              <span className="font-semibold">{seciliMusteri.arac_marka}{seciliMusteri.arac_model ? " " + seciliMusteri.arac_model : ""}</span>
+                            </div>
+                          )}
+                          {seciliMusteri.arac_plaka && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Plaka</span>
+                              <span className="font-bold font-mono tracking-wider">{seciliMusteri.arac_plaka}</span>
+                            </div>
+                          )}
+                          {seciliMusteri.cekis_turu && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Çekiş Türü</span>
+                              <span className="font-semibold">{seciliMusteri.cekis_turu}</span>
+                            </div>
+                          )}
+                          {seciliMusteri.yakit_tipi && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-500">Yakıt Tipi</span>
+                              <span className="font-semibold">{seciliMusteri.yakit_tipi}</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-xs text-gray-600">Araç bilgisi girilmemiş.</div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex-1 flex items-center justify-center text-gray-600 text-sm">← Kullanıcı seçin</div>
                 )}
               </div>
             </div>
