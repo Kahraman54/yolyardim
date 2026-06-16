@@ -55,6 +55,7 @@ export default function FirmaKayit() {
         sahip_soyad: form.sahipSoyad,
         tel: form.tel.replace(/\s/g, ""),
         email: form.email,
+        vergi_no: form.vergiNo,
         il: form.il,
         ilce: form.ilce,
         hizmet_bolgesi: form.hizmetBolge,
