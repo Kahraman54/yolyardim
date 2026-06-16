@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "../../../lib/supabase";
 
@@ -22,6 +22,14 @@ export default function FirmaKayit() {
   const [yeniArac, setYeniArac] = useState({plaka:"",tur:""});
   const [yeniSofor, setYeniSofor] = useState({ad:"",soyad:"",tel:""});
   const [hata, setHata] = useState("");
+  const [menuAcik, setMenuAcik] = useState(false);
+  const [mobil, setMobil] = useState(false);
+  useEffect(() => {
+    const check = () => setMobil(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   // Form değerleri
   const [form, setForm] = useState({
@@ -82,27 +90,56 @@ export default function FirmaKayit() {
   function ileri() { if (adim < 5) setAdim(adim + 1); }
   function geri() { if (adim > 1) setAdim(adim - 1); }
 
+  const SolPanel = () => (
+    <div className="flex flex-col h-full">
+      <Link href="/" className="font-black text-base mb-1">Tulpar<span className="text-[#FF4D00]"> Assist</span></Link>
+      <div className="text-[9px] text-[#FF4D00] font-bold tracking-widest uppercase mb-6">Firma Kaydı</div>
+      <div className="flex flex-col gap-1 flex-1">
+        {adimlar.map(a => (
+          <div key={a.n} onClick={() => mobil && setMenuAcik(false)} className={`flex items-center gap-2 px-2 py-2 rounded-lg ${adim === a.n ? "bg-[#FF4D00]/10" : ""}`}>
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 border-2 transition-all ${a.n < adim ? "bg-[#00C853] border-[#00C853] text-black" : adim === a.n ? "border-[#FF4D00] text-[#FF4D00]" : "border-white/10 text-gray-600"}`}>
+              {a.n < adim ? "✓" : a.n}
+            </div>
+            <span className={`text-xs font-medium ${adim === a.n ? "text-white font-semibold" : "text-gray-600"}`}>{a.label}</span>
+          </div>
+        ))}
+      </div>
+      <Link href="/" className="text-[11px] text-gray-600 hover:text-white transition">← Portale Dön</Link>
+    </div>
+  );
+
   return (
     <main className="min-h-screen bg-[#0D0D0D] text-white flex">
-      {/* SOL PANEL */}
-      <div className="w-52 bg-[#1A1A1A] border-r border-white/5 p-5 flex flex-col flex-shrink-0">
-        <Link href="/" className="font-black text-base mb-1">Tulpar<span className="text-[#FF4D00]"> Assist</span></Link>
-        <div className="text-[9px] text-[#FF4D00] font-bold tracking-widest uppercase mb-6">Firma Kaydı</div>
-        <div className="flex flex-col gap-1 flex-1">
-          {adimlar.map(a => (
-            <div key={a.n} className={`flex items-center gap-2 px-2 py-2 rounded-lg ${adim === a.n ? "bg-[#FF4D00]/10" : ""}`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 border-2 transition-all ${a.n < adim ? "bg-[#00C853] border-[#00C853] text-black" : adim === a.n ? "border-[#FF4D00] text-[#FF4D00]" : "border-white/10 text-gray-600"}`}>
-                {a.n < adim ? "✓" : a.n}
-              </div>
-              <span className={`text-xs font-medium ${adim === a.n ? "text-white font-semibold" : "text-gray-600"}`}>{a.label}</span>
-            </div>
-          ))}
+      {/* SOL PANEL - masaüstü */}
+      {!mobil && (
+        <div className="w-52 bg-[#1A1A1A] border-r border-white/5 p-5 flex flex-col flex-shrink-0">
+          <SolPanel />
         </div>
-        <Link href="/" className="text-[11px] text-gray-600 hover:text-white transition">← Portale Dön</Link>
-      </div>
+      )}
+
+      {/* MOBİL MENU OVERLAY */}
+      {mobil && menuAcik && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="w-56 bg-[#1A1A1A] border-r border-white/5 p-5 flex flex-col">
+            <SolPanel />
+          </div>
+          <div className="flex-1 bg-black/60" onClick={() => setMenuAcik(false)} />
+        </div>
+      )}
 
       {/* SAĞ İÇERİK */}
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-5 md:p-8">
+        {/* MOBİL HEADER */}
+        {mobil && (
+          <div className="flex items-center justify-between mb-5">
+            <button onClick={() => setMenuAcik(true)} className="flex items-center gap-2 bg-[#1A1A1A] border border-white/10 rounded-xl px-3 py-2">
+              <span className="text-base">☰</span>
+              <span className="text-xs font-bold text-gray-300">Adım {adim}/5 — {adimlar[adim-1].label}</span>
+              <span className="text-[10px] text-[#FF4D00] font-bold">▼</span>
+            </button>
+            <Link href="/" className="text-[11px] text-gray-600">← Geri</Link>
+          </div>
+        )}
         <div className="h-1 bg-white/5 rounded-full mb-8 overflow-hidden">
           <div className="h-full bg-[#FF4D00] rounded-full transition-all duration-500" style={{width: `${(adim/5)*100}%`}} />
         </div>
