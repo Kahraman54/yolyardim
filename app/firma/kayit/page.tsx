@@ -139,7 +139,7 @@ export default function FirmaKayit() {
           </div>
         ))}
       </div>
-      <Link href="/" className="text-[11px] text-gray-600 hover:text-white transition">← Portale Dön</Link>
+      <Link href="/" className="text-[11px] text-gray-600 hover:text-white transition">← Ana Sayfaya Dön</Link>
     </div>
   );
 
