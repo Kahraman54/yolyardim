@@ -39,29 +39,24 @@ export default function MusteriAna() {
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!,
   });
+  // GPS: sayfa açılır açılmaz konum iste (harita yüklenmesini bekleme)
   useEffect(() => {
-    if (typeof window !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setMapCenter({
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-          });
-          if (map) {
-            map.panTo({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-          }
-        },
-        (err) => {
-          console.log("Konum hatası:", err.code, err.message);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        }
-      );
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setMapCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      (err) => console.log("Konum hatası:", err.code, err.message),
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }, []);
+
+  // Harita yüklenince konuma pan et
+  useEffect(() => {
+    if (map && MAP_CENTER.lat !== 40.9837) {
+      map.panTo(MAP_CENTER);
     }
-  }, [map]);
+  }, [map, MAP_CENTER]);
   const onLoad = useCallback((map: google.maps.Map) => setMap(map), []);
   const onUnmount = useCallback(() => setMap(null), []);
 
