@@ -164,18 +164,24 @@ export default function FirmaKayit() {
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div><label className="block text-xs font-semibold text-gray-400 mb-2">Vergi No</label><input value={form.vergiNo} onChange={e=>setForm({...form,vergiNo:e.target.value})} placeholder="1234567890" className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition" /></div>
               <div><label className="block text-xs font-semibold text-gray-400 mb-2">İl *</label>
-                <select value={form.il} onChange={e=>setForm({...form, il:e.target.value, ilce:""})} className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition">
-                  <option value="">İl seçin...</option>
-                  {iller.map(il => <option key={il} value={il}>{il}</option>)}
-                </select>
+                <div className="relative">
+                  <select value={form.il} onChange={e=>setForm({...form, il:e.target.value, ilce:""})} className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition appearance-none pr-8">
+                    <option value="">İl seçin...</option>
+                    {iller.map((il,i) => <option key={il} value={il}>{String(i+1).padStart(2,"0")} - {il}</option>)}
+                  </select>
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▼</span>
+                </div>
               </div>
             </div>
             {form.il && (
               <div className="mb-4"><label className="block text-xs font-semibold text-gray-400 mb-2">İlçe *</label>
-                <select value={form.ilce} onChange={e=>setForm({...form, ilce:e.target.value})} className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition">
-                  <option value="">İlçe seçin...</option>
-                  {(ilIlceler[form.il] || []).map(ilce => <option key={ilce} value={ilce}>{ilce}</option>)}
-                </select>
+                <div className="relative">
+                  <select value={form.ilce} onChange={e=>setForm({...form, ilce:e.target.value})} className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition appearance-none pr-8">
+                    <option value="">İlçe seçin...</option>
+                    {(ilIlceler[form.il] || []).map(ilce => <option key={ilce} value={ilce}>{ilce}</option>)}
+                  </select>
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▼</span>
+                </div>
               </div>
             )}
             <div className="mb-6"><label className="block text-xs font-semibold text-gray-400 mb-2">Hizmet Bölgesi *</label><textarea value={form.hizmetBolge} onChange={e=>setForm({...form,hizmetBolge:e.target.value})} placeholder="Örn: İstanbul Avrupa yakası, TEM ve E-5 bölgesi..." rows={2} className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition resize-none" /></div>
