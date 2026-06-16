@@ -167,7 +167,6 @@ export default function FirmaPanel() {
     { id: "talepler", icon: "📋", label: "Talepler", badge: yeniTalepler.length || undefined },
     { id: "araclar", icon: "🚛", label: "Araçlar" },
     { id: "soforler", icon: "👤", label: "Şoförler" },
-    { id: "profil", icon: "🏢", label: "Profil" },
   ];
 
   return (
@@ -179,15 +178,16 @@ export default function FirmaPanel() {
             <div className="font-black text-base mb-0.5">Tulpar<span className="text-[#FF4D00]"> Assist</span></div>
             <div className="text-[9px] text-gray-500">Firma Paneli</div>
           </div>
-          <div className="p-3 border-b border-white/5 flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#FF4D00]/15 flex items-center justify-center text-sm">🚛</div>
-            <div>
-              <div className="text-xs font-bold truncate w-28">{firmaAd}</div>
+          <button onClick={() => setSayfa("profil")} className={`p-3 border-b border-white/5 flex items-center gap-2 w-full text-left hover:bg-white/5 transition ${sayfa === "profil" ? "bg-[#FF4D00]/8" : ""}`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0 ${sayfa === "profil" ? "bg-[#FF4D00]/30" : "bg-[#FF4D00]/15"}`}>🚛</div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-bold truncate">{firmaAd}</div>
               <div className="text-[10px] text-[#00C853] flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#00C853] animate-pulse"></span>Aktif
               </div>
             </div>
-          </div>
+            <span className="text-gray-600 text-xs flex-shrink-0">›</span>
+          </button>
           <nav className="flex-1 p-2">
             {navItems.map(m => (
               <button key={m.id} onClick={() => setSayfa(m.id)} className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium mb-0.5 transition text-left ${sayfa === m.id ? "bg-[#FF4D00]/10 text-[#FF4D00] font-semibold" : "text-gray-500 hover:bg-white/5 hover:text-white"}`}>
@@ -209,12 +209,15 @@ export default function FirmaPanel() {
         {/* Mobil header */}
         {mobil ? (
           <div className="bg-[#1A1A1A] border-b border-white/5 px-4 py-3 flex items-center justify-between flex-shrink-0">
-            <div>
-              <div className="font-black text-sm truncate max-w-[200px]">{firmaAd}</div>
-              <div className="text-[10px] text-[#00C853] flex items-center gap-1 mt-0.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00C853] animate-pulse"></span>Aktif
+            <button onClick={() => setSayfa("profil")} className="flex items-center gap-2 text-left">
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0 ${sayfa === "profil" ? "bg-[#FF4D00]/30" : "bg-[#FF4D00]/15"}`}>🚛</div>
+              <div>
+                <div className="font-black text-sm truncate max-w-[180px]">{firmaAd}</div>
+                <div className="text-[10px] text-[#00C853] flex items-center gap-1 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00C853] animate-pulse"></span>Aktif · profili düzenle
+                </div>
               </div>
-            </div>
+            </button>
             <button onClick={() => { localStorage.removeItem("firma"); router.push("/firma/giris"); }} className="text-xs text-gray-500 border border-white/10 rounded-lg px-3 py-1.5">
               Çıkış
             </button>
@@ -407,7 +410,10 @@ export default function FirmaPanel() {
           {sayfa === "profil" && (
             <div className="max-w-xl">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="font-black text-lg">Firma Profili</h2>
+                <div className="flex items-center gap-3">
+                  {mobil && <button onClick={() => setSayfa("panel")} className="text-gray-400 text-sm">← Geri</button>}
+                  <h2 className="font-black text-lg">Firma Profili</h2>
+                </div>
                 {basari && <span className="text-xs text-[#00C853] font-bold bg-[#00C853]/10 border border-[#00C853]/20 px-3 py-1.5 rounded-lg">{basari}</span>}
               </div>
 
