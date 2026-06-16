@@ -23,6 +23,8 @@ export default function FirmaKayit() {
   const [yeniArac, setYeniArac] = useState({plaka:"",tur:""});
   const [yeniSofor, setYeniSofor] = useState({ad:"",soyad:"",tel:""});
   const [hata, setHata] = useState("");
+  const [belgeDosyalari, setBelgeDosyalari] = useState<{k1o: File|null, ticaret: File|null}>({k1o: null, ticaret: null});
+  const [belgeYukleniyor, setBelgeYukleniyor] = useState(false);
   const [menuAcik, setMenuAcik] = useState(false);
   const [mobil, setMobil] = useState(false);
   useEffect(() => {
@@ -86,6 +88,37 @@ export default function FirmaKayit() {
     setYukleniyor(false);
     if (error) { setHata("Şoför kayıt hatası: " + error.message); return; }
     ileri();
+  }
+
+  async function belgeleriYukle() {
+    if (!firmaId) { ileri(); return; }
+    if (!belgeDosyalari.k1o || !belgeDosyalari.ticaret) {
+      setHata("K1Ö ve Ticaret Sicil belgelerini yükleyin."); return;
+    }
+    setHata("");
+    setBelgeYukleniyor(true);
+    try {
+      const yukle = async (dosya: File, alan: string) => {
+        const ext = dosya.name.split(".").pop();
+        const yol = `${firmaId}/${alan}_${Date.now()}.${ext}`;
+        const { error } = await supabase.storage.from("belgeler").upload(yol, dosya, { upsert: true });
+        if (error) throw error;
+        return yol;
+      };
+      const k1oYol = await yukle(belgeDosyalari.k1o, "k1o");
+      const ticaretYol = await yukle(belgeDosyalari.ticaret, "ticaret_sicil");
+      const { error } = await supabase.from("firmalar").update({
+        k1o_url: k1oYol,
+        ticaret_sicil_url: ticaretYol,
+      }).eq("id", firmaId);
+      if (error) throw error;
+      setBelgeYukleniyor(false);
+      ileri();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setHata("Belge yükleme hatası: " + msg);
+      setBelgeYukleniyor(false);
+    }
   }
 
   function ileri() { if (adim < 5) setAdim(adim + 1); }
@@ -198,19 +231,49 @@ export default function FirmaKayit() {
             <p className="text-gray-500 text-sm mb-6">Belgeler onaylandıktan sonra aktif olursunuz.</p>
             <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl p-4 text-xs text-blue-300 mb-6">ℹ️ Belgeler güvenli sunucularımızda saklanır. Müşterilere yalnızca &quot;Onaylı&quot; rozeti gösterilir.</div>
             <div className="space-y-4">
-              {["K1Ö Yetki Belgesi *","Ticaret Sicil Belgesi *"].map(b => (
-                <div key={b}><label className="block text-xs font-semibold text-gray-400 mb-2">{b}</label>
-                  <div className="border-2 border-dashed border-white/10 rounded-xl p-8 text-center cursor-pointer hover:border-[#FF4D00] transition">
-                    <div className="text-3xl mb-2">📄</div>
-                    <div className="text-sm font-semibold mb-1">Tıklayın veya sürükleyin</div>
-                    <div className="text-xs text-gray-600">PDF, JPG, PNG — maks. 10MB</div>
+              {(["k1o","ticaret"] as const).map((key) => {
+                const label = key === "k1o" ? "K1Ö Yetki Belgesi *" : "Ticaret Sicil Belgesi *";
+                const dosya = belgeDosyalari[key];
+                return (
+                  <div key={key}>
+                    <label className="block text-xs font-semibold text-gray-400 mb-2">{label}</label>
+                    <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition ${dosya ? "border-[#00C853]/50 bg-[#00C853]/5" : "border-white/10 hover:border-[#FF4D00]"}`}>
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        className="hidden"
+                        onChange={e => {
+                          const f = e.target.files?.[0];
+                          if (f) setBelgeDosyalari(prev => ({ ...prev, [key]: f }));
+                        }}
+                      />
+                      {dosya ? (
+                        <>
+                          <div className="text-3xl mb-2">✅</div>
+                          <div className="text-sm font-semibold text-[#00C853] mb-1 break-all px-2">{dosya.name}</div>
+                          <div className="text-xs text-gray-500">Değiştirmek için tıklayın</div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-3xl mb-2">📄</div>
+                          <div className="text-sm font-semibold mb-1">Tıklayın veya sürükleyin</div>
+                          <div className="text-xs text-gray-600">PDF, JPG, PNG — maks. 10MB</div>
+                        </>
+                      )}
+                    </label>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={geri} className="px-6 py-3 rounded-xl border border-white/10 text-sm font-semibold hover:border-white/30 transition">← Geri</button>
-              <button onClick={ileri} className="bg-[#FF4D00] hover:bg-[#CC3D00] text-white font-bold px-8 py-3 rounded-xl transition text-sm">Devam Et →</button>
+              <button
+                onClick={belgeleriYukle}
+                disabled={belgeYukleniyor || !belgeDosyalari.k1o || !belgeDosyalari.ticaret}
+                className="bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold px-8 py-3 rounded-xl transition text-sm"
+              >
+                {belgeYukleniyor ? "Yükleniyor..." : "Devam Et →"}
+              </button>
             </div>
           </div>
         )}
