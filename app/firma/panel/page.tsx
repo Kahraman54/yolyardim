@@ -3,7 +3,12 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 
-type Arac = { id: string; plaka: string; tur: string; };
+type Arac = { id: string; plaka: string; tur: string; marka?: string; model?: string; model_yili?: string; arac_turu?: string; };
+type FirmaDetay = {
+  firma_ad: string; sahip_ad: string; sahip_soyad: string; tel: string; email: string;
+  il: string; ilce: string; adres: string; vergi_no: string; vergi_dairesi: string;
+  banka: string; iban: string;
+};
 type Sofor = { id: string; ad: string; soyad: string; tel: string; };
 type Talep = {
   id: string; tip: string; durum: string; created_at: string;
@@ -24,7 +29,7 @@ export default function FirmaPanel() {
 
   // Araç modal
   const [aracModal, setAracModal] = useState(false);
-  const [yeniArac, setYeniArac] = useState({ plaka: "", tur: "" });
+  const [yeniArac, setYeniArac] = useState({ plaka: "", tur: "", marka: "", model: "", model_yili: "", arac_turu: "" });
   const [aracKayit, setAracKayit] = useState(false);
 
   // Şoför modal
@@ -40,6 +45,12 @@ export default function FirmaPanel() {
   const [atamaTamam, setAtamaTamam] = useState(false);
 
   const [hata, setHata] = useState("");
+  const [basari, setBasari] = useState("");
+
+  // Profil
+  const [profil, setProfil] = useState<FirmaDetay>({ firma_ad:"", sahip_ad:"", sahip_soyad:"", tel:"", email:"", il:"", ilce:"", adres:"", vergi_no:"", vergi_dairesi:"", banka:"", iban:"" });
+  const [profilKayit, setProfilKayit] = useState(false);
+
   const [mobil, setMobil] = useState(false);
   useEffect(() => {
     const check = () => setMobil(window.innerWidth < 768);
@@ -58,8 +69,13 @@ export default function FirmaPanel() {
     } catch { router.replace("/firma/giris"); }
   }, [router]);
 
+  const profilYukle = useCallback(async (id: string) => {
+    const { data } = await supabase.from("firmalar").select("firma_ad, sahip_ad, sahip_soyad, tel, email, il, ilce, adres, vergi_no, vergi_dairesi, banka, iban").eq("id", id).single();
+    if (data) setProfil({ firma_ad: data.firma_ad||"", sahip_ad: data.sahip_ad||"", sahip_soyad: data.sahip_soyad||"", tel: data.tel||"", email: data.email||"", il: data.il||"", ilce: data.ilce||"", adres: data.adres||"", vergi_no: data.vergi_no||"", vergi_dairesi: data.vergi_dairesi||"", banka: data.banka||"", iban: data.iban||"" });
+  }, []);
+
   const araclarYukle = useCallback(async (id: string) => {
-    const { data } = await supabase.from("araclar").select("id, plaka, tur").eq("firma_id", id);
+    const { data } = await supabase.from("araclar").select("id, plaka, tur, marka, model, model_yili, arac_turu").eq("firma_id", id);
     setAraclar(data || []);
   }, []);
 
@@ -79,17 +95,35 @@ export default function FirmaPanel() {
 
   useEffect(() => {
     if (!firmaId) return;
+    profilYukle(firmaId);
     araclarYukle(firmaId);
     soforlerYukle(firmaId);
     taleplerYukle(firmaId);
-  }, [firmaId, araclarYukle, soforlerYukle, taleplerYukle]);
+  }, [firmaId, profilYukle, araclarYukle, soforlerYukle, taleplerYukle]);
+
+  async function profilKaydet() {
+    if (!firmaId) return;
+    setProfilKayit(true);
+    const { error } = await supabase.from("firmalar").update({
+      firma_ad: profil.firma_ad, tel: profil.tel, email: profil.email,
+      adres: profil.adres, vergi_no: profil.vergi_no, vergi_dairesi: profil.vergi_dairesi,
+      banka: profil.banka, iban: profil.iban,
+    }).eq("id", firmaId);
+    setProfilKayit(false);
+    if (!error) { setBasari("Profil kaydedildi."); setTimeout(() => setBasari(""), 3000); }
+    else setHata("Kayıt hatası: " + error.message);
+  }
 
   async function aracEkle() {
     if (!yeniArac.plaka || !yeniArac.tur || !firmaId) return;
     setAracKayit(true);
-    const { error } = await supabase.from("araclar").insert({ firma_id: firmaId, plaka: yeniArac.plaka.toUpperCase(), tur: yeniArac.tur });
+    const { error } = await supabase.from("araclar").insert({
+      firma_id: firmaId, plaka: yeniArac.plaka.toUpperCase(), tur: yeniArac.tur,
+      marka: yeniArac.marka || null, model: yeniArac.model || null,
+      model_yili: yeniArac.model_yili || null, arac_turu: yeniArac.arac_turu || null,
+    });
     setAracKayit(false);
-    if (!error) { setYeniArac({ plaka: "", tur: "" }); setAracModal(false); araclarYukle(firmaId); }
+    if (!error) { setYeniArac({ plaka: "", tur: "", marka: "", model: "", model_yili: "", arac_turu: "" }); setAracModal(false); araclarYukle(firmaId); }
     else setHata("Araç eklenemedi: " + error.message);
   }
 
@@ -131,8 +165,9 @@ export default function FirmaPanel() {
   const navItems = [
     { id: "panel", icon: "📊", label: "Panel" },
     { id: "talepler", icon: "📋", label: "Talepler", badge: yeniTalepler.length || undefined },
-    { id: "araclar", icon: "🚛", label: "Araçlar", badge: araclar.length || undefined },
-    { id: "soforler", icon: "👤", label: "Şoförler", badge: soforler.length || undefined },
+    { id: "araclar", icon: "🚛", label: "Araçlar" },
+    { id: "soforler", icon: "👤", label: "Şoförler" },
+    { id: "profil", icon: "🏢", label: "Profil" },
   ];
 
   return (
@@ -326,7 +361,9 @@ export default function FirmaPanel() {
                       <div className="w-9 h-9 rounded-lg bg-[#2A2A2A] flex items-center justify-center">🚛</div>
                       <div className="flex-1">
                         <div className="font-bold text-sm">{a.plaka}</div>
-                        <div className="text-xs text-gray-500">{a.tur}</div>
+                        <div className="text-xs text-gray-500">
+                          {[a.arac_turu, a.tur, a.marka, a.model, a.model_yili].filter(Boolean).join(" · ")}
+                        </div>
                       </div>
                       <button onClick={() => aracSil(a.id)} className="text-gray-600 hover:text-red-400 transition text-lg">🗑</button>
                     </div>
@@ -366,6 +403,72 @@ export default function FirmaPanel() {
             </div>
           )}
 
+          {/* PROFİL */}
+          {sayfa === "profil" && (
+            <div className="max-w-xl">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="font-black text-lg">Firma Profili</h2>
+                {basari && <span className="text-xs text-[#00C853] font-bold bg-[#00C853]/10 border border-[#00C853]/20 px-3 py-1.5 rounded-lg">{basari}</span>}
+              </div>
+
+              <div className="space-y-4">
+                <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Firma Bilgileri</div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-1.5">Firma Adı</label>
+                  <input value={profil.firma_ad} onChange={e => setProfil({...profil, firma_ad: e.target.value})} className="w-full bg-[#1A1A1A] border border-white/8 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 mb-1.5">Telefon</label>
+                    <input value={profil.tel} onChange={e => setProfil({...profil, tel: e.target.value})} className="w-full bg-[#1A1A1A] border border-white/8 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 mb-1.5">E-posta</label>
+                    <input value={profil.email} onChange={e => setProfil({...profil, email: e.target.value})} className="w-full bg-[#1A1A1A] border border-white/8 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-1.5">Adres</label>
+                  <textarea value={profil.adres} onChange={e => setProfil({...profil, adres: e.target.value})} rows={2} className="w-full bg-[#1A1A1A] border border-white/8 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition resize-none" />
+                </div>
+
+                <div className="pt-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest">Vergi Bilgileri</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 mb-1.5">Vergi Numarası</label>
+                    <input value={profil.vergi_no} onChange={e => setProfil({...profil, vergi_no: e.target.value})} className="w-full bg-[#1A1A1A] border border-white/8 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 mb-1.5">Vergi Dairesi</label>
+                    <input value={profil.vergi_dairesi} onChange={e => setProfil({...profil, vergi_dairesi: e.target.value})} placeholder="Kadıköy VD" className="w-full bg-[#1A1A1A] border border-white/8 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition" />
+                  </div>
+                </div>
+
+                <div className="pt-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest">Banka Bilgileri</div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-1.5">Banka</label>
+                  <div className="relative">
+                    <select value={profil.banka} onChange={e => setProfil({...profil, banka: e.target.value})} className="w-full bg-[#1A1A1A] border border-white/8 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition appearance-none pr-8">
+                      <option value="">Seçin...</option>
+                      {["Ziraat Bankası","Halkbank","Vakıfbank","İş Bankası","Garanti BBVA","Yapı Kredi","Akbank","QNB Finansbank","Denizbank","TEB","İNG Bank","HSBC","Odeabank","Şekerbank","Albaraka Türk","Kuveyt Türk","Türkiye Finans","Ziraat Katılım","Vakıf Katılım"].map(b => (
+                        <option key={b}>{b}</option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▼</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-1.5">IBAN</label>
+                  <input value={profil.iban} onChange={e => setProfil({...profil, iban: e.target.value.toUpperCase()})} placeholder="TR00 0000 0000 0000 0000 0000 00" className="w-full bg-[#1A1A1A] border border-white/8 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition font-mono tracking-wide" />
+                </div>
+
+                <button onClick={profilKaydet} disabled={profilKayit} className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-3 rounded-xl transition text-sm mt-2">
+                  {profilKayit ? "Kaydediliyor..." : "Değişiklikleri Kaydet →"}
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
 
         {/* MOBİL ALT NAVİGASYON */}
@@ -384,28 +487,66 @@ export default function FirmaPanel() {
 
       {/* ARAÇ EKLE MODAL */}
       {aracModal && (
-        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-5" onClick={() => setAracModal(false)}>
-          <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4" onClick={() => setAracModal(false)}>
+          <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-5 w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-5">
               <h2 className="font-black text-lg">Araç Ekle</h2>
               <button onClick={() => setAracModal(false)} className="w-7 h-7 bg-[#2A2A2A] rounded-lg text-gray-400 text-sm">✕</button>
             </div>
-            <div className="mb-3">
-              <label className="block text-xs font-semibold text-gray-400 mb-2">Plaka *</label>
-              <input value={yeniArac.plaka} onChange={e => setYeniArac({ ...yeniArac, plaka: e.target.value.toUpperCase() })} placeholder="34 XY 1234" className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#FF4D00]" />
-            </div>
-            <div className="mb-5">
-              <label className="block text-xs font-semibold text-gray-400 mb-2">Araç Türü *</label>
-              <div className="relative">
-                <select value={yeniArac.tur} onChange={e => setYeniArac({ ...yeniArac, tur: e.target.value })} className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#FF4D00] appearance-none pr-7">
-                  <option value="">Seçin</option>
-                  <option>Sabit Kasa</option><option>Kayar Kasa</option><option>Ahtapot</option>
-                  <option>Vinç</option><option>Çoklu Çekici</option><option>Gözlüklü Çekici</option>
-                </select>
-                <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▼</span>
+
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-1.5">Plaka *</label>
+                  <input value={yeniArac.plaka} onChange={e => setYeniArac({...yeniArac, plaka: e.target.value.toUpperCase()})} placeholder="34 XY 1234" className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#FF4D00]" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-1.5">Araç Türü</label>
+                  <div className="relative">
+                    <select value={yeniArac.arac_turu} onChange={e => setYeniArac({...yeniArac, arac_turu: e.target.value})} className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#FF4D00] appearance-none pr-7">
+                      <option value="">Seçin</option>
+                      <option>Kamyonet</option>
+                      <option>Kamyon</option>
+                    </select>
+                    <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▼</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-400 mb-1.5">Çekici Türü *</label>
+                <div className="relative">
+                  <select value={yeniArac.tur} onChange={e => setYeniArac({...yeniArac, tur: e.target.value})} className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#FF4D00] appearance-none pr-7">
+                    <option value="">Seçin</option>
+                    <option>Sabit Kasa</option>
+                    <option>Kayar Kasa</option>
+                    <option>Ahtapot</option>
+                    <option>Vinç</option>
+                    <option>Çoklu Çekici</option>
+                    <option>Gözlüklü Çekici</option>
+                  </select>
+                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▼</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-1.5">Marka</label>
+                  <input value={yeniArac.marka} onChange={e => setYeniArac({...yeniArac, marka: e.target.value})} placeholder="Mercedes, MAN..." className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#FF4D00]" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-1.5">Model</label>
+                  <input value={yeniArac.model} onChange={e => setYeniArac({...yeniArac, model: e.target.value})} placeholder="Actros, TGX..." className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#FF4D00]" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-400 mb-1.5">Model Yılı</label>
+                <input value={yeniArac.model_yili} onChange={e => setYeniArac({...yeniArac, model_yili: e.target.value})} placeholder="2021" maxLength={4} className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#FF4D00]" />
               </div>
             </div>
-            <button onClick={aracEkle} disabled={aracKayit || !yeniArac.plaka || !yeniArac.tur} className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-3 rounded-xl transition text-sm">
+
+            <button onClick={aracEkle} disabled={aracKayit || !yeniArac.plaka || !yeniArac.tur} className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-3 rounded-xl transition text-sm mt-5">
               {aracKayit ? "Kaydediliyor..." : "Aracı Kaydet"}
             </button>
           </div>
