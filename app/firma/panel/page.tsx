@@ -678,7 +678,24 @@ export default function FirmaPanel() {
               <div className="text-center py-4">
                 <div className="text-5xl mb-3">✅</div>
                 <div className="font-black text-lg mb-2">Atama Tamamlandı!</div>
-                <button onClick={() => { setAtamaModal(false); setSayfa("talepler"); }} className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] text-white font-bold py-3 rounded-xl transition text-sm mt-4">Tamam →</button>
+                <p className="text-gray-500 text-xs mb-4 leading-relaxed">Şoföre aşağıdaki linki gönderin, giriş yapıp göreve başlasın.</p>
+                <div className="bg-[#2A2A2A] border border-white/10 rounded-xl p-3 mb-4 text-left">
+                  <div className="text-[10px] text-gray-500 uppercase font-bold mb-1">Şoför Giriş Linki</div>
+                  <div className="font-mono text-xs text-[#FF4D00] break-all">
+                    {typeof window !== "undefined" ? window.location.origin : ""}/sofor
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    const url = (typeof window !== "undefined" ? window.location.origin : "") + "/sofor";
+                    if (navigator.share) { navigator.share({ title: "Şoför Girişi", url }); }
+                    else { navigator.clipboard.writeText(url); }
+                  }}
+                  className="w-full bg-[#2A2A2A] border border-white/10 hover:border-[#FF4D00]/40 text-white font-bold py-2.5 rounded-xl transition text-sm mb-2"
+                >
+                  📤 Linki Paylaş / Kopyala
+                </button>
+                <button onClick={() => { setAtamaModal(false); setSayfa("talepler"); }} className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] text-white font-bold py-3 rounded-xl transition text-sm">Tamam →</button>
               </div>
             )}
           </div>

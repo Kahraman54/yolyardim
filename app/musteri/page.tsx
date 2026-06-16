@@ -28,6 +28,7 @@ type Firma = { id: string; firma_ad: string; lat?: number; lng?: number; il?: st
 type Talep = {
   id: string; created_at: string; tip: string; durum: string;
   firma_id?: string; hedef_adres?: string; aciklama?: string;
+  sofor_konum_lat?: number; sofor_konum_lng?: number; sofor_konum_updated_at?: string;
 };
 
 function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -119,7 +120,7 @@ export default function MusteriAna() {
   const taleplerYukle = useCallback(async (musteriId: string) => {
     const { data } = await supabase
       .from("talepler")
-      .select("id, created_at, tip, durum, firma_id, hedef_adres, aciklama")
+      .select("id, created_at, tip, durum, firma_id, hedef_adres, aciklama, sofor_konum_lat, sofor_konum_lng, sofor_konum_updated_at")
       .eq("musteri_id", musteriId)
       .order("created_at", { ascending: false });
     setTalepler(data || []);
@@ -128,6 +129,14 @@ export default function MusteriAna() {
   useEffect(() => {
     if (musteri?.id) taleplerYukle(musteri.id);
   }, [musteri, taleplerYukle]);
+
+  // Şoför yoldaysa konum otomatik yenilensin (15sn)
+  useEffect(() => {
+    const yoldaTalep = talepler.some(t => t.durum === "yolda");
+    if (!yoldaTalep || !musteri?.id) return;
+    const interval = setInterval(() => taleplerYukle(musteri.id), 15000);
+    return () => clearInterval(interval);
+  }, [talepler, musteri, taleplerYukle]);
 
   // GPS
   function konumIste() {
@@ -412,6 +421,35 @@ export default function MusteriAna() {
                 {t.firma_id && <div className="text-xs text-gray-500 mt-1">🚛 {firmaAdi(t.firma_id)}</div>}
                 {t.hedef_adres && <div className="text-xs text-gray-600 mt-1">🎯 {t.hedef_adres}</div>}
                 {t.aciklama && <div className="text-xs text-gray-600 mt-1">💬 {t.aciklama}</div>}
+                {/* Şoför konum kartı — sadece yolda ise ve konum varsa */}
+                {t.durum === "yolda" && t.sofor_konum_lat && t.sofor_konum_lng && (
+                  <a
+                    href={`https://maps.google.com/?q=${t.sofor_konum_lat},${t.sofor_konum_lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 flex items-center gap-3 bg-blue-500/8 border border-blue-500/20 rounded-xl p-3"
+                  >
+                    <span className="text-xl">🚛</span>
+                    <div className="flex-1">
+                      <div className="text-[10px] text-blue-400 font-bold uppercase">Şoför Konumu — haritada aç</div>
+                      <div className="text-xs text-blue-300 mt-0.5">
+                        {t.sofor_konum_lat.toFixed(5)}, {t.sofor_konum_lng.toFixed(5)}
+                      </div>
+                      {t.sofor_konum_updated_at && (
+                        <div className="text-[10px] text-gray-500 mt-0.5">
+                          ⏱ {new Date(t.sofor_konum_updated_at).toLocaleTimeString("tr-TR")} güncellendi
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-blue-400 text-sm">→</span>
+                  </a>
+                )}
+                {t.durum === "yolda" && !t.sofor_konum_lat && (
+                  <div className="mt-3 flex items-center gap-2 text-xs text-blue-400/70 bg-blue-500/5 border border-blue-500/15 rounded-xl p-3">
+                    <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                    Şoför yola çıktı, konum bekleniyor...
+                  </div>
+                )}
               </div>
             ))}
           </div>
