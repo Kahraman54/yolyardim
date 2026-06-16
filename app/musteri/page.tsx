@@ -34,22 +34,30 @@ export default function MusteriAna() {
   const [yukleniyor, setYukleniyor] = useState(false);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [MAP_CENTER, setMapCenter] = useState({ lat: 40.9837, lng: 29.0210 });
+  const [konumYukleniyor, setKonumYukleniyor] = useState(false);
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!,
   });
-  // GPS: sayfa açılır açılmaz konum iste (harita yüklenmesini bekleme)
-  useEffect(() => {
+  function konumIste() {
     if (!navigator.geolocation) return;
+    setKonumYukleniyor(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setMapCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setMapCenter(c);
+        map?.panTo(c);
+        setKonumYukleniyor(false);
       },
-      (err) => console.log("Konum hatası:", err.code, err.message),
+      (err) => { console.log("Konum hatası:", err.code, err.message); setKonumYukleniyor(false); },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
-  }, []);
+  }
+
+  // Sayfa açılınca otomatik dene (Chrome/Android çalışır, Safari butonla çalışır)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { konumIste(); }, []);
 
   // Harita yüklenince konuma pan et
   useEffect(() => {
@@ -75,7 +83,7 @@ export default function MusteriAna() {
   }
 
   return (
-    <main className="h-screen bg-[#0D0D0D] text-white flex flex-col max-w-md mx-auto relative overflow-hidden">
+    <main className="bg-[#0D0D0D] text-white flex flex-col relative overflow-hidden" style={{ height: "100dvh" }}>
       {/* HEADER */}
       <header className="h-14 flex items-center justify-between px-4 bg-[#1A1A1A] border-b border-white/5 flex-shrink-0 z-40">
         <div>
@@ -157,7 +165,7 @@ export default function MusteriAna() {
           <div className="absolute right-3 top-3 flex flex-col gap-2 z-10">
             <button onClick={() => map?.setZoom((map.getZoom() || 13) + 1)} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-lg text-white shadow-lg">＋</button>
             <button onClick={() => map?.setZoom((map.getZoom() || 13) - 1)} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-lg text-white shadow-lg">－</button>
-            <button onClick={() => map?.panTo(MAP_CENTER)} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-base shadow-lg">📍</button>
+            <button onClick={konumIste} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-base shadow-lg">{konumYukleniyor ? "⏳" : "📍"}</button>
           </div>
 
           {/* Seçili firma kartı */}
