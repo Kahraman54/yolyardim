@@ -43,6 +43,9 @@ export default function AdminPanel() {
   const [seciliFirmaDetay, setSeciliFirmaDetay] = useState<Firma | null>(null);
   const [belgeUrl, setBelgeUrl] = useState<{ k1o: string | null; ticaret: string | null }>({ k1o: null, ticaret: null });
 
+  // Genel bakış istatistikleri
+  const [istatistik, setIstatistik] = useState({ aktif: 0, bekliyor: 0, reddedildi: 0, toplam: 0 });
+
   // Firmalar listesi state
   const [tumFirmalar, setTumFirmalar] = useState<Firma[]>([]);
   const [firmaListeYukleniyor, setFirmaListeYukleniyor] = useState(false);
@@ -65,6 +68,17 @@ export default function AdminPanel() {
       .order("created_at", { ascending: false });
     setBekleyenFirmalar(data || []);
     setBelgeYukleniyor(false);
+  }, []);
+
+  const istatistikYukle = useCallback(async () => {
+    const { data } = await supabase.from("firmalar").select("durum");
+    if (!data) return;
+    setIstatistik({
+      aktif: data.filter(f => f.durum === "aktif").length,
+      bekliyor: data.filter(f => f.durum === "bekliyor").length,
+      reddedildi: data.filter(f => f.durum === "reddedildi").length,
+      toplam: data.length,
+    });
   }, []);
 
   const tumFirmalariYukle = useCallback(async () => {
@@ -90,6 +104,10 @@ export default function AdminPanel() {
     setFirmaSoforler(soforler || []);
     setFirmaDetayYukleniyor(false);
   }, []);
+
+  useEffect(() => {
+    istatistikYukle();
+  }, [istatistikYukle]);
 
   useEffect(() => {
     if (sayfa === "belgeler") bekleyenleriYukle();
@@ -184,10 +202,10 @@ export default function AdminPanel() {
             <div>
               <div className="grid grid-cols-4 gap-3 mb-5">
                 {[
-                  {l:"Belge Onayı Bekleyen",v:bekleyenFirmalar.length || "—",c:"text-[#FF4D00]",b:"border-[#FF4D00]/20"},
-                  {l:"Aktif Firma",v:"—",c:"text-[#00C853]",b:"border-[#00C853]/15"},
-                  {l:"Bekleyen Çağrı",v:"2",c:"text-red-400",b:"border-red-500/20"},
-                  {l:"Bugün Tamamlanan",v:"—",c:"text-blue-400",b:""},
+                  {l:"Aktif Firma", v:istatistik.aktif, c:"text-[#00C853]", b:"border-[#00C853]/15"},
+                  {l:"Onay Bekleyen", v:istatistik.bekliyor, c:"text-[#FF4D00]", b:"border-[#FF4D00]/20"},
+                  {l:"Reddedilen", v:istatistik.reddedildi, c:"text-red-400", b:"border-red-500/15"},
+                  {l:"Toplam Firma", v:istatistik.toplam, c:"text-white", b:""},
                 ].map(s=>(
                   <div key={s.l} className={`bg-[#141414] border border-white/5 ${s.b} rounded-xl p-4`}>
                     <div className="text-[11px] text-gray-500 mb-2">{s.l}</div>
