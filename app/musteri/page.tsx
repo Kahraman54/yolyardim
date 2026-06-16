@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from "@react-google-maps/api";
 import { supabase } from "../../lib/supabase";
@@ -33,6 +33,7 @@ export default function MusteriAna() {
   const [gonderildi, setGonderildi] = useState(false);
   const [yukleniyor, setYukleniyor] = useState(false);
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
   const [MAP_CENTER, setMapCenter] = useState({ lat: 40.9837, lng: 29.0210 });
   const [konumYukleniyor, setKonumYukleniyor] = useState(false);
   const [appHeight, setAppHeight] = useState("100dvh");
@@ -54,7 +55,8 @@ export default function MusteriAna() {
       (pos) => {
         const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setMapCenter(c);
-        map?.panTo(c);
+        // ref her zaman güncel map instance'ını tutar, stale closure sorunu yok
+        mapRef.current?.panTo(c);
         setKonumYukleniyor(false);
       },
       (err) => { console.log("Konum hatası:", err.code, err.message); setKonumYukleniyor(false); },
@@ -66,14 +68,17 @@ export default function MusteriAna() {
   // Sayfa açılınca konum iste
   useEffect(() => { konumIste(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Harita yüklenince konuma pan et
-  useEffect(() => {
-    if (map && MAP_CENTER.lat !== 40.9837) {
-      map.panTo(MAP_CENTER);
-    }
-  }, [map, MAP_CENTER]);
-  const onLoad = useCallback((map: google.maps.Map) => setMap(map), []);
-  const onUnmount = useCallback(() => setMap(null), []);
+  // Harita yüklendikten sonra GPS zaten geldiyse pan et
+  const onLoad = useCallback((m: google.maps.Map) => {
+    mapRef.current = m;
+    setMap(m);
+    // Harita geç yüklendiyse GPS koordinatı zaten state'te olabilir
+    setMapCenter(prev => {
+      if (prev.lat !== 40.9837) m.panTo(prev);
+      return prev;
+    });
+  }, []);
+  const onUnmount = useCallback(() => { mapRef.current = null; setMap(null); }, []);
 
   async function talepGonder() {
     if (!sorunTip) return;
