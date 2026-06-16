@@ -130,13 +130,17 @@ export default function MusteriAna() {
     if (musteri?.id) taleplerYukle(musteri.id);
   }, [musteri, taleplerYukle]);
 
-  // Şoför yoldaysa konum otomatik yenilensin (15sn)
+  // Şoför yoldaysa konum otomatik yenilensin (10sn)
+  const musteriIdRef = useRef<string | null>(null);
+  useEffect(() => { musteriIdRef.current = musteri?.id || null; }, [musteri]);
+
   useEffect(() => {
-    const yoldaTalep = talepler.some(t => t.durum === "yolda");
-    if (!yoldaTalep || !musteri?.id) return;
-    const interval = setInterval(() => taleplerYukle(musteri.id), 15000);
+    const interval = setInterval(() => {
+      const yoldaTalep = talepler.some(t => t.durum === "yolda");
+      if (yoldaTalep && musteriIdRef.current) taleplerYukle(musteriIdRef.current);
+    }, 10000);
     return () => clearInterval(interval);
-  }, [talepler, musteri, taleplerYukle]);
+  }, [talepler, taleplerYukle]);
 
   // GPS
   function konumIste() {

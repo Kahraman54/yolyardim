@@ -77,13 +77,15 @@ export default function SoforPanel() {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         setSonKonum({ lat, lng });
-        await supabase.from("talepler").update({
+        const { error } = await supabase.from("talepler").update({
           sofor_konum_lat: lat,
           sofor_konum_lng: lng,
           sofor_konum_updated_at: new Date().toISOString(),
         }).eq("id", talepId);
+        if (error) setHata("Konum gönderilemedi: " + error.message);
+        else setHata("");
       },
-      () => {},
+      (err) => setHata("GPS hatası: " + err.message),
       { timeout: 10000, maximumAge: 5000 }
     );
   }
@@ -149,7 +151,7 @@ export default function SoforPanel() {
   if (!sofor) return null;
 
   return (
-    <main className="min-h-screen bg-[#0D0D0D] text-white flex flex-col max-w-md mx-auto">
+    <main className="min-h-screen bg-[#0D0D0D] text-white flex flex-col">
       {/* HEADER */}
       <header className="h-14 flex items-center justify-between px-4 bg-[#1A1A1A] border-b border-white/5 flex-shrink-0">
         <div className="flex items-center gap-2.5">
