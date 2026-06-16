@@ -23,7 +23,7 @@ type Musteri = {
   cekis_turu?: string; yakit_tipi?: string;
 };
 
-type Firma = { id: string; firma_ad: string; lat?: number; lng?: number; };
+type Firma = { id: string; firma_ad: string; lat?: number; lng?: number; il?: string; ilce?: string; };
 
 type Talep = {
   id: string; created_at: string; tip: string; durum: string;
@@ -61,6 +61,7 @@ export default function MusteriAna() {
   const [talepler, setTalepler] = useState<Talep[]>([]);
   const [appHeight, setAppHeight] = useState("100dvh");
   const [gorunum, setGorunum] = useState<"harita" | "liste">("harita");
+  const [seciliFirma, setSeciliFirma] = useState<Firma | null>(null);
 
   // Harita
   const [mapCenter, setMapCenter] = useState({ lat: 40.9837, lng: 29.021 });
@@ -109,7 +110,7 @@ export default function MusteriAna() {
 
   // Firma yükleme
   useEffect(() => {
-    supabase.from("firmalar").select("id, firma_ad, lat, lng")
+    supabase.from("firmalar").select("id, firma_ad, lat, lng, il, ilce")
       .eq("durum", "aktif")
       .then(({ data }) => setFirmalar(data || []));
   }, []);
@@ -153,18 +154,23 @@ export default function MusteriAna() {
   }, []);
   const onUnmount = useCallback(() => { mapRef.current = null; setMap(null); }, []);
 
-  // SOS açma: en yakın firmayı bul
-  function sosAc() {
-    const lokasyonluFirmalar = firmalar.filter(f => f.lat && f.lng);
-    if (lokasyonluFirmalar.length > 0) {
-      const nearest = [...lokasyonluFirmalar].sort((a, b) =>
-        haversine(mapCenter.lat, mapCenter.lng, a.lat!, a.lng!) -
-        haversine(mapCenter.lat, mapCenter.lng, b.lat!, b.lng!)
-      )[0];
-      setEnYakinFirma(nearest);
+  // SOS açma: belirli firma veya en yakın firmayı bul
+  function sosAc(belirli?: Firma) {
+    if (belirli) {
+      setEnYakinFirma(belirli);
     } else {
-      setEnYakinFirma(null);
+      const lokasyonluFirmalar = firmalar.filter(f => f.lat && f.lng);
+      if (lokasyonluFirmalar.length > 0) {
+        const nearest = [...lokasyonluFirmalar].sort((a, b) =>
+          haversine(mapCenter.lat, mapCenter.lng, a.lat!, a.lng!) -
+          haversine(mapCenter.lat, mapCenter.lng, b.lat!, b.lng!)
+        )[0];
+        setEnYakinFirma(nearest);
+      } else {
+        setEnYakinFirma(null);
+      }
     }
+    setSeciliFirma(null);
     setSosModal(true);
   }
 
@@ -282,8 +288,9 @@ export default function MusteriAna() {
                       <Marker
                         key={f.id}
                         position={{ lat: f.lat!, lng: f.lng! }}
+                        onClick={() => setSeciliFirma(f)}
                         icon={{
-                          url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="130" height="42"><rect x="0" y="0" width="130" height="34" rx="8" fill="#1A1A1A" stroke="#FF4D00" stroke-width="2"/><text x="10" y="22" font-family="Arial" font-size="12" font-weight="bold" fill="white">🚛 ${f.firma_ad.slice(0, 12)}</text><polygon points="60,34 70,34 65,42" fill="#FF4D00"/></svg>`)}`,
+                          url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="130" height="42"><rect x="0" y="0" width="130" height="34" rx="8" fill="${seciliFirma?.id === f.id ? '#FF4D00' : '#1A1A1A'}" stroke="#FF4D00" stroke-width="2"/><text x="10" y="22" font-family="Arial" font-size="12" font-weight="bold" fill="white">🚛 ${f.firma_ad.slice(0, 12)}</text><polygon points="60,34 70,34 65,42" fill="#FF4D00"/></svg>`)}`,
                           scaledSize: new google.maps.Size(130, 42),
                           anchor: new google.maps.Point(65, 42),
                         }}
@@ -303,6 +310,39 @@ export default function MusteriAna() {
                 <div className="absolute top-3 left-3 bg-[#1A1A1A]/90 border border-white/10 rounded-xl px-3 py-2 text-xs text-white z-10">
                   🚛 {firmalar.filter(f => f.lat && f.lng).length} aktif firma
                 </div>
+
+                {/* Seçili firma kartı */}
+                {seciliFirma && (
+                  <div className="absolute bottom-0 left-0 right-0 bg-[#1A1A1A] border-t border-white/10 p-4 z-20">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-xl bg-[#FF4D00]/15 border border-[#FF4D00]/20 flex items-center justify-center text-xl flex-shrink-0">🚛</div>
+                        <div>
+                          <div className="font-bold text-sm">{seciliFirma.firma_ad}</div>
+                          {(seciliFirma.il || seciliFirma.ilce) && (
+                            <div className="text-xs text-gray-500 mt-0.5">
+                              📍 {[seciliFirma.ilce, seciliFirma.il].filter(Boolean).join(" / ")}
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] font-bold bg-[#00C853]/10 text-[#00C853] border border-[#00C853]/25 px-2 py-0.5 rounded-full">✓ AKTİF</span>
+                            {seciliFirma.lat && seciliFirma.lng && (
+                              <span className="text-[10px] text-gray-500">
+                                ~{haversine(mapCenter.lat, mapCenter.lng, seciliFirma.lat, seciliFirma.lng).toFixed(1)} km uzakta
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <button onClick={() => setSeciliFirma(null)} className="w-7 h-7 bg-[#2A2A2A] rounded-lg text-gray-400 text-sm flex items-center justify-center flex-shrink-0">✕</button>
+                    </div>
+                    <button
+                      onClick={() => sosAc(seciliFirma)}
+                      className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] text-white font-bold py-3 rounded-xl transition text-sm">
+                      🆘 Bu Firmadan Yardım İste
+                    </button>
+                  </div>
+                )}
               </>
             )}
 
