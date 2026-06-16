@@ -254,18 +254,22 @@ export default function SoforPanel() {
                 </div>
               )}
 
-              {seciliTalep.musteri_tel && (
-                <a
-                  href={`tel:${seciliTalep.musteri_tel}`}
-                  className="flex items-center gap-3 bg-blue-500/8 border border-blue-500/20 rounded-xl p-3 mb-3"
-                >
-                  <span className="text-xl">📞</span>
-                  <div>
-                    <div className="text-[10px] text-gray-500 uppercase font-bold">Telefon — aramak için tıkla</div>
-                    <div className="font-bold text-blue-400 text-sm mt-0.5">{seciliTalep.musteri_tel}</div>
-                  </div>
-                </a>
-              )}
+              {seciliTalep.musteri_tel && (() => {
+                const numara = seciliTalep.musteri_tel.replace(/\D/g, "");
+                const goruntu = numara.startsWith("0") ? numara : "0" + numara;
+                return (
+                  <a
+                    href={`tel:${goruntu}`}
+                    className="flex items-center gap-3 bg-blue-500/8 border border-blue-500/20 rounded-xl p-3 mb-3"
+                  >
+                    <span className="text-xl">📞</span>
+                    <div>
+                      <div className="text-[10px] text-gray-500 uppercase font-bold">Telefon — aramak için tıkla</div>
+                      <div className="font-bold text-blue-400 text-sm mt-0.5">{goruntu}</div>
+                    </div>
+                  </a>
+                );
+              })()}
 
               {/* Araç bilgileri */}
               <div className="bg-[#2A2A2A] border border-white/5 rounded-xl p-3">
