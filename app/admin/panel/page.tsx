@@ -12,11 +12,18 @@ type Firma = {
   email: string;
   il: string;
   ilce: string;
+  adres?: string;
+  vergi_no?: string;
+  vergi_dairesi?: string;
+  banka?: string;
+  iban?: string;
   durum: string;
   k1o_url: string | null;
   ticaret_sicil_url: string | null;
   created_at: string;
 };
+type Arac = { id: string; plaka: string; tur: string; marka?: string; model?: string; model_yili?: string; arac_turu?: string; };
+type Sofor = { id: string; ad: string; soyad: string; tel: string; };
 
 const cagriData = [
   { ad:"Ayşe Kaya", tel:"0532 xxx xx xx", c:"👩 Kadın", z:"3 dk önce", tip:"🚛 Çekici", konum:"Kadıköy, Moda Cad. No:45", hedef:"Kadıköy Ford Servisi", arac:"34 ABC 123 · Ford Focus · Kırmızı · ÖÇ", not:'"Araç sağ tarafta, lastik patlak."', acil:true },
@@ -36,6 +43,15 @@ export default function AdminPanel() {
   const [seciliFirmaDetay, setSeciliFirmaDetay] = useState<Firma | null>(null);
   const [belgeUrl, setBelgeUrl] = useState<{ k1o: string | null; ticaret: string | null }>({ k1o: null, ticaret: null });
 
+  // Firmalar listesi state
+  const [tumFirmalar, setTumFirmalar] = useState<Firma[]>([]);
+  const [firmaListeYukleniyor, setFirmaListeYukleniyor] = useState(false);
+  const [seciliFirmaListe, setSeciliFirmaListe] = useState<Firma | null>(null);
+  const [firmaAraclar, setFirmaAraclar] = useState<Arac[]>([]);
+  const [firmaSoforler, setFirmaSoforler] = useState<Sofor[]>([]);
+  const [firmaDetayYukleniyor, setFirmaDetayYukleniyor] = useState(false);
+  const [firmaArama, setFirmaArama] = useState("");
+
   useEffect(() => {
     if (!localStorage.getItem("admin")) { router.replace("/admin"); }
   }, [router]);
@@ -51,9 +67,34 @@ export default function AdminPanel() {
     setBelgeYukleniyor(false);
   }, []);
 
+  const tumFirmalariYukle = useCallback(async () => {
+    setFirmaListeYukleniyor(true);
+    const { data } = await supabase
+      .from("firmalar")
+      .select("id, firma_ad, sahip_ad, sahip_soyad, tel, email, il, ilce, adres, vergi_no, vergi_dairesi, banka, iban, durum, k1o_url, ticaret_sicil_url, created_at")
+      .order("created_at", { ascending: false });
+    setTumFirmalar(data || []);
+    setFirmaListeYukleniyor(false);
+  }, []);
+
+  const firmaDetayYukle = useCallback(async (firma: Firma) => {
+    setSeciliFirmaListe(firma);
+    setFirmaAraclar([]);
+    setFirmaSoforler([]);
+    setFirmaDetayYukleniyor(true);
+    const [{ data: araclar }, { data: soforler }] = await Promise.all([
+      supabase.from("araclar").select("id, plaka, tur, marka, model, model_yili, arac_turu").eq("firma_id", firma.id),
+      supabase.from("soforler").select("id, ad, soyad, tel").eq("firma_id", firma.id),
+    ]);
+    setFirmaAraclar(araclar || []);
+    setFirmaSoforler(soforler || []);
+    setFirmaDetayYukleniyor(false);
+  }, []);
+
   useEffect(() => {
     if (sayfa === "belgeler") bekleyenleriYukle();
-  }, [sayfa, bekleyenleriYukle]);
+    if (sayfa === "firmalar") tumFirmalariYukle();
+  }, [sayfa, bekleyenleriYukle, tumFirmalariYukle]);
 
   async function belgeleriGoster(firma: Firma) {
     setSeciliFirmaDetay(firma);
@@ -322,7 +363,128 @@ export default function AdminPanel() {
 
           {/* FİRMALAR */}
           {sayfa==="firmalar" && (
-            <div className="text-gray-500 text-sm p-8 text-center">Yakında eklenecek.</div>
+            <div className="grid grid-cols-2 gap-4 h-full">
+              {/* Sol: firma listesi */}
+              <div className="flex flex-col gap-3">
+                <input
+                  value={firmaArama}
+                  onChange={e => setFirmaArama(e.target.value)}
+                  placeholder="🔍 Firma ara..."
+                  className="w-full bg-[#141414] border border-white/8 rounded-lg px-4 py-2.5 text-sm text-white outline-none focus:border-[#FF4D00] transition"
+                />
+                <div className="text-xs text-gray-500">
+                  {firmaListeYukleniyor ? "Yükleniyor..." : `${tumFirmalar.length} firma kayıtlı`}
+                </div>
+                <div className="space-y-2 overflow-y-auto">
+                  {tumFirmalar
+                    .filter(f => !firmaArama || f.firma_ad.toLowerCase().includes(firmaArama.toLowerCase()) || f.il?.toLowerCase().includes(firmaArama.toLowerCase()))
+                    .map(f => (
+                    <div
+                      key={f.id}
+                      onClick={() => firmaDetayYukle(f)}
+                      className={`p-3 rounded-xl border cursor-pointer transition ${seciliFirmaListe?.id === f.id ? "border-[#FF4D00] bg-[#FF4D00]/4" : "border-white/8 bg-[#141414] hover:border-white/20"}`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <div className="font-bold text-sm truncate">{f.firma_ad}</div>
+                          <div className="text-xs text-gray-500 mt-0.5">{f.il}{f.ilce ? ` / ${f.ilce}` : ""} · {f.tel}</div>
+                        </div>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
+                          f.durum === "aktif" ? "bg-[#00C853]/10 text-[#00C853]" :
+                          f.durum === "bekliyor" ? "bg-[#FF4D00]/10 text-[#FF4D00]" :
+                          "bg-red-500/10 text-red-400"
+                        }`}>
+                          {f.durum === "aktif" ? "Aktif" : f.durum === "bekliyor" ? "Bekliyor" : "Reddedildi"}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sağ: firma detayı */}
+              <div className="bg-[#141414] border border-white/5 rounded-xl overflow-hidden flex flex-col">
+                {seciliFirmaListe ? (
+                  firmaDetayYukleniyor ? (
+                    <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">Yükleniyor...</div>
+                  ) : (
+                    <div className="flex-1 overflow-y-auto">
+                      {/* Firma başlık */}
+                      <div className="p-4 border-b border-white/5">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div>
+                            <div className="font-black text-base">{seciliFirmaListe.firma_ad}</div>
+                            <div className="text-xs text-gray-400 mt-0.5">{seciliFirmaListe.sahip_ad} {seciliFirmaListe.sahip_soyad}</div>
+                          </div>
+                          <span className={`text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0 ${
+                            seciliFirmaListe.durum === "aktif" ? "bg-[#00C853]/10 text-[#00C853] border border-[#00C853]/20" :
+                            seciliFirmaListe.durum === "bekliyor" ? "bg-[#FF4D00]/10 text-[#FF4D00] border border-[#FF4D00]/20" :
+                            "bg-red-500/10 text-red-400 border border-red-500/20"
+                          }`}>
+                            {seciliFirmaListe.durum === "aktif" ? "✓ Aktif" : seciliFirmaListe.durum === "bekliyor" ? "⏳ Bekliyor" : "✕ Reddedildi"}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          {seciliFirmaListe.tel && <div><span className="text-gray-500">Tel: </span>{seciliFirmaListe.tel}</div>}
+                          {seciliFirmaListe.email && <div><span className="text-gray-500">E-posta: </span>{seciliFirmaListe.email}</div>}
+                          {seciliFirmaListe.adres && <div className="col-span-2"><span className="text-gray-500">Adres: </span>{seciliFirmaListe.adres}</div>}
+                          {seciliFirmaListe.vergi_no && <div><span className="text-gray-500">Vergi No: </span>{seciliFirmaListe.vergi_no}</div>}
+                          {seciliFirmaListe.vergi_dairesi && <div><span className="text-gray-500">Vergi D.: </span>{seciliFirmaListe.vergi_dairesi}</div>}
+                          {seciliFirmaListe.banka && <div><span className="text-gray-500">Banka: </span>{seciliFirmaListe.banka}</div>}
+                          {seciliFirmaListe.iban && <div className="col-span-2"><span className="text-gray-500">IBAN: </span><span className="font-mono">{seciliFirmaListe.iban}</span></div>}
+                        </div>
+                      </div>
+
+                      {/* Araçlar */}
+                      <div className="p-4 border-b border-white/5">
+                        <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Araçlar ({firmaAraclar.length})</div>
+                        {firmaAraclar.length === 0 ? (
+                          <div className="text-xs text-gray-600">Araç eklenmemiş.</div>
+                        ) : (
+                          <div className="space-y-2">
+                            {firmaAraclar.map(a => (
+                              <div key={a.id} className="flex items-center gap-2 bg-[#1E1E1E] rounded-lg px-3 py-2">
+                                <span className="text-base">🚛</span>
+                                <div>
+                                  <div className="font-bold text-xs">{a.plaka}</div>
+                                  <div className="text-[11px] text-gray-500">
+                                    {[a.arac_turu, a.tur, a.marka, a.model, a.model_yili].filter(Boolean).join(" · ")}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Şoförler */}
+                      <div className="p-4">
+                        <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Şoförler ({firmaSoforler.length})</div>
+                        {firmaSoforler.length === 0 ? (
+                          <div className="text-xs text-gray-600">Şoför eklenmemiş.</div>
+                        ) : (
+                          <div className="space-y-2">
+                            {firmaSoforler.map(s => (
+                              <div key={s.id} className="flex items-center gap-2 bg-[#1E1E1E] rounded-lg px-3 py-2">
+                                <div className="w-7 h-7 rounded-full bg-[#2A2A2A] flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                  {s.ad[0]}{s.soyad?.[0] || ""}
+                                </div>
+                                <div>
+                                  <div className="font-bold text-xs">{s.ad} {s.soyad}</div>
+                                  <div className="text-[11px] text-gray-500">{s.tel}</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                ) : (
+                  <div className="flex-1 flex items-center justify-center text-gray-600 text-sm">← Firma seçin</div>
+                )}
+              </div>
+            </div>
           )}
 
           {/* İSTATİSTİK */}
