@@ -99,6 +99,7 @@ export default function MusteriAna() {
 
   // İş özeti modal
   const [ozetModal, setOzetModal] = useState<Talep | null>(null);
+  const [lightbox, setLightbox] = useState<{ urls: string[]; idx: number } | null>(null);
 
   // Toast bildirimleri
   const [toastlar, setToastlar] = useState<Toast[]>([]);
@@ -708,7 +709,7 @@ export default function MusteriAna() {
                     <div className="grid grid-cols-3 gap-2">
                       {tumFotolar.map((url, i) => (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img key={i} src={url} alt={`foto-${i}`} className="aspect-square rounded-xl object-cover border border-white/10" />
+                        <img key={i} src={url} alt={`foto-${i}`} className="aspect-square rounded-xl object-cover border border-white/10 cursor-pointer" onClick={() => setLightbox({ urls: tumFotolar, idx: i })} />
                       ))}
                     </div>
                   </div>
@@ -729,6 +730,36 @@ export default function MusteriAna() {
             </div>
             <button onClick={() => setOzetModal(null)} className="w-full mt-4 border border-white/10 text-gray-500 py-3 rounded-xl text-sm">Kapat</button>
           </div>
+        </div>
+      )}
+
+      {/* LIGHTBOX */}
+      {lightbox && (
+        <div className="fixed inset-0 bg-black z-[200] flex flex-col" onClick={() => setLightbox(null)}>
+          <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" onClick={e => e.stopPropagation()}>
+            <span className="text-sm text-gray-400">{lightbox.idx + 1} / {lightbox.urls.length}</span>
+            <button onClick={() => setLightbox(null)} className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white text-lg">✕</button>
+          </div>
+          <div className="flex-1 flex items-center justify-center px-2 overflow-hidden" onClick={e => e.stopPropagation()}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={lightbox.urls[lightbox.idx]} alt="tam ekran" className="max-w-full max-h-full object-contain rounded-xl" />
+          </div>
+          {lightbox.urls.length > 1 && (
+            <div className="flex justify-center gap-4 py-4 flex-shrink-0" onClick={e => e.stopPropagation()}>
+              <button onClick={() => setLightbox(l => l && l.idx > 0 ? { ...l, idx: l.idx - 1 } : l)}
+                disabled={lightbox.idx === 0}
+                className="w-12 h-12 rounded-full bg-white/10 disabled:opacity-20 flex items-center justify-center text-xl">‹</button>
+              <div className="flex items-center gap-1.5">
+                {lightbox.urls.map((_, i) => (
+                  <button key={i} onClick={() => setLightbox(l => l ? { ...l, idx: i } : l)}
+                    className={`w-2 h-2 rounded-full transition ${i === lightbox.idx ? "bg-white" : "bg-white/30"}`} />
+                ))}
+              </div>
+              <button onClick={() => setLightbox(l => l && l.idx < l.urls.length - 1 ? { ...l, idx: l.idx + 1 } : l)}
+                disabled={lightbox.idx === lightbox.urls.length - 1}
+                className="w-12 h-12 rounded-full bg-white/10 disabled:opacity-20 flex items-center justify-center text-xl">›</button>
+            </div>
+          )}
         </div>
       )}
     </main>

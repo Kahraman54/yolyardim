@@ -58,6 +58,7 @@ export default function SoforPanel() {
   const [islemYapiliyor, setIslemYapiliyor] = useState(false);
   const [fotoYukleniyor, setFotoYukleniyor] = useState(false);
   const [fotoProgress, setFotoProgress] = useState({ done: 0, total: 0 });
+  const [lightbox, setLightbox] = useState<{ urls: string[]; idx: number } | null>(null);
   const aktifFotoStepRef = useRef<FotoStep | null>(null);
 
   const intervalRef  = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -272,7 +273,7 @@ export default function SoforPanel() {
             {arr.map((url, i) => (
               <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-[#00C853]/30">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={url} alt={`foto-${i+1}`} className="w-full h-full object-cover" />
+                <img src={url} alt={`foto-${i+1}`} className="w-full h-full object-cover cursor-pointer" onClick={() => setLightbox({ urls: arr, idx: i })} />
                 <button
                   onClick={() => fotoCikar(step, i)}
                   className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white text-[10px] flex items-center justify-center hover:bg-red-500 transition"
@@ -517,7 +518,7 @@ export default function SoforPanel() {
                 {fotolar.tutanak.map((url, i) => (
                   <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-[#00C853]/30">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt="tutanak" className="w-full h-full object-cover" />
+                    <img src={url} alt="tutanak" className="w-full h-full object-cover cursor-pointer" onClick={() => setLightbox({ urls: fotolar.tutanak, idx: i })} />
                     <button onClick={() => fotoCikar("tutanak", i)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white text-[10px] flex items-center justify-center hover:bg-red-500">✕</button>
                   </div>
                 ))}
@@ -569,6 +570,36 @@ export default function SoforPanel() {
           </div>
         )}
       </div>
+
+      {/* LIGHTBOX */}
+      {lightbox && (
+        <div className="fixed inset-0 bg-black z-[200] flex flex-col" onClick={() => setLightbox(null)}>
+          <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" onClick={e => e.stopPropagation()}>
+            <span className="text-sm text-gray-400">{lightbox.idx + 1} / {lightbox.urls.length}</span>
+            <button onClick={() => setLightbox(null)} className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white text-lg">✕</button>
+          </div>
+          <div className="flex-1 flex items-center justify-center px-2 overflow-hidden" onClick={e => e.stopPropagation()}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={lightbox.urls[lightbox.idx]} alt="tam ekran" className="max-w-full max-h-full object-contain rounded-xl" />
+          </div>
+          {lightbox.urls.length > 1 && (
+            <div className="flex justify-center gap-4 py-4 flex-shrink-0" onClick={e => e.stopPropagation()}>
+              <button onClick={() => setLightbox(l => l && l.idx > 0 ? { ...l, idx: l.idx - 1 } : l)}
+                disabled={lightbox.idx === 0}
+                className="w-12 h-12 rounded-full bg-white/10 disabled:opacity-20 flex items-center justify-center text-xl">‹</button>
+              <div className="flex items-center gap-1.5">
+                {lightbox.urls.map((_, i) => (
+                  <button key={i} onClick={() => setLightbox(l => l ? { ...l, idx: i } : l)}
+                    className={`w-2 h-2 rounded-full transition ${i === lightbox.idx ? "bg-white" : "bg-white/30"}`} />
+                ))}
+              </div>
+              <button onClick={() => setLightbox(l => l && l.idx < l.urls.length - 1 ? { ...l, idx: l.idx + 1 } : l)}
+                disabled={lightbox.idx === lightbox.urls.length - 1}
+                className="w-12 h-12 rounded-full bg-white/10 disabled:opacity-20 flex items-center justify-center text-xl">›</button>
+            </div>
+          )}
+        </div>
+      )}
     </main>
   );
 }
