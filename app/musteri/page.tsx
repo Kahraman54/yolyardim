@@ -330,7 +330,7 @@ export default function MusteriAna() {
                       <Marker position={mapCenter} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: "#0A84FF", fillOpacity: 1, strokeColor: "#ffffff", strokeWeight: 3 }} />
                       {firmalar.filter(f => f.lat && f.lng).map(f => (
                         <Marker key={f.id} position={{ lat: f.lat!, lng: f.lng! }} onClick={() => setSeciliFirma(f)}
-                          icon={{ url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="130" height="42"><rect x="0" y="0" width="130" height="34" rx="8" fill="${seciliFirma?.id === f.id ? '#FF4D00' : '#1A1A1A'}" stroke="#FF4D00" stroke-width="2"/><text x="10" y="22" font-family="Arial" font-size="12" font-weight="bold" fill="white">🚛 ${f.firma_ad.slice(0, 12)}</text><polygon points="60,34 70,34 65,42" fill="#FF4D00"/></svg>`)}`, scaledSize: new google.maps.Size(130, 42), anchor: new google.maps.Point(65, 42) }} />
+                          icon={{ url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="170" height="42"><rect x="0" y="0" width="170" height="34" rx="8" fill="${seciliFirma?.id === f.id ? '#FF4D00' : '#1A1A1A'}" stroke="#FF4D00" stroke-width="2"/><text x="10" y="22" font-family="Arial" font-size="12" font-weight="bold" fill="white">🚛 ${f.firma_ad.split(' ').slice(0, 3).join(' ')}</text><polygon points="80,34 90,34 85,42" fill="#FF4D00"/></svg>`)}`, scaledSize: new google.maps.Size(170, 42), anchor: new google.maps.Point(85, 42) }} />
                       ))}
                     </GoogleMap>
                   ) : (
