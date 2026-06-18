@@ -13,7 +13,7 @@ type Sofor = { id: string; ad: string; soyad: string; tel: string; };
 type Talep = {
   id: string; tip: string; durum: string; created_at: string;
   musteri_ad?: string; musteri_tel?: string;
-  konum_adres?: string; hedef_adres?: string; arac_plaka?: string; aciklama?: string;
+  konum_lat?: number; konum_lng?: number; konum_adres?: string; hedef_adres?: string; arac_plaka?: string; aciklama?: string;
   toplam_km?: number; ise_baslama_zamani?: string; ise_bitis_zamani?: string;
   foto_teslim_alma?: string[]; foto_yukleme?: string[]; foto_teslim?: string[]; foto_tutanak?: string[];
   fiyat_teklifi?: number;
@@ -91,7 +91,7 @@ export default function FirmaPanel() {
   const taleplerYukle = useCallback(async (id: string) => {
     const { data, error } = await supabase
       .from("talepler")
-      .select("id, tip, durum, created_at, musteri_ad, musteri_tel, konum_adres, hedef_adres, arac_plaka, aciklama, toplam_km, ise_baslama_zamani, ise_bitis_zamani, foto_teslim_alma, foto_yukleme, foto_teslim, foto_tutanak, fiyat_teklifi")
+      .select("id, tip, durum, created_at, musteri_ad, musteri_tel, konum_lat, konum_lng, konum_adres, hedef_adres, arac_plaka, aciklama, toplam_km, ise_baslama_zamani, ise_bitis_zamani, foto_teslim_alma, foto_yukleme, foto_teslim, foto_tutanak, fiyat_teklifi")
       .or(`durum.eq.yeni,firma_id.eq.${id}`)
       .order("created_at", { ascending: false });
     if (error) console.error("Talepler yükleme hatası:", error.message, error.code);
@@ -361,9 +361,18 @@ export default function FirmaPanel() {
                         <div className="font-black text-sm tracking-wider">{t.arac_plaka}</div>
                       </div>
                     )}
-                    {(t.konum_adres || t.hedef_adres) && (
+                    {(t.konum_lat || t.konum_adres || t.hedef_adres) && (
                       <div className="bg-[#222] border border-white/5 rounded-xl p-3 mb-3 space-y-2">
-                        {t.konum_adres && <div className="flex items-start gap-2"><span>📍</span><div><div className="text-[10px] text-gray-500 uppercase font-bold">Bulunduğu Yer</div><div className="text-xs font-semibold mt-0.5">{t.konum_adres}</div></div></div>}
+                        {(t.konum_lat || t.konum_adres) && (
+                          <a href={t.konum_lat ? `https://maps.google.com/?q=${t.konum_lat},${t.konum_lng}` : `https://maps.google.com/?q=${encodeURIComponent(t.konum_adres!)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 group">
+                            <span>📍</span>
+                            <div className="flex-1">
+                              <div className="text-[10px] text-gray-500 uppercase font-bold">Bulunduğu Yer</div>
+                              <div className="text-xs font-semibold mt-0.5 text-[#FF4D00] group-hover:underline">{t.konum_adres || `${t.konum_lat?.toFixed(5)}, ${t.konum_lng?.toFixed(5)}`}</div>
+                            </div>
+                            <span className="text-[10px] bg-[#FF4D00]/10 text-[#FF4D00] border border-[#FF4D00]/20 px-2 py-1 rounded-lg font-bold">Haritada Aç →</span>
+                          </a>
+                        )}
                         {t.hedef_adres && <div className="flex items-start gap-2"><span>🎯</span><div><div className="text-[10px] text-gray-500 uppercase font-bold">Hedef</div><div className="text-xs font-semibold mt-0.5">{t.hedef_adres}</div></div></div>}
                       </div>
                     )}
