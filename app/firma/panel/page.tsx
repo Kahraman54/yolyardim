@@ -16,6 +16,7 @@ type Talep = {
   konum_adres?: string; hedef_adres?: string; arac_plaka?: string; aciklama?: string;
   toplam_km?: number; ise_baslama_zamani?: string; ise_bitis_zamani?: string;
   foto_teslim_alma?: string[]; foto_yukleme?: string[]; foto_teslim?: string[]; foto_tutanak?: string[];
+  fiyat_teklifi?: number;
 };
 
 export default function FirmaPanel() {
@@ -45,6 +46,7 @@ export default function FirmaPanel() {
   const [seciliSofor, setSeciliSofor] = useState("");
   const [seciliArac, setSeciliArac] = useState("");
   const [atamaTamam, setAtamaTamam] = useState(false);
+  const [fiyatTeklifi, setFiyatTeklifi] = useState("");
 
   const [hata, setHata] = useState("");
   const [basari, setBasari] = useState("");
@@ -89,7 +91,7 @@ export default function FirmaPanel() {
   const taleplerYukle = useCallback(async (id: string) => {
     const { data, error } = await supabase
       .from("talepler")
-      .select("id, tip, durum, created_at, musteri_ad, musteri_tel, konum_adres, hedef_adres, arac_plaka, aciklama, toplam_km, ise_baslama_zamani, ise_bitis_zamani, foto_teslim_alma, foto_yukleme, foto_teslim, foto_tutanak")
+      .select("id, tip, durum, created_at, musteri_ad, musteri_tel, konum_adres, hedef_adres, arac_plaka, aciklama, toplam_km, ise_baslama_zamani, ise_bitis_zamani, foto_teslim_alma, foto_yukleme, foto_teslim, foto_tutanak, fiyat_teklifi")
       .or(`durum.eq.yeni,firma_id.eq.${id}`)
       .order("created_at", { ascending: false });
     if (error) console.error("Talepler yükleme hatası:", error.message, error.code);
@@ -165,10 +167,13 @@ export default function FirmaPanel() {
     if (firmaId) soforlerYukle(firmaId);
   }
 
-  async function talepKabul() {
+  async function teklifGonder() {
     if (!seciliSofor || !seciliArac || !seciliTalep || !firmaId) return;
     setYukleniyor(true);
-    await supabase.from("talepler").update({ durum: "kabul", firma_id: firmaId, atanan_sofor: seciliSofor, atanan_arac: seciliArac }).eq("id", seciliTalep.id);
+    await supabase.from("talepler").update({
+      durum: "teklif", firma_id: firmaId, atanan_sofor: seciliSofor, atanan_arac: seciliArac,
+      fiyat_teklifi: fiyatTeklifi ? parseFloat(fiyatTeklifi) : null,
+    }).eq("id", seciliTalep.id);
     setYukleniyor(false);
     setAtamaTamam(true);
     taleplerYukle(firmaId);
@@ -179,7 +184,7 @@ export default function FirmaPanel() {
     if (firmaId) taleplerYukle(firmaId);
   }
 
-  const yeniTalepler = talepler.filter(t => t.durum === "yeni");
+  const yeniTalepler = talepler.filter(t => t.durum === "yeni" || t.durum === "teklif");
 
   const navItems = [
     { id: "panel", icon: "📊", label: "Panel" },
@@ -311,7 +316,7 @@ export default function FirmaPanel() {
                   Henüz talep gelmedi. Talepler burada görünecek.
                 </div>
               ) : talepler.map(t => (
-                <div key={t.id} className={`bg-[#1A1A1A] border rounded-2xl overflow-hidden ${t.durum === "yeni" || t.durum === "bekliyor" ? "border-[#FF4D00]" : "border-white/8"}`}>
+                <div key={t.id} className={`bg-[#1A1A1A] border rounded-2xl overflow-hidden ${t.durum === "yeni" ? "border-[#FF4D00]" : t.durum === "teklif" ? "border-purple-500/60" : "border-white/8"}`}>
                   <div className="flex items-center justify-between p-4 border-b border-white/5">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-[#FF4D00]/10 flex items-center justify-center text-base">🚛</div>
@@ -321,11 +326,13 @@ export default function FirmaPanel() {
                       </div>
                     </div>
                     <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${
-                      t.durum === "yeni" || t.durum === "bekliyor" ? "bg-[#FF4D00]/12 text-[#FF4D00] border-[#FF4D00]/25 animate-pulse" :
-                      t.durum === "kabul" ? "bg-[#00C853]/10 text-[#00C853] border-[#00C853]/25" :
+                      t.durum === "yeni" ? "bg-[#FF4D00]/12 text-[#FF4D00] border-[#FF4D00]/25 animate-pulse" :
+                      t.durum === "teklif" ? "bg-purple-500/10 text-purple-300 border-purple-500/25" :
+                      t.durum === "kabul" || t.durum === "yolda" ? "bg-[#00C853]/10 text-[#00C853] border-[#00C853]/25" :
+                      t.durum === "tamamlandi" ? "bg-gray-500/10 text-gray-400 border-gray-500/20" :
                       "bg-white/5 text-gray-500 border-white/10"
                     }`}>
-                      {t.durum === "yeni" || t.durum === "bekliyor" ? "🔴 YENİ" : t.durum === "kabul" ? "✓ KABUL" : t.durum.toUpperCase()}
+                      {t.durum === "yeni" ? "🔴 YENİ" : t.durum === "teklif" ? "⏳ ONAY BEKL." : t.durum === "kabul" ? "✓ KABUL" : t.durum === "yolda" ? "🚛 YOLDA" : t.durum === "tamamlandi" ? "✔ TAMAM" : t.durum.toUpperCase()}
                     </span>
                   </div>
                   <div className="p-4">
@@ -361,18 +368,25 @@ export default function FirmaPanel() {
                       </div>
                     )}
                     {t.aciklama && <div className="bg-yellow-500/5 border border-yellow-500/15 rounded-lg p-3 text-xs text-yellow-200 mb-4">💬 &ldquo;{t.aciklama}&rdquo;</div>}
-                    {(t.durum === "yeni" || t.durum === "bekliyor") && (
+                    {t.durum === "yeni" && (
                       <div className="flex gap-2">
-                        <button onClick={() => { setSeciliTalep(t); setAtamaModal(true); setAtamaTamam(false); setSeciliSofor(""); setSeciliArac(""); }}
-                          className="flex-1 bg-[#00C853] hover:bg-[#00a844] text-black font-bold py-3 rounded-xl transition text-sm">
-                          ✓ Kabul Et & Şoför Ata
+                        <button onClick={() => { setSeciliTalep(t); setAtamaModal(true); setAtamaTamam(false); setSeciliSofor(""); setSeciliArac(""); setFiyatTeklifi(""); }}
+                          className="flex-1 bg-[#FF4D00] hover:bg-[#CC3D00] text-white font-bold py-3 rounded-xl transition text-sm">
+                          💰 Fiyat Teklif Et
                         </button>
                         <button onClick={() => talepReddet(t.id)} className="px-5 py-3 border border-red-500/25 text-red-400 hover:bg-red-500/8 rounded-xl font-bold transition text-sm">
-                          ✕ Reddet
+                          ✕
                         </button>
                       </div>
                     )}
-                    {t.durum === "kabul" && (
+                    {t.durum === "teklif" && (
+                      <div className="bg-purple-500/8 border border-purple-500/20 rounded-xl p-3 text-xs text-purple-300 flex items-center gap-2">
+                        <span className="animate-pulse">⏳</span>
+                        Müşteri onayı bekleniyor
+                        {t.fiyat_teklifi && <span className="ml-auto font-black text-white">{t.fiyat_teklifi.toLocaleString("tr-TR")} ₺</span>}
+                      </div>
+                    )}
+                    {(t.durum === "kabul" || t.durum === "yolda") && (
                       <button onClick={() => talepTamamla(t.id)}
                         className="w-full bg-[#2A2A2A] border border-white/10 hover:border-[#00C853]/40 text-white font-bold py-2.5 rounded-xl transition text-sm">
                         ✔ Hizmeti Tamamla
@@ -675,9 +689,21 @@ export default function FirmaPanel() {
             {!atamaTamam ? (
               <>
                 <div className="flex justify-between items-center mb-5">
-                  <h2 className="font-black text-lg">Şoför & Araç Ata</h2>
+                  <h2 className="font-black text-lg">Fiyat Teklifi Gönder</h2>
                   <button onClick={() => setAtamaModal(false)} className="w-7 h-7 bg-[#2A2A2A] rounded-lg text-gray-400 text-sm">✕</button>
                 </div>
+                <div className="mb-4">
+                  <label className="block text-xs font-bold text-gray-400 mb-2">Hizmet Fiyatı (₺)</label>
+                  <input
+                    type="number"
+                    value={fiyatTeklifi}
+                    onChange={e => setFiyatTeklifi(e.target.value)}
+                    placeholder="Örn: 1500"
+                    className="w-full bg-[#2A2A2A] border border-white/8 rounded-xl px-4 py-3 text-lg font-black text-white outline-none focus:border-[#FF4D00] transition"
+                  />
+                  <p className="text-[10px] text-gray-600 mt-1">Müşteri bu fiyatı görüp onaylayacak. Boş bırakabilirsiniz.</p>
+                </div>
+                <div className="h-px bg-white/5 mb-4"></div>
                 <div className="text-xs text-gray-500 font-bold uppercase tracking-wide mb-2">Şoför Seç</div>
                 {soforler.length === 0 ? (
                   <div className="text-xs text-gray-600 mb-4 p-3 bg-[#2A2A2A] rounded-lg">Önce Şoförlerim sekmesinden şoför ekleyin.</div>
@@ -707,15 +733,15 @@ export default function FirmaPanel() {
                     ))}
                   </div>
                 )}
-                <button onClick={talepKabul} disabled={!seciliSofor || !seciliArac || yukleniyor} className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-3 rounded-xl transition text-sm">
-                  {yukleniyor ? "İşleniyor..." : "🚛 Yola Çıkar"}
+                <button onClick={teklifGonder} disabled={!seciliSofor || !seciliArac || yukleniyor} className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-3 rounded-xl transition text-sm">
+                  {yukleniyor ? "Gönderiliyor..." : "💰 Teklifi Gönder"}
                 </button>
               </>
             ) : (
               <div className="text-center py-4">
-                <div className="text-5xl mb-3">✅</div>
-                <div className="font-black text-lg mb-2">Atama Tamamlandı!</div>
-                <p className="text-gray-500 text-xs mb-4 leading-relaxed">Şoföre aşağıdaki linki gönderin, giriş yapıp göreve başlasın.</p>
+                <div className="text-5xl mb-3">💰</div>
+                <div className="font-black text-lg mb-2">Teklif Gönderildi!</div>
+                <p className="text-gray-500 text-xs mb-4 leading-relaxed">Müşteri fiyatı onayladığında şoförü yola çıkartabilirsiniz. Şoföre aşağıdaki linki gönderin.</p>
                 <div className="bg-[#2A2A2A] border border-white/10 rounded-xl p-3 mb-4 text-left">
                   <div className="text-[10px] text-gray-500 uppercase font-bold mb-1">Şoför Giriş Linki</div>
                   <div className="font-mono text-xs text-[#FF4D00] break-all">
