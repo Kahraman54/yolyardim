@@ -7,11 +7,14 @@ export default function Home() {
           Tulpar<span className="text-[#FF4D00]"> Assist</span>
         </div>
         <div className="flex gap-3">
+          <a href="/sofor" className="px-4 py-2 rounded-lg border border-white/10 text-sm font-semibold text-gray-400 hover:text-white transition">
+            Şoför Girişi
+          </a>
           <a href="/firma/kayit" className="px-4 py-2 rounded-lg border border-white/10 text-sm font-semibold text-gray-400 hover:text-white transition">
-            Firma Ol
+            Tedarikçimiz Ol
           </a>
           <a href="/firma/giris" className="px-4 py-2 rounded-lg border border-white/10 text-sm font-semibold text-gray-400 hover:text-white transition">
-            Firma Girişi
+            Tedarikçi Girişi
           </a>
           <a href="/giris" className="px-4 py-2 rounded-lg bg-[#FF4D00] text-sm font-semibold hover:bg-[#CC3D00] transition">
             Giriş Yap
