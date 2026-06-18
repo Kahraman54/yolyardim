@@ -15,7 +15,7 @@ type Talep = {
   musteri_ad?: string; musteri_tel?: string;
   konum_adres?: string; hedef_adres?: string; arac_plaka?: string; aciklama?: string;
   toplam_km?: number; ise_baslama_zamani?: string; ise_bitis_zamani?: string;
-  foto_teslim_alma?: string[]; foto_yukleme?: string[]; foto_teslim?: string[];
+  foto_teslim_alma?: string[]; foto_yukleme?: string[]; foto_teslim?: string[]; foto_tutanak?: string[];
 };
 
 export default function FirmaPanel() {
@@ -89,7 +89,7 @@ export default function FirmaPanel() {
   const taleplerYukle = useCallback(async (id: string) => {
     const { data } = await supabase
       .from("talepler")
-      .select("id, tip, durum, created_at, musteri_ad, musteri_tel, konum_adres, hedef_adres, arac_plaka, aciklama, toplam_km, ise_baslama_zamani, ise_bitis_zamani, foto_teslim_alma, foto_yukleme, foto_teslim")
+      .select("id, tip, durum, created_at, musteri_ad, musteri_tel, konum_adres, hedef_adres, arac_plaka, aciklama, toplam_km, ise_baslama_zamani, ise_bitis_zamani, foto_teslim_alma, foto_yukleme, foto_teslim, foto_tutanak")
       .or(`durum.eq.yeni,firma_id.eq.${id}`)
       .order("created_at", { ascending: false });
     setTalepler(data || []);
@@ -391,7 +391,7 @@ export default function FirmaPanel() {
                           )}
                           <div>
                             <div className="font-black text-base text-[#00C853]">
-                              {((t.foto_teslim_alma?.length || 0) + (t.foto_yukleme?.length || 0) + (t.foto_teslim?.length || 0))}
+                              {((t.foto_teslim_alma?.length || 0) + (t.foto_yukleme?.length || 0) + (t.foto_teslim?.length || 0) + (t.foto_tutanak?.length || 0))}
                             </div>
                             <div className="text-[9px] text-gray-500">fotoğraf</div>
                           </div>
