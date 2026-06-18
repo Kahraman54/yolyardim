@@ -87,11 +87,12 @@ export default function FirmaPanel() {
   }, []);
 
   const taleplerYukle = useCallback(async (id: string) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("talepler")
       .select("id, tip, durum, created_at, musteri_ad, musteri_tel, konum_adres, hedef_adres, arac_plaka, aciklama, toplam_km, ise_baslama_zamani, ise_bitis_zamani, foto_teslim_alma, foto_yukleme, foto_teslim, foto_tutanak")
       .or(`durum.eq.yeni,firma_id.eq.${id}`)
       .order("created_at", { ascending: false });
+    if (error) console.error("Talepler yükleme hatası:", error.message, error.code);
     setTalepler(data || []);
   }, []);
 
