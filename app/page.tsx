@@ -1,200 +1,130 @@
+"use client";
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { supabase } from "../lib/supabase";
+
 export default function Home() {
+  const [panellerAcik, setPanellerAcik] = useState(false);
+  const [firmaCount, setFirmaCount] = useState<number | null>(null);
+  const panellerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    supabase.from("firmalar").select("id", { count: "exact", head: true }).eq("durum", "aktif")
+      .then(({ count }) => setFirmaCount(count));
+  }, []);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (panellerRef.current && !panellerRef.current.contains(e.target as Node)) {
+        setPanellerAcik(false);
+      }
+    }
+    if (panellerAcik) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [panellerAcik]);
+
   return (
-    <main className="min-h-screen bg-[#0D0D0D] text-white">
-      {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-[#0D0D0D]/90 backdrop-blur-md border-b border-white/5">
+    <main className="bg-[#0D0D0D] text-white flex flex-col" style={{ height: "100dvh", minHeight: "100vh" }}>
+
+      {/* HEADER */}
+      <header className="flex items-center justify-between px-4 py-3 bg-[#1A1A1A] border-b border-white/5 flex-shrink-0 z-40">
         <div className="font-black text-xl tracking-tight">
           Tulpar<span className="text-[#FF4D00]"> Assist</span>
         </div>
-        <div className="flex gap-3">
-          <a href="/sofor" className="px-4 py-2 rounded-lg border border-white/10 text-sm font-semibold text-gray-400 hover:text-white transition">
-            Şoför Girişi
-          </a>
-          <a href="/firma/kayit" className="px-4 py-2 rounded-lg border border-white/10 text-sm font-semibold text-gray-400 hover:text-white transition">
-            Tedarikçimiz Ol
-          </a>
-          <a href="/firma/giris" className="px-4 py-2 rounded-lg border border-white/10 text-sm font-semibold text-gray-400 hover:text-white transition">
-            Tedarikçi Girişi
-          </a>
-          <a href="/giris" className="px-4 py-2 rounded-lg bg-[#FF4D00] text-sm font-semibold hover:bg-[#CC3D00] transition">
-            Giriş Yap
-          </a>
+        <div ref={panellerRef} className="relative">
+          <button
+            onClick={() => setPanellerAcik(p => !p)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-bold transition ${panellerAcik ? "bg-[#FF4D00]/10 border-[#FF4D00]/30 text-[#FF4D00]" : "bg-[#2A2A2A] border-white/10 text-white"}`}
+          >
+            <span className="text-base">{panellerAcik ? "✕" : "≡"}</span> Paneller
+          </button>
+
+          {panellerAcik && (
+            <div className="absolute right-0 top-12 w-60 bg-[#1A1A1A] border border-white/10 rounded-2xl overflow-hidden z-50">
+              <div className="px-4 py-2.5 border-b border-white/5">
+                <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Panel Girişleri</div>
+              </div>
+              <Link href="/sofor" onClick={() => setPanellerAcik(false)}
+                className="flex items-center gap-3 px-4 py-3.5 hover:bg-white/5 transition border-b border-white/5">
+                <div className="w-9 h-9 bg-[#FF4D00]/10 border border-[#FF4D00]/20 rounded-xl flex items-center justify-center text-base flex-shrink-0">🚛</div>
+                <div>
+                  <div className="text-sm font-bold">Şoför Girişi</div>
+                  <div className="text-xs text-gray-500">Atanan görevleri gör</div>
+                </div>
+              </Link>
+              <Link href="/firma/giris" onClick={() => setPanellerAcik(false)}
+                className="flex items-center gap-3 px-4 py-3.5 hover:bg-white/5 transition">
+                <div className="w-9 h-9 bg-[#00C853]/8 border border-[#00C853]/20 rounded-xl flex items-center justify-center text-base flex-shrink-0">🏢</div>
+                <div>
+                  <div className="text-sm font-bold">Tedarikçi Girişi</div>
+                  <div className="text-xs text-gray-500">Firma panelini aç</div>
+                </div>
+              </Link>
+            </div>
+          )}
         </div>
-      </nav>
+      </header>
 
-      {/* HERO */}
-      <section className="pt-32 pb-20 px-6 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_800px_500px_at_50%_30%,rgba(255,77,0,0.10),transparent_70%)] pointer-events-none" />
+      {/* HARİTA / HERO ALANI */}
+      <div className="flex-1 relative bg-[#1a2332] overflow-hidden flex flex-col items-center justify-center">
+        {/* Dekoratif yol çizgileri */}
+        <svg className="absolute inset-0 w-full h-full opacity-60" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+          <line x1="0" y1="250" x2="400" y2="220" stroke="#2a3a4a" strokeWidth="18"/>
+          <line x1="100" y1="0" x2="130" y2="500" stroke="#2d4a6a" strokeWidth="12"/>
+          <line x1="270" y1="0" x2="310" y2="500" stroke="#2a3a4a" strokeWidth="8"/>
+          <line x1="0" y1="100" x2="400" y2="80" stroke="#222" strokeWidth="6"/>
+          <line x1="0" y1="380" x2="400" y2="360" stroke="#222" strokeWidth="5"/>
+          <line x1="50" y1="0" x2="30" y2="500" stroke="#1e2e3e" strokeWidth="5"/>
+        </svg>
 
-        <div className="inline-flex items-center gap-2 bg-[#FF4D00]/10 border border-[#FF4D00]/30 text-[#FF4D00] rounded-full px-4 py-1.5 text-xs font-bold mb-8 tracking-wide">
-          <span className="w-2 h-2 rounded-full bg-[#FF4D00] animate-pulse" />
-          7/24 Aktif Hizmet
+        {/* Firma marker'ları */}
+        {firmaCount !== null && firmaCount > 0 && (
+          <div className="absolute top-5 left-5 bg-[#1A1A1A]/90 border border-white/10 rounded-xl px-3 py-2 text-xs text-white">
+            🚛 {firmaCount} aktif firma
+          </div>
+        )}
+
+        {/* Merkez içerik */}
+        <div className="relative z-10 text-center px-6 py-4">
+          <div className="inline-flex items-center gap-2 bg-[#FF4D00]/10 border border-[#FF4D00]/25 text-[#FF4D00] rounded-full px-4 py-1.5 text-xs font-bold mb-5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#FF4D00] animate-pulse"></span>
+            7/24 Aktif Hizmet
+          </div>
+          <h1 className="font-black text-3xl leading-tight mb-3">
+            Yolda kaldın mı?<br />
+            <span className="text-[#FF4D00]">Biz zaten yoldayız.</span>
+          </h1>
+          <p className="text-gray-400 text-sm leading-relaxed max-w-xs mx-auto">
+            Türkiye genelinde çekici ve yol yardım firmalarını saniyeler içinde bulun.
+          </p>
         </div>
+      </div>
 
-        <h1 className="font-black text-5xl md:text-7xl leading-tight tracking-tighter mb-6">
-          Yolda kaldın mı?<br />
-          <span className="text-[#FF4D00]">Biz zaten yoldayız.</span>
-        </h1>
-
-        <p className="text-gray-400 text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-          Türkiye&apos;nin her noktasında çekici ve yol yardım firmalarını saniyeler içinde bulun. Güvenli, hızlı, şeffaf.
-        </p>
-
-        <div className="flex gap-4 justify-center flex-wrap">
-          <a href="/giris" className="px-8 py-4 bg-[#FF4D00] rounded-xl font-bold text-base hover:bg-[#CC3D00] transition hover:-translate-y-0.5">
-            🚨 Hemen Yardım İste
-          </a>
-          <a href="/firma/kayit" className="px-8 py-4 rounded-xl font-bold text-base border border-white/10 hover:border-white/30 transition">
-            Firma Olarak Katıl →
-          </a>
-        </div>
-
-        {/* İSTATİSTİKLER */}
-        <div className="flex justify-center gap-16 mt-20 pt-12 border-t border-white/5 flex-wrap">
+      {/* ALT BÖLÜM */}
+      <div className="bg-[#1A1A1A] border-t border-white/5 px-4 py-5 flex-shrink-0">
+        <Link href="/giris"
+          className="block w-full bg-[#FF4D00] hover:bg-[#CC3D00] active:bg-[#993000] text-white font-black py-4 rounded-2xl text-center text-base transition">
+          🆘 Giriş Yap
+        </Link>
+        <div className="flex justify-center gap-8 mt-4 pt-4 border-t border-white/5">
           {[
-            { val: "1.200+", label: "Kayıtlı Firma" },
+            { val: firmaCount !== null ? `${firmaCount}+` : "...", label: "Aktif Firma" },
             { val: "81 İl", label: "Türkiye Geneli" },
-            { val: "12 dk", label: "Ortalama Varış" },
             { val: "4.8 ★", label: "Kullanıcı Puanı" },
-          ].map((s) => (
+          ].map(s => (
             <div key={s.label} className="text-center">
-              <div className="font-black text-3xl">{s.val}</div>
-              <div className="text-gray-500 text-sm mt-1">{s.label}</div>
+              <div className="font-black text-base">{s.val}</div>
+              <div className="text-[10px] text-gray-500 mt-0.5">{s.label}</div>
             </div>
           ))}
         </div>
-      </section>
-
-      {/* NASIL ÇALIŞIR */}
-      <section className="py-20 px-6 bg-[#1A1A1A]">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-14">
-            <div className="text-[#FF4D00] text-xs font-bold tracking-widest uppercase mb-3">Nasıl Çalışır?</div>
-            <h2 className="font-black text-4xl tracking-tight">3 adımda yardım kapında.</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              { icon: "📍", title: "Konumunu Paylaş", desc: "GPS ile bulunduğun yeri otomatik tespit ediyoruz. Tarif vermeye gerek yok." },
-              { icon: "🔍", title: "Firmayı Seç", desc: "En yakın, en yüksek puanlı firmaları gör. Fiyat teklifini önceden al." },
-              { icon: "🚛", title: "Yardım Geliyor", desc: "Çekiciyi canlı takip et. Hangi plakalı aracın geldiğini bil." },
-            ].map((s, i) => (
-              <div key={i} className="bg-[#0D0D0D] border border-white/5 rounded-2xl p-8 hover:border-[#FF4D00]/30 transition">
-                <div className="text-4xl mb-5">{s.icon}</div>
-                <div className="font-bold text-lg mb-3">{s.title}</div>
-                <div className="text-gray-500 text-sm leading-relaxed">{s.desc}</div>
-              </div>
-            ))}
-          </div>
+        <div className="text-center mt-4">
+          <Link href="/firma/kayit" className="text-xs text-gray-600 hover:text-gray-400 transition">
+            Tedarikçi olmak ister misiniz? →
+          </Link>
         </div>
-      </section>
+      </div>
 
-      {/* KİM İÇİN */}
-      <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-14">
-            <div className="text-[#FF4D00] text-xs font-bold tracking-widest uppercase mb-3">Kim İçin?</div>
-            <h2 className="font-black text-4xl tracking-tight">İki tarafa da değer katıyoruz.</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-[#1A1A1A] border border-[#FF4D00]/20 rounded-2xl p-8">
-              <span className="text-xs font-bold tracking-widest uppercase bg-[#FF4D00]/10 text-[#FF4D00] px-3 py-1 rounded-full">Sürücüler İçin</span>
-              <h3 className="font-black text-2xl mt-5 mb-5">Yolda kaldığında panik yapma.</h3>
-              <ul className="space-y-3">
-                {[
-                  "En yakın firmayı saniyeler içinde bul",
-                  "Fiyat teklifini önceden gör",
-                  "Çekiciyi haritada canlı takip et",
-                  "3 aşamalı fotoğraf sistemi ile güvende ol",
-                  "7/24 aktif hizmet",
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-gray-300 text-sm">
-                    <span className="text-[#00C853] font-bold mt-0.5">✓</span> {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="bg-[#1A1A1A] border border-white/5 rounded-2xl p-8">
-              <span className="text-xs font-bold tracking-widest uppercase bg-white/5 text-gray-400 px-3 py-1 rounded-full">Firmalar İçin</span>
-              <h3 className="font-black text-2xl mt-5 mb-5">Müşteri bulmak artık çok kolay.</h3>
-              <ul className="space-y-3">
-                {[
-                  "Bölgendeki talepleri anında gör",
-                  "Reklam masrafı olmadan müşteriye ulaş",
-                  "GPS ile km bazlı otomatik fiyatlandırma",
-                  "Sabit aylık ücret, komisyon yok",
-                  "Kolay yönetim paneli",
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-gray-300 text-sm">
-                    <span className="text-[#00C853] font-bold mt-0.5">✓</span> {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ÖZELLİKLER */}
-      <section className="py-20 px-6 bg-[#1A1A1A]">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-14">
-            <div className="text-[#FF4D00] text-xs font-bold tracking-widest uppercase mb-3">Özellikler</div>
-            <h2 className="font-black text-4xl tracking-tight">Neden biz?</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              { icon: "🗺️", title: "Canlı Konum Takibi", desc: "Çekici hareket halindeyken haritada takip edin." },
-              { icon: "💰", title: "Şeffaf Fiyatlandırma", desc: "GPS ile km hesabı, önceden fiyat teklifi, sürpriz yok." },
-              { icon: "📸", title: "3 Aşamalı Fotoğraf", desc: "Teslim alma, yükleme, teslim. İki tarafı da korur." },
-              { icon: "⭐", title: "Gerçek Değerlendirmeler", desc: "Her hizmet sonrası kullanıcı yorumu. Sahte yorum yok." },
-              { icon: "🏢", title: "Kurumsal Çözüm", desc: "Sigorta ve garanti şirketleri için özel tarife sistemi." },
-              { icon: "🌙", title: "7/24 Aktif", desc: "Gece 03:00'te de sistem çalışıyor. Kesintisiz hizmet." },
-            ].map((f, i) => (
-              <div key={i} className="bg-[#0D0D0D] border border-white/5 rounded-2xl p-6 hover:border-[#FF4D00]/30 transition">
-                <div className="w-11 h-11 rounded-xl bg-[#FF4D00]/10 flex items-center justify-center text-xl mb-5">{f.icon}</div>
-                <div className="font-bold text-base mb-2">{f.title}</div>
-                <div className="text-gray-500 text-sm leading-relaxed">{f.desc}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 px-6">
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="bg-[#1A1A1A] border border-[#FF4D00]/20 rounded-3xl p-16">
-            <h2 className="font-black text-4xl tracking-tight mb-4">
-              Yolda bir kez mahsur kalmadan önce.
-            </h2>
-            <p className="text-gray-400 mb-10 leading-relaxed">
-              Ücretsiz kayıt ol. Umarız hiç kullanman gerekmez ama gerekirse hazır olsun.
-            </p>
-            <div className="flex gap-4 justify-center flex-wrap">
-              <a href="/giris" className="px-8 py-4 bg-[#FF4D00] rounded-xl font-bold hover:bg-[#CC3D00] transition">
-                📱 Hemen Başla
-              </a>
-              <a href="/firma/kayit" className="px-8 py-4 rounded-xl font-bold border border-white/10 hover:border-white/30 transition">
-                Firma Olarak Katıl
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="border-t border-white/5 py-10 px-6">
-        <div className="max-w-4xl mx-auto flex items-center justify-between flex-wrap gap-6">
-          <div className="font-black text-lg">Tulpar<span className="text-[#FF4D00]"> Assist</span></div>
-          <div className="flex gap-6 text-sm text-gray-500">
-            <a href="#" className="hover:text-white transition">Hakkımızda</a>
-            <a href="#" className="hover:text-white transition">Gizlilik</a>
-            <a href="#" className="hover:text-white transition">Kullanım Şartları</a>
-            <a href="#" className="hover:text-white transition">İletişim</a>
-          </div>
-          <div className="text-sm text-gray-600">© 2025 Tulpar Assist</div>
-        </div>
-      </footer>
     </main>
   );
 }
