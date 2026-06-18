@@ -53,7 +53,6 @@ export default function SoforPanel() {
   const [toplamKm, setToplamKm] = useState(0);
   const [gecenSure, setGecenSure] = useState("00:00");
   const [sonKonum, setSonKonum] = useState<{ lat: number; lng: number } | null>(null);
-  const [gpsHata, setGpsHata] = useState("");
   const [fotoHata, setFotoHata] = useState("");
   const [yukleniyor, setYukleniyor] = useState(true);
   const [islemYapiliyor, setIslemYapiliyor] = useState(false);
@@ -97,7 +96,7 @@ export default function SoforPanel() {
       teslim:      (t.foto_teslim      as string[] || []).filter(Boolean),
       tutanak:     (t.foto_tutanak     as string[] || []).filter(Boolean),
     });
-    setGpsHata(""); setFotoHata("");
+    setFotoHata("");
     if (t.durum === "tamamlandi" || t.is_adim === "tamamlandi") { setAdim("ozet"); return; }
     const yerelAdim = t.is_adim ? (DB_TO_ADIM[t.is_adim] || "detay") : "detay";
     setAdim(yerelAdim);
@@ -114,11 +113,10 @@ export default function SoforPanel() {
     kmAktifRef.current = false; prevPosRef.current = null;
   }
   function konumGuncelle(talepId: string) {
-    if (!navigator.geolocation) { setGpsHata("Cihaz GPS desteklemiyor"); return; }
+    if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const lat = pos.coords.latitude, lng = pos.coords.longitude;
       setSonKonum({ lat, lng });
-      setGpsHata("");
       let km = toplamKmRef.current;
       if (kmAktifRef.current && prevPosRef.current) {
         const d = haversine(prevPosRef.current.lat, prevPosRef.current.lng, lat, lng);
@@ -129,11 +127,8 @@ export default function SoforPanel() {
         sofor_konum_lat: lat, sofor_konum_lng: lng,
         sofor_konum_updated_at: new Date().toISOString(), toplam_km: km,
       }).eq("id", talepId);
-    }, (err) => {
-      // GPS hatası varsa sadece küçük uyarı göster, kırmızı banner değil
-      if (err.code === 1) setGpsHata("GPS izni verilmedi");
-      else if (err.code === 2) setGpsHata("Konum alınamadı");
-      else setGpsHata("GPS bağlanıyor...");
+    }, () => {
+      // Sessizce yoksay, interval bir sonraki denemede tekrar çalışacak
     }, { timeout: 10000, maximumAge: 5000 });
   }
 
@@ -323,22 +318,15 @@ export default function SoforPanel() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {kmAktif && (
+          {kmAktif && sonKonum && (
             <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-              {gpsHata ? "GPS ⚠" : "GPS ✓"}
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>GPS
             </div>
           )}
           <button onClick={cikis} className="text-[10px] text-gray-500 bg-[#2A2A2A] border border-white/8 px-2.5 py-1.5 rounded-lg">Çıkış</button>
         </div>
       </header>
 
-      {/* GPS uyarısı — sadece aktifken ve hata varsa, küçük */}
-      {kmAktif && gpsHata && (
-        <div className="mx-4 mt-2 bg-yellow-500/8 border border-yellow-500/20 text-yellow-400 text-[11px] px-3 py-2 rounded-lg flex items-center gap-2">
-          <span>⚠️</span> {gpsHata}
-        </div>
-      )}
 
       {/* Adım göstergesi */}
       {!["liste","detay","ozet"].includes(adim) && (
