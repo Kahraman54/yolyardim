@@ -47,30 +47,25 @@ export default function SoforPanel() {
   const [seciliTalep, setSeciliTalep] = useState<Talep | null>(null);
   const [musteriDetay, setMusteriDetay] = useState<MusteriDetay | null>(null);
   const [adim, setAdim] = useState<Adim>("liste");
-  const [fotolar, setFotolar] = useState({
-    teslim_alma: [null, null, null, null] as (string | null)[],
-    yukleme:     [null, null, null, null] as (string | null)[],
-    teslim:      [null, null, null, null] as (string | null)[],
-    tutanak:     [null] as (string | null)[],
+  const [fotolar, setFotolar] = useState<Record<FotoStep, string[]>>({
+    teslim_alma: [], yukleme: [], teslim: [], tutanak: [],
   });
   const [toplamKm, setToplamKm] = useState(0);
   const [gecenSure, setGecenSure] = useState("00:00");
   const [sonKonum, setSonKonum] = useState<{ lat: number; lng: number } | null>(null);
-  const [hata, setHata] = useState("");
+  const [gpsHata, setGpsHata] = useState("");
+  const [fotoHata, setFotoHata] = useState("");
   const [yukleniyor, setYukleniyor] = useState(true);
   const [islemYapiliyor, setIslemYapiliyor] = useState(false);
   const [fotoYukleniyor, setFotoYukleniyor] = useState(false);
-  // Tekli fotoğraf (kamera)
-  const [aktifSlot, setAktifSlot] = useState<{ step: FotoStep; idx: number } | null>(null);
-  // Çoklu fotoğraf (galeri)
-  const [cokluStep, setCokluStep] = useState<FotoStep | null>(null);
+  const [fotoProgress, setFotoProgress] = useState({ done: 0, total: 0 });
+  const aktifFotoStepRef = useRef<FotoStep | null>(null);
 
-  const intervalRef   = useRef<ReturnType<typeof setInterval> | null>(null);
-  const prevPosRef    = useRef<{ lat: number; lng: number } | null>(null);
-  const toplamKmRef   = useRef(0);
-  const kmAktifRef    = useRef(false);
-  const fotoInputRef  = useRef<HTMLInputElement>(null);   // tekli, kamera
-  const cokluInputRef = useRef<HTMLInputElement>(null);   // çoklu, galeri
+  const intervalRef  = useRef<ReturnType<typeof setInterval> | null>(null);
+  const prevPosRef   = useRef<{ lat: number; lng: number } | null>(null);
+  const toplamKmRef  = useRef(0);
+  const kmAktifRef   = useRef(false);
+  const fotoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const k = localStorage.getItem("sofor");
@@ -91,21 +86,18 @@ export default function SoforPanel() {
 
   useEffect(() => { if (sofor) taleplerYukle(sofor.id); }, [sofor, taleplerYukle]);
 
-  function pad(arr: (string | null)[], len: number): (string | null)[] {
-    return [...(arr || []), ...Array(len).fill(null)].slice(0, len);
-  }
-
   function talepSec(t: Talep) {
     setSeciliTalep(t);
     if (t.musteri_id) supabase.from("musteriler").select("arac_marka, arac_model, cekis_turu, yakit_tipi").eq("id", t.musteri_id).single().then(({ data }) => setMusteriDetay(data));
     const km = t.toplam_km || 0;
     setToplamKm(km); toplamKmRef.current = km;
     setFotolar({
-      teslim_alma: pad(t.foto_teslim_alma as (string|null)[] || [], 4),
-      yukleme:     pad(t.foto_yukleme     as (string|null)[] || [], 4),
-      teslim:      pad(t.foto_teslim      as (string|null)[] || [], 4),
-      tutanak:     pad(t.foto_tutanak     as (string|null)[] || [], 1),
+      teslim_alma: (t.foto_teslim_alma as string[] || []).filter(Boolean),
+      yukleme:     (t.foto_yukleme     as string[] || []).filter(Boolean),
+      teslim:      (t.foto_teslim      as string[] || []).filter(Boolean),
+      tutanak:     (t.foto_tutanak     as string[] || []).filter(Boolean),
     });
+    setGpsHata(""); setFotoHata("");
     if (t.durum === "tamamlandi" || t.is_adim === "tamamlandi") { setAdim("ozet"); return; }
     const yerelAdim = t.is_adim ? (DB_TO_ADIM[t.is_adim] || "detay") : "detay";
     setAdim(yerelAdim);
@@ -122,21 +114,27 @@ export default function SoforPanel() {
     kmAktifRef.current = false; prevPosRef.current = null;
   }
   function konumGuncelle(talepId: string) {
+    if (!navigator.geolocation) { setGpsHata("Cihaz GPS desteklemiyor"); return; }
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const lat = pos.coords.latitude, lng = pos.coords.longitude;
       setSonKonum({ lat, lng });
+      setGpsHata("");
       let km = toplamKmRef.current;
       if (kmAktifRef.current && prevPosRef.current) {
         const d = haversine(prevPosRef.current.lat, prevPosRef.current.lng, lat, lng);
         if (d < 0.5) { km += d; toplamKmRef.current = km; setToplamKm(km); }
       }
       prevPosRef.current = { lat, lng };
-      const { error } = await supabase.from("talepler").update({
+      await supabase.from("talepler").update({
         sofor_konum_lat: lat, sofor_konum_lng: lng,
         sofor_konum_updated_at: new Date().toISOString(), toplam_km: km,
       }).eq("id", talepId);
-      if (error) setHata("Konum: " + error.message); else setHata("");
-    }, (err) => setHata("GPS: " + err.message), { timeout: 10000, maximumAge: 5000 });
+    }, (err) => {
+      // GPS hatası varsa sadece küçük uyarı göster, kırmızı banner değil
+      if (err.code === 1) setGpsHata("GPS izni verilmedi");
+      else if (err.code === 2) setGpsHata("Konum alınamadı");
+      else setGpsHata("GPS bağlanıyor...");
+    }, { timeout: 10000, maximumAge: 5000 });
   }
 
   useEffect(() => {
@@ -151,62 +149,37 @@ export default function SoforPanel() {
 
   useEffect(() => () => stopGPS(), []);
 
-  // === Fotoğraf yükleme ===
-  async function yukleFile(file: File, step: FotoStep, idx: number): Promise<string | null> {
-    const path = `talepler/${seciliTalep!.id}/${step}/${Date.now()}_${idx}.jpg`;
-    const { data, error } = await supabase.storage.from("belgeler").upload(path, file, { contentType: file.type || "image/jpeg", upsert: true });
-    if (error) { setHata("Fotoğraf yüklenemedi: " + error.message); return null; }
-    return supabase.storage.from("belgeler").getPublicUrl(data.path).data.publicUrl;
+  // === Fotoğraf yükleme — tek input, birden fazla dosya ===
+  function fotoSec(step: FotoStep) {
+    aktifFotoStepRef.current = step;
+    if (fotoInputRef.current) { fotoInputRef.current.value = ""; fotoInputRef.current.click(); }
   }
 
-  // Tekli slot (kamera)
-  async function handleTekli(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !aktifSlot || !seciliTalep) return;
+  async function handleFotoSecme(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length || !seciliTalep) return;
+    const step = aktifFotoStepRef.current;
+    if (!step) return;
+    setFotoHata("");
     setFotoYukleniyor(true);
-    const url = await yukleFile(file, aktifSlot.step, aktifSlot.idx);
+    setFotoProgress({ done: 0, total: files.length });
+    const yeniUrller: string[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const mevcut = fotolar[step].length + yeniUrller.length;
+      const path = `talepler/${seciliTalep.id}/${step}/${Date.now()}_${mevcut}.jpg`;
+      const { data, error } = await supabase.storage.from("belgeler").upload(path, file, { contentType: file.type || "image/jpeg", upsert: true });
+      if (error) { setFotoHata(`Fotoğraf ${i+1} yüklenemedi: ${error.message}`); }
+      else { yeniUrller.push(supabase.storage.from("belgeler").getPublicUrl(data.path).data.publicUrl); }
+      setFotoProgress({ done: i + 1, total: files.length });
+    }
+    setFotolar(prev => ({ ...prev, [step]: [...prev[step], ...yeniUrller] }));
     setFotoYukleniyor(false);
-    if (url) setFotolar(prev => { const arr = [...prev[aktifSlot.step]]; arr[aktifSlot.idx] = url; return { ...prev, [aktifSlot.step]: arr }; });
     if (fotoInputRef.current) fotoInputRef.current.value = "";
   }
 
-  // Çoklu seçim (galeri)
-  async function handleCoklu(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files || []);
-    if (!files.length || !cokluStep || !seciliTalep) return;
-    const maxSlot = cokluStep === "tutanak" ? 1 : 4;
-    setFotoYukleniyor(true);
-    const yeniArr = [...fotolar[cokluStep]];
-    let fileIdx = 0;
-    for (let i = 0; i < maxSlot && fileIdx < files.length; i++) {
-      if (!yeniArr[i]) {
-        const url = await yukleFile(files[fileIdx], cokluStep, i);
-        if (url) yeniArr[i] = url;
-        fileIdx++;
-      }
-    }
-    // Eğer tüm boş slotlar doldu ama dosya kaldıysa üstten doldur
-    if (fileIdx < files.length) {
-      for (let i = 0; i < maxSlot && fileIdx < files.length; i++) {
-        const url = await yukleFile(files[fileIdx], cokluStep, i);
-        if (url) yeniArr[i] = url;
-        fileIdx++;
-      }
-    }
-    setFotolar(prev => ({ ...prev, [cokluStep]: yeniArr }));
-    setFotoYukleniyor(false);
-    setHata("");
-    if (cokluInputRef.current) cokluInputRef.current.value = "";
-  }
-
-  function slotTikla(step: FotoStep, idx: number) {
-    setAktifSlot({ step, idx });
-    setTimeout(() => fotoInputRef.current?.click(), 50);
-  }
-
-  function cokluSec(step: FotoStep) {
-    setCokluStep(step);
-    setTimeout(() => cokluInputRef.current?.click(), 50);
+  function fotoCikar(step: FotoStep, idx: number) {
+    setFotolar(prev => ({ ...prev, [step]: prev[step].filter((_, i) => i !== idx) }));
   }
 
   // === İş akışı ===
@@ -221,7 +194,7 @@ export default function SoforPanel() {
       sofor_konum_lat: lat||null, sofor_konum_lng: lng||null, sofor_konum_updated_at: new Date().toISOString(),
     }).eq("id", seciliTalep.id);
     setIslemYapiliyor(false);
-    if (error) { setHata(error.message); return; }
+    if (error) { setFotoHata(error.message); return; }
     setSeciliTalep(p => p ? { ...p, durum:"yolda", is_adim:"yolda", ise_baslama_zamani: new Date().toISOString() } : p);
     setAdim("yolda"); kmAktifRef.current = true; startGPS(seciliTalep.id);
   }
@@ -234,10 +207,10 @@ export default function SoforPanel() {
 
   async function araciYukle() {
     stopGPS();
-    await dbAdimGec("yukleniyor", "yukleme", { foto_teslim_alma: fotolar.teslim_alma.filter(Boolean) });
+    await dbAdimGec("yukleniyor", "yukleme", { foto_teslim_alma: fotolar.teslim_alma });
   }
   async function teslimatYoluna() {
-    await dbAdimGec("teslimat_yolunda", "teslimat", { foto_yukleme: fotolar.yukleme.filter(Boolean) });
+    await dbAdimGec("teslimat_yolunda", "teslimat", { foto_yukleme: fotolar.yukleme });
     kmAktifRef.current = true; startGPS(seciliTalep!.id);
   }
   async function teslimEttim() {
@@ -245,7 +218,7 @@ export default function SoforPanel() {
     await dbAdimGec("teslimatta", "teslim_foto");
   }
   async function devamTutanak() {
-    await dbAdimGec("tutanak", "tutanak", { foto_teslim: fotolar.teslim.filter(Boolean) });
+    await dbAdimGec("tutanak", "tutanak", { foto_teslim: fotolar.teslim });
   }
   async function isiTamamla() {
     if (!seciliTalep) return;
@@ -253,8 +226,7 @@ export default function SoforPanel() {
     const bitisTarih = new Date().toISOString();
     await supabase.from("talepler").update({
       durum:"tamamlandi", is_adim:"tamamlandi", ise_bitis_zamani: bitisTarih,
-      foto_tutanak: fotolar.tutanak.filter(Boolean),
-      toplam_km: toplamKmRef.current,
+      foto_tutanak: fotolar.tutanak, toplam_km: toplamKmRef.current,
     }).eq("id", seciliTalep.id);
     setIslemYapiliyor(false);
     setSeciliTalep(p => p ? { ...p, ise_bitis_zamani: bitisTarih } : p);
@@ -268,49 +240,70 @@ export default function SoforPanel() {
   const kmAktif = adim === "yolda" || adim === "teslimat";
   const adimSira = ADIM_SIRALAMA.indexOf(adim);
 
-  // Fotoğraf grid bileşeni
-  function FotoGrid({ step, labels, count }: { step: FotoStep; labels: string[]; count: number }) {
+  // Fotoğraf bölümü bileşeni
+  function FotoBlok({ step, baslik, aciklama, devamButon, devamAksiyon, devamDisabled }: {
+    step: FotoStep; baslik: string; aciklama: string;
+    devamButon: string; devamAksiyon: () => void; devamDisabled?: boolean;
+  }) {
     const arr = fotolar[step];
-    const tamam = arr.filter(Boolean).length;
     return (
-      <>
-        {fotoYukleniyor && (
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 mb-3 text-xs text-blue-300 flex items-center gap-2">
-            <span className="inline-block animate-spin">⏳</span> Fotoğraflar yükleniyor...
+      <div>
+        <div className="font-black text-lg mb-1">{baslik}</div>
+        <div className="text-gray-500 text-xs mb-5">{aciklama}</div>
+
+        {fotoHata && (
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl mb-3 flex items-center justify-between">
+            <span>⚠️ {fotoHata}</span>
+            <button onClick={() => setFotoHata("")} className="underline ml-2">Kapat</button>
           </div>
         )}
-        {/* Çoklu seçim butonu */}
+
+        {/* Yükleme butonu */}
         <button
-          onClick={() => cokluSec(step)}
+          onClick={() => fotoSec(step)}
           disabled={fotoYukleniyor}
-          className="w-full flex items-center justify-center gap-2 border border-dashed border-[#FF4D00]/40 hover:border-[#FF4D00] bg-[#FF4D00]/5 hover:bg-[#FF4D00]/10 rounded-xl py-2.5 mb-3 text-xs font-bold text-[#FF4D00] transition disabled:opacity-40"
+          className="w-full flex items-center justify-center gap-3 bg-[#FF4D00]/10 hover:bg-[#FF4D00]/20 border-2 border-dashed border-[#FF4D00]/50 hover:border-[#FF4D00] text-[#FF4D00] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
         >
-          📁 Galeriden {count} Fotoğraf Seç
+          {fotoYukleniyor ? (
+            <><span className="animate-spin">⏳</span> Yükleniyor {fotoProgress.done}/{fotoProgress.total}...</>
+          ) : (
+            <><span className="text-xl">📷</span> {arr.length > 0 ? "Daha Fazla Fotoğraf Ekle" : "Fotoğraf Seç"}</>
+          )}
         </button>
-        <div className="grid grid-cols-2 gap-3 mb-3">
-          {labels.map((label, i) => (
-            <div
-              key={label}
-              onClick={() => !fotoYukleniyor && slotTikla(step, i)}
-              className={`aspect-square rounded-2xl border-2 flex flex-col items-center justify-center cursor-pointer transition overflow-hidden ${arr[i] ? "border-[#00C853]" : "border-dashed border-white/15 hover:border-[#FF4D00]/60 bg-[#1A1A1A]"}`}
-            >
-              {arr[i] ? (
-                <div className="relative w-full h-full">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={arr[i]!} alt={label} className="w-full h-full object-cover" />
-                  <div className="absolute bottom-0 inset-x-0 bg-black/60 text-[10px] text-center py-1 font-bold text-[#00C853]">✓ {label}</div>
-                </div>
-              ) : (
-                <><span className="text-2xl mb-1">📷</span><span className="text-[11px] font-bold text-gray-500 text-center px-2">{label}</span></>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="flex items-center justify-between text-xs mb-5">
-          <span className="text-gray-500">Her slota ayrı ayrı da çekebilirsiniz</span>
-          <span><span className={`font-black text-base ${tamam === count ? "text-[#00C853]" : "text-[#FF4D00]"}`}>{tamam}</span>/{count} foto</span>
-        </div>
-      </>
+
+        {/* Yüklenen fotoğraflar */}
+        {arr.length > 0 && (
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            {arr.map((url, i) => (
+              <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-[#00C853]/30">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt={`foto-${i+1}`} className="w-full h-full object-cover" />
+                <button
+                  onClick={() => fotoCikar(step, i)}
+                  className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white text-[10px] flex items-center justify-center hover:bg-red-500 transition"
+                >✕</button>
+                <div className="absolute bottom-0 inset-x-0 bg-black/50 text-[9px] text-center py-0.5 text-[#00C853] font-bold">{i+1}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {arr.length > 0 && (
+          <div className="flex items-center justify-between text-xs mb-5">
+            <span className="text-[#00C853] font-bold">✓ {arr.length} fotoğraf yüklendi</span>
+            <span className="text-gray-500">İstediğiniz kadar ekleyebilirsiniz</span>
+          </div>
+        )}
+
+        <button
+          onClick={devamAksiyon}
+          disabled={devamDisabled || islemYapiliyor || arr.length === 0}
+          className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-4 rounded-xl transition text-sm"
+        >
+          {islemYapiliyor ? "Kaydediliyor..." : devamButon}
+        </button>
+        {arr.length === 0 && <p className="text-center text-xs text-gray-600 mt-2">Devam etmek için en az 1 fotoğraf ekleyin</p>}
+      </div>
     );
   }
 
@@ -332,17 +325,18 @@ export default function SoforPanel() {
         <div className="flex items-center gap-2">
           {kmAktif && (
             <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>GPS
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+              {gpsHata ? "GPS ⚠" : "GPS ✓"}
             </div>
           )}
           <button onClick={cikis} className="text-[10px] text-gray-500 bg-[#2A2A2A] border border-white/8 px-2.5 py-1.5 rounded-lg">Çıkış</button>
         </div>
       </header>
 
-      {hata && (
-        <div className="mx-4 mt-3 bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl flex items-center justify-between">
-          <span>⚠️ {hata}</span>
-          <button onClick={() => setHata("")} className="underline ml-2">Kapat</button>
+      {/* GPS uyarısı — sadece aktifken ve hata varsa, küçük */}
+      {kmAktif && gpsHata && (
+        <div className="mx-4 mt-2 bg-yellow-500/8 border border-yellow-500/20 text-yellow-400 text-[11px] px-3 py-2 rounded-lg flex items-center gap-2">
+          <span>⚠️</span> {gpsHata}
         </div>
       )}
 
@@ -368,9 +362,8 @@ export default function SoforPanel() {
         </div>
       )}
 
-      {/* Gizli file input'lar */}
-      <input ref={fotoInputRef}  type="file" accept="image/*" capture="environment" onChange={handleTekli}  className="hidden" />
-      <input ref={cokluInputRef} type="file" accept="image/*" multiple            onChange={handleCoklu} className="hidden" />
+      {/* Tek gizli input — multiple */}
+      <input ref={fotoInputRef} type="file" accept="image/*" multiple onChange={handleFotoSecme} className="hidden" />
 
       <div className="flex-1 overflow-y-auto p-4 pb-10">
 
@@ -439,6 +432,7 @@ export default function SoforPanel() {
             )}
             {seciliTalep.hedef_adres && <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-3 mb-3 flex items-center gap-2"><span>🎯</span><div><div className="text-[10px] text-gray-500 uppercase font-bold">Hedef</div><div className="text-sm font-semibold">{seciliTalep.hedef_adres}</div></div></div>}
             {seciliTalep.aciklama && <div className="bg-yellow-500/5 border border-yellow-500/15 rounded-xl p-3 text-xs text-yellow-200 mb-4">💬 &ldquo;{seciliTalep.aciklama}&rdquo;</div>}
+            {fotoHata && <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl mb-3">⚠️ {fotoHata}</div>}
             <button onClick={iseBasla} disabled={islemYapiliyor} className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-4 rounded-xl transition text-sm">
               {islemYapiliyor ? "Başlatılıyor..." : "🚛 İşe Başla — Yola Çık"}
             </button>
@@ -454,7 +448,7 @@ export default function SoforPanel() {
               <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 text-center"><div className="text-2xl font-black text-[#FF4D00]">{gecenSure}</div><div className="text-[10px] text-gray-500 mt-1">Geçen Süre</div></div>
               <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 text-center"><div className="text-2xl font-black">{toplamKm.toFixed(1)}<span className="text-sm font-normal text-gray-500"> km</span></div><div className="text-[10px] text-gray-500 mt-1">Kilometre</div></div>
             </div>
-            {sonKonum && <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl p-3 mb-4 text-xs text-blue-300 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse flex-shrink-0"></span>Konumunuz müşteriye iletiliyor · {sonKonum.lat.toFixed(4)}, {sonKonum.lng.toFixed(4)}</div>}
+            {sonKonum && <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl p-3 mb-4 text-xs text-blue-300 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse flex-shrink-0"></span>Konumunuz müşteriye iletiliyor</div>}
             {seciliTalep.musteri_tel && <a href={`tel:${tel(seciliTalep.musteri_tel)}`} className="flex items-center gap-3 bg-[#1A1A1A] border border-white/8 rounded-xl p-3 mb-3"><span className="text-xl">📞</span><div><div className="text-[10px] text-gray-500">Müşteri</div><div className="font-bold text-blue-400">{seciliTalep.musteri_ad} · {tel(seciliTalep.musteri_tel)}</div></div></a>}
             {seciliTalep.konum_lat && <a href={`https://maps.google.com/?q=${seciliTalep.konum_lat},${seciliTalep.konum_lng}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-[#1A1A1A] border border-white/8 rounded-xl p-3 mb-6"><span className="text-xl">📍</span><div className="flex-1"><div className="text-[10px] text-gray-500">Müşterinin Konumu</div><div className="text-sm font-semibold text-[#FF4D00]">{seciliTalep.konum_adres || "Haritada Aç"}</div></div><span className="text-gray-400">→</span></a>}
             <button onClick={() => dbAdimGec("arac_yaninda","teslim_alma")} className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] text-white font-bold py-4 rounded-xl transition text-sm">📍 Araç Yanına Vardım</button>
@@ -463,29 +457,24 @@ export default function SoforPanel() {
 
         {/* TESLİM ALMA */}
         {adim === "teslim_alma" && seciliTalep && (
-          <div>
-            <div className="font-black text-lg mb-1">📸 Teslim Alma Fotoğrafları</div>
-            <div className="text-gray-500 text-xs mb-4">Araç çekilmeden önce 4 yönden fotoğraf çekin.</div>
-            <FotoGrid step="teslim_alma" labels={["Ön","Arka","Sol Yan","Sağ Yan"]} count={4} />
-            <button onClick={araciYukle} disabled={fotolar.teslim_alma.filter(Boolean).length < 4 || islemYapiliyor}
-              className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-4 rounded-xl transition text-sm">
-              🔗 Aracı Yükle →
-            </button>
-          </div>
+          <FotoBlok
+            step="teslim_alma"
+            baslik="📸 Teslim Alma Fotoğrafları"
+            aciklama="Araç çekilmeden önce fotoğraf çekin. İstediğiniz kadar ekleyebilirsiniz."
+            devamButon="🔗 Aracı Yükle →"
+            devamAksiyon={araciYukle}
+          />
         )}
 
         {/* YÜKLEME */}
         {adim === "yukleme" && seciliTalep && (
-          <div>
-            <div className="font-black text-lg mb-1">🔗 Yükleme Fotoğrafları</div>
-            <div className="text-gray-500 text-xs mb-4">Araç bağlandıktan sonra 4 yönden fotoğraf çekin.</div>
-            <FotoGrid step="yukleme" labels={["Ön Bağlantı","Arka Bağlantı","Sol Yan","Sağ Yan"]} count={4} />
-            <div className="bg-[#00C853]/6 border border-[#00C853]/15 rounded-xl p-3 text-xs text-green-300 mb-4">📱 Müşteriye &ldquo;Araç yüklendi, teslimata gidiyorum&rdquo; bildirimi gönderilecek.</div>
-            <button onClick={teslimatYoluna} disabled={fotolar.yukleme.filter(Boolean).length < 4 || islemYapiliyor}
-              className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-4 rounded-xl transition text-sm">
-              🚛 Teslimata Git →
-            </button>
-          </div>
+          <FotoBlok
+            step="yukleme"
+            baslik="🔗 Yükleme Fotoğrafları"
+            aciklama="Araç bağlandıktan sonra fotoğraf çekin."
+            devamButon="🚛 Teslimata Git →"
+            devamAksiyon={teslimatYoluna}
+          />
         )}
 
         {/* TESLİMAT YOLUNDA */}
@@ -498,61 +487,56 @@ export default function SoforPanel() {
               <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 text-center"><div className="text-2xl font-black">{toplamKm.toFixed(1)}<span className="text-sm font-normal text-gray-500"> km</span></div><div className="text-[10px] text-gray-500 mt-1">Kilometre</div></div>
             </div>
             {seciliTalep.hedef_adres && <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-3 mb-4 flex items-center gap-2"><span>🎯</span><div><div className="text-[10px] text-gray-500 uppercase font-bold">Hedef</div><div className="text-sm font-semibold">{seciliTalep.hedef_adres}</div></div></div>}
-            {sonKonum && <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl p-3 mb-6 text-xs text-blue-300 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse flex-shrink-0"></span>GPS aktif · {sonKonum.lat.toFixed(4)}, {sonKonum.lng.toFixed(4)}</div>}
+            {sonKonum && <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl p-3 mb-6 text-xs text-blue-300 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse flex-shrink-0"></span>GPS aktif</div>}
             <button onClick={teslimEttim} className="w-full bg-[#00C853] hover:bg-[#00a844] text-black font-bold py-4 rounded-xl transition text-sm">✅ Teslim Ettim</button>
           </div>
         )}
 
         {/* TESLİM FOTOĞRAFLARI */}
         {adim === "teslim_foto" && seciliTalep && (
-          <div>
-            <div className="font-black text-lg mb-1">🏁 Teslim Fotoğrafları</div>
-            <div className="text-gray-500 text-xs mb-4">Araç teslim edildi. 4 yönden fotoğraf çekin.</div>
-            <FotoGrid step="teslim" labels={["Ön","Arka","Sol Yan","Sağ Yan"]} count={4} />
-            <button onClick={devamTutanak} disabled={fotolar.teslim.filter(Boolean).length < 4 || islemYapiliyor}
-              className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-4 rounded-xl transition text-sm">
-              Devam Et →
-            </button>
-          </div>
+          <FotoBlok
+            step="teslim"
+            baslik="🏁 Teslim Fotoğrafları"
+            aciklama="Araç teslim edildi. Fotoğraf çekin."
+            devamButon="Devam Et →"
+            devamAksiyon={devamTutanak}
+          />
         )}
 
         {/* TUTANAK */}
         {adim === "tutanak" && seciliTalep && (
           <div>
             <div className="font-black text-lg mb-1">📄 Teslim Tutanağı</div>
-            <div className="text-gray-500 text-xs mb-5 leading-relaxed">Müşteri teslim tutanağı imzaladıysa fotoğrafını ekleyin. İsteğe bağlıdır, atlamak için doğrudan tamamlayın.</div>
+            <div className="text-gray-500 text-xs mb-5">Müşteri teslim tutanağı imzaladıysa fotoğrafını ekleyin. İsteğe bağlıdır.</div>
 
-            {fotoYukleniyor && (
-              <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 mb-4 text-xs text-blue-300 flex items-center gap-2">
-                <span className="inline-block animate-spin">⏳</span> Fotoğraf yükleniyor...
+            {fotoHata && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl mb-3 flex items-center justify-between">
+                <span>⚠️ {fotoHata}</span>
+                <button onClick={() => setFotoHata("")} className="underline ml-2">Kapat</button>
               </div>
             )}
 
-            {/* Tutanak foto slotu */}
-            <div
-              onClick={() => !fotoYukleniyor && slotTikla("tutanak", 0)}
-              className={`aspect-video rounded-2xl border-2 flex flex-col items-center justify-center cursor-pointer transition overflow-hidden mb-5 ${fotolar.tutanak[0] ? "border-[#00C853]" : "border-dashed border-white/20 hover:border-[#FF4D00]/60 bg-[#1A1A1A]"}`}
+            <button
+              onClick={() => fotoSec("tutanak")}
+              disabled={fotoYukleniyor}
+              className="w-full flex items-center justify-center gap-3 bg-[#FF4D00]/10 hover:bg-[#FF4D00]/20 border-2 border-dashed border-[#FF4D00]/50 hover:border-[#FF4D00] text-[#FF4D00] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
             >
-              {fotolar.tutanak[0] ? (
-                <div className="relative w-full h-full">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={fotolar.tutanak[0]} alt="Tutanak" className="w-full h-full object-cover" />
-                  <div className="absolute bottom-0 inset-x-0 bg-black/60 text-xs text-center py-1.5 font-bold text-[#00C853]">✓ Tutanak fotoğrafı eklendi</div>
-                </div>
-              ) : (
-                <>
-                  <span className="text-4xl mb-2">📄</span>
-                  <span className="text-sm font-bold text-gray-400">Tutanak Fotoğrafı</span>
-                  <span className="text-xs text-gray-600 mt-1">Tıklayarak kameradan çekin</span>
-                </>
-              )}
-            </div>
+              {fotoYukleniyor ? <><span className="animate-spin">⏳</span> Yükleniyor...</> : <><span className="text-xl">📄</span> Tutanak Fotoğrafı Ekle</>}
+            </button>
 
-            {fotolar.tutanak[0] && (
-              <div className="bg-[#00C853]/8 border border-[#00C853]/20 rounded-xl p-3 text-xs text-green-300 mb-4 flex items-center gap-2">
-                <span>✓</span> Tutanak fotoğrafı sisteme yüklendi.
+            {fotolar.tutanak.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                {fotolar.tutanak.map((url, i) => (
+                  <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-[#00C853]/30">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt="tutanak" className="w-full h-full object-cover" />
+                    <button onClick={() => fotoCikar("tutanak", i)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white text-[10px] flex items-center justify-center hover:bg-red-500">✕</button>
+                  </div>
+                ))}
               </div>
             )}
+
+            {fotolar.tutanak.length > 0 && <div className="text-xs text-[#00C853] font-bold mb-4">✓ {fotolar.tutanak.length} tutanak fotoğrafı eklendi</div>}
 
             <button onClick={isiTamamla} disabled={islemYapiliyor}
               className="w-full bg-[#00C853] hover:bg-[#00a844] disabled:opacity-40 text-black font-bold py-4 rounded-xl transition text-sm">
@@ -581,15 +565,10 @@ export default function SoforPanel() {
               <div>
                 <div className="text-xs text-gray-500 mb-2">Fotoğraflar</div>
                 <div className="grid grid-cols-4 gap-2 text-center">
-                  {[
-                    { l:"Teslim Alma", c:fotolar.teslim_alma.filter(Boolean).length },
-                    { l:"Yükleme", c:fotolar.yukleme.filter(Boolean).length },
-                    { l:"Teslim", c:fotolar.teslim.filter(Boolean).length },
-                    { l:"Tutanak", c:fotolar.tutanak.filter(Boolean).length },
-                  ].map(f => (
-                    <div key={f.l} className="bg-[#2A2A2A] rounded-xl p-2">
-                      <div className="font-black text-lg text-[#00C853]">{f.c}</div>
-                      <div className="text-[9px] text-gray-500 mt-0.5">{f.l}</div>
+                  {([["Teslim Alma","teslim_alma"],["Yükleme","yukleme"],["Teslim","teslim"],["Tutanak","tutanak"]] as [string, FotoStep][]).map(([l, k]) => (
+                    <div key={k} className="bg-[#2A2A2A] rounded-xl p-2">
+                      <div className="font-black text-lg text-[#00C853]">{fotolar[k].length}</div>
+                      <div className="text-[9px] text-gray-500 mt-0.5">{l}</div>
                     </div>
                   ))}
                 </div>
