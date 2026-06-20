@@ -7,7 +7,7 @@ type Arac = { id: string; plaka: string; tur: string; marka?: string; model?: st
 type FirmaDetay = {
   firma_ad: string; sahip_ad: string; sahip_soyad: string; tel: string; email: string;
   il: string; ilce: string; adres: string; vergi_no: string; vergi_dairesi: string;
-  banka: string; iban: string; lat: string; lng: string;
+  banka: string; iban: string; lat: string; lng: string; hizmet_tipi: string;
 };
 type Sofor = { id: string; ad: string; soyad: string; tel: string; };
 type Talep = {
@@ -52,7 +52,7 @@ export default function FirmaPanel() {
   const [basari, setBasari] = useState("");
 
   // Profil
-  const [profil, setProfil] = useState<FirmaDetay>({ firma_ad:"", sahip_ad:"", sahip_soyad:"", tel:"", email:"", il:"", ilce:"", adres:"", vergi_no:"", vergi_dairesi:"", banka:"", iban:"", lat:"", lng:"" });
+  const [profil, setProfil] = useState<FirmaDetay>({ firma_ad:"", sahip_ad:"", sahip_soyad:"", tel:"", email:"", il:"", ilce:"", adres:"", vergi_no:"", vergi_dairesi:"", banka:"", iban:"", lat:"", lng:"", hizmet_tipi:"" });
   const [profilKayit, setProfilKayit] = useState(false);
 
   const [mobil, setMobil] = useState(false);
@@ -74,8 +74,13 @@ export default function FirmaPanel() {
   }, [router]);
 
   const profilYukle = useCallback(async (id: string) => {
-    const { data } = await supabase.from("firmalar").select("firma_ad, sahip_ad, sahip_soyad, tel, email, il, ilce, adres, vergi_no, vergi_dairesi, banka, iban, lat, lng").eq("id", id).single();
-    if (data) setProfil({ firma_ad: data.firma_ad||"", sahip_ad: data.sahip_ad||"", sahip_soyad: data.sahip_soyad||"", tel: data.tel||"", email: data.email||"", il: data.il||"", ilce: data.ilce||"", adres: data.adres||"", vergi_no: data.vergi_no||"", vergi_dairesi: data.vergi_dairesi||"", banka: data.banka||"", iban: data.iban||"", lat: data.lat ? String(data.lat) : "", lng: data.lng ? String(data.lng) : "" });
+    let { data, error } = await supabase.from("firmalar").select("firma_ad, sahip_ad, sahip_soyad, tel, email, il, ilce, adres, vergi_no, vergi_dairesi, banka, iban, lat, lng, hizmet_tipi").eq("id", id).single();
+    if (error) {
+      // hizmet_tipi kolonu henüz yoksa onsuz dene
+      const r2 = await supabase.from("firmalar").select("firma_ad, sahip_ad, sahip_soyad, tel, email, il, ilce, adres, vergi_no, vergi_dairesi, banka, iban, lat, lng").eq("id", id).single();
+      data = r2.data;
+    }
+    if (data) setProfil({ firma_ad: data.firma_ad||"", sahip_ad: data.sahip_ad||"", sahip_soyad: data.sahip_soyad||"", tel: data.tel||"", email: data.email||"", il: data.il||"", ilce: data.ilce||"", adres: data.adres||"", vergi_no: data.vergi_no||"", vergi_dairesi: data.vergi_dairesi||"", banka: data.banka||"", iban: data.iban||"", lat: data.lat ? String(data.lat) : "", lng: data.lng ? String(data.lng) : "", hizmet_tipi: (data as {hizmet_tipi?: string}).hizmet_tipi||"" });
   }, []);
 
   const araclarYukle = useCallback(async (id: string) => {
@@ -115,6 +120,7 @@ export default function FirmaPanel() {
       banka: profil.banka, iban: profil.iban,
       lat: profil.lat ? parseFloat(profil.lat) : null,
       lng: profil.lng ? parseFloat(profil.lng) : null,
+      hizmet_tipi: profil.hizmet_tipi || null,
     }).eq("id", firmaId);
     setProfilKayit(false);
     if (!error) { setBasari("Profil kaydedildi."); setTimeout(() => setBasari(""), 3000); }
@@ -548,6 +554,37 @@ export default function FirmaPanel() {
                 <div>
                   <label className="block text-xs font-semibold text-gray-400 mb-1.5">IBAN</label>
                   <input value={profil.iban} onChange={e => setProfil({...profil, iban: e.target.value.toUpperCase()})} placeholder="TR00 0000 0000 0000 0000 0000 00" className="w-full bg-[#1A1A1A] border border-white/8 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition font-mono tracking-wide" />
+                </div>
+
+                <div className="pt-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest">Tedarikçi Türü</div>
+                <div>
+                  <p className="text-xs text-gray-500 mb-3">Müşteriler haritada sizi bu kategoride bulacak. En az birini seçin.</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { v: "cekici", icon: "🚛", label: "Çekici", desc: "Araç çekme & kurtarma" },
+                      { v: "lastikci", icon: "🔧", label: "Lastikçi", desc: "Lastik değişim & tamir" },
+                      { v: "her_ikisi", icon: "✨", label: "Her İkisi", desc: "Çekici + Lastikçi" },
+                    ].map(({ v, icon, label, desc }) => (
+                      <div
+                        key={v}
+                        onClick={() => setProfil(p => ({ ...p, hizmet_tipi: v }))}
+                        className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border cursor-pointer transition text-center ${
+                          profil.hizmet_tipi === v
+                            ? "border-[#FF4D00] bg-[#FF4D00]/10"
+                            : "border-white/8 bg-[#1A1A1A] hover:border-white/20"
+                        }`}
+                      >
+                        <span className="text-2xl">{icon}</span>
+                        <span className={`text-xs font-bold ${profil.hizmet_tipi === v ? "text-[#FF4D00]" : "text-white"}`}>{label}</span>
+                        <span className="text-[9px] text-gray-500 leading-tight">{desc}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {profil.hizmet_tipi && (
+                    <div className="mt-2 text-[10px] text-[#00C853]">
+                      ✓ {profil.hizmet_tipi === "cekici" ? "Çekici olarak" : profil.hizmet_tipi === "lastikci" ? "Lastikçi olarak" : "Çekici ve lastikçi olarak"} listeleneceksiniz
+                    </div>
+                  )}
                 </div>
 
                 <div className="pt-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest">Harita Konumu</div>

@@ -232,7 +232,7 @@ export default function MusteriAna() {
       const lokasyonlu = firmalar
         .filter(f => {
           if (!f.lat || !f.lng) return false;
-          if (seciliHizmet && f.hizmet_tipi && f.hizmet_tipi !== seciliHizmet) return false;
+          if (seciliHizmet && f.hizmet_tipi && f.hizmet_tipi !== seciliHizmet && f.hizmet_tipi !== "her_ikisi") return false;
           if (userKonum && haversine(userKonum.lat, userKonum.lng, f.lat, f.lng) > 200) return false;
           return true;
         })
@@ -318,7 +318,7 @@ export default function MusteriAna() {
   const ref = userKonum || mapCenter;
   const firmaFiltreli = firmalar
     .filter(f => {
-      if (seciliHizmet && f.hizmet_tipi && f.hizmet_tipi !== seciliHizmet) return false;
+      if (seciliHizmet && f.hizmet_tipi && f.hizmet_tipi !== seciliHizmet && f.hizmet_tipi !== "her_ikisi") return false;
       if (userKonum && f.lat && f.lng && haversine(userKonum.lat, userKonum.lng, f.lat, f.lng) > 200) return false;
       return true;
     })
