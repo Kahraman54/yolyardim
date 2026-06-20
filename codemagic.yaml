@@ -35,3 +35,34 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
+
+  android-play-store:
+    name: Android Play Store Build
+    max_build_duration: 120
+    environment:
+      android_signing:
+        - tulpar_keystore
+      node: 20.17.0
+      java: 17
+    scripts:
+      - name: Install dependencies
+        script: npm install
+      - name: Add Android platform
+        script: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+          mkdir -p android/app/src/main/assets
+      - name: Sync Capacitor
+        script: npx cap sync android
+      - name: Build AAB
+        script: |
+          cd android
+          ./gradlew bundleRelease
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+      - android/app/build/outputs/apk/release/*.apk
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
