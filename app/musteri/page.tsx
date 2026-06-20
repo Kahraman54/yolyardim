@@ -64,6 +64,19 @@ const DURUM_LABEL: Record<string, string> = {
   reddedildi: "✕ Reddedildi",
 };
 
+function FlatIcon({ src, size = 24 }: { src: string; size?: number }) {
+  return (
+    <span
+      className="flex-shrink-0 bg-current block"
+      style={{
+        width: size, height: size,
+        maskImage: `url('${src}')`, maskSize: "contain", maskRepeat: "no-repeat", maskPosition: "center",
+        WebkitMaskImage: `url('${src}')`, WebkitMaskSize: "contain", WebkitMaskRepeat: "no-repeat", WebkitMaskPosition: "center",
+      }}
+    />
+  );
+}
+
 export default function MusteriAna() {
   const router = useRouter();
   const [sayfa, setSayfa] = useState<"ana" | "talepler" | "gecmis" | "profil">("ana");
@@ -329,7 +342,7 @@ export default function MusteriAna() {
     });
 
   return (
-    <main className="bg-[#0D0D0D] text-white flex flex-col relative overflow-hidden" style={{ height: appHeight }}>
+    <main className="bg-[#0D0D0D] text-white flex flex-col relative" style={{ height: appHeight }}>
 
       {/* Toast bildirimleri */}
       <div className="fixed top-4 left-0 right-0 z-[100] flex flex-col items-center gap-2 px-4 pointer-events-none">
@@ -345,14 +358,16 @@ export default function MusteriAna() {
       </div>
 
       {/* HEADER */}
-      <header className="h-14 flex items-center justify-between px-4 bg-[#1A1A1A] border-b border-white/5 flex-shrink-0 z-40">
+      <header className="flex items-center justify-between px-4 py-3 bg-[#1A1A1A] border-b border-white/5 flex-shrink-0 z-40">
         <div>
           <div className="text-xs text-gray-500">Merhaba 👋</div>
           <div className="text-sm font-bold">
             {musteri?.ad ? `${musteri.ad}${musteri.soyad ? " " + musteri.soyad : ""}` : musteri?.tel || "Hoş geldin"}
           </div>
         </div>
-        <Link href="/" className="w-9 h-9 rounded-full bg-[#FF4D00] flex items-center justify-center text-xs font-black">←</Link>
+        <Link href="/" className="w-10 h-10 bg-[#252525] rounded-xl flex items-center justify-center flex-shrink-0 text-[#aaa]">
+          <FlatIcon src="/icons/svg/003-exit.svg" size={20} />
+        </Link>
       </header>
 
       {/* CONTENT */}
@@ -361,25 +376,23 @@ export default function MusteriAna() {
         {/* ANA */}
         {sayfa === "ana" && (
           <div className="h-full flex flex-col">
-            <div className="flex flex-col bg-[#1A1A1A] border-b border-white/5 flex-shrink-0">
-              <div className="flex gap-2 px-3 pt-2 pb-1.5">
-                <button onClick={() => setGorunum("harita")} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${gorunum==="harita"?"bg-[#FF4D00] text-white":"border border-white/10 text-gray-500"}`}>🗺️ Harita</button>
-                <button onClick={() => setGorunum("liste")} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${gorunum==="liste"?"bg-[#FF4D00] text-white":"border border-white/10 text-gray-500"}`}>📋 Firmalar ({firmaFiltreli.length})</button>
-              </div>
-              <div className="flex gap-2 px-3 pb-2">
-                <button
-                  onClick={() => setSeciliHizmet(s => s === "cekici" ? null : "cekici")}
-                  className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${seciliHizmet === "cekici" ? "bg-blue-500/20 border border-blue-500/50 text-blue-300" : "border border-white/8 text-gray-500"}`}
-                >
-                  🚛 Çekici
-                </button>
-                <button
-                  onClick={() => setSeciliHizmet(s => s === "lastikci" ? null : "lastikci")}
-                  className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${seciliHizmet === "lastikci" ? "bg-orange-500/20 border border-orange-500/50 text-orange-300" : "border border-white/8 text-gray-500"}`}
-                >
-                  🔧 Lastikçi
-                </button>
-              </div>
+            <div className="bg-[#1A1A1A] border-b border-white/5 flex-shrink-0 px-3 pt-2 pb-2.5 grid grid-cols-2 gap-2">
+              <button onClick={() => setGorunum("harita")} className={`flex items-center justify-center gap-3 py-3 rounded-2xl transition font-semibold text-sm ${gorunum==="harita" ? "bg-[#FF4D00] text-white" : "bg-[#252525] text-gray-400"}`}>
+                <FlatIcon src="/icons/svg/002-map.svg" size={26} />
+                Harita
+              </button>
+              <button onClick={() => setGorunum("liste")} className={`flex items-center justify-center gap-3 py-3 rounded-2xl transition font-semibold text-sm ${gorunum==="liste" ? "bg-[#FF4D00] text-white" : "bg-[#252525] text-gray-400"}`}>
+                <FlatIcon src="/icons/svg/007-business-and-trade.svg" size={26} />
+                Firmalar ({firmaFiltreli.length})
+              </button>
+              <button onClick={() => setSeciliHizmet(s => s === "cekici" ? null : "cekici")} className={`flex items-center justify-center gap-3 py-3 rounded-2xl transition font-semibold text-sm ${seciliHizmet === "cekici" ? "bg-[#FF4D00] text-white" : "bg-[#252525] text-gray-400"}`}>
+                <FlatIcon src="/icons/svg/006-shipping.svg" size={26} />
+                Çekici
+              </button>
+              <button onClick={() => setSeciliHizmet(s => s === "lastikci" ? null : "lastikci")} className={`flex items-center justify-center gap-3 py-3 rounded-2xl transition font-semibold text-sm ${seciliHizmet === "lastikci" ? "bg-[#FF4D00] text-white" : "bg-[#252525] text-gray-400"}`}>
+                <FlatIcon src="/icons/svg/004-car.svg" size={26} />
+                Lastikçi
+              </button>
             </div>
             <div className="flex-1 relative overflow-hidden">
               {gorunum === "harita" && (
@@ -405,20 +418,21 @@ export default function MusteriAna() {
                   <div className="absolute right-3 top-3 flex flex-col gap-2 z-10">
                     <button onClick={() => map?.setZoom((map.getZoom() || 13) + 1)} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-lg shadow-lg">＋</button>
                     <button onClick={() => map?.setZoom((map.getZoom() || 13) - 1)} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-lg shadow-lg">－</button>
-                    <button onClick={konumIste} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-base shadow-lg">{konumYukleniyor ? "⏳" : "📍"}</button>
+                    <button onClick={konumIste} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center shadow-lg text-white">
+                      {konumYukleniyor ? <span className="animate-spin text-sm">⏳</span> : <span className="block flex-shrink-0" style={{ width: 20, height: 20, backgroundImage: "url('/icons/svg/location.svg')", backgroundSize: "contain", backgroundRepeat: "no-repeat", backgroundPosition: "center" }} />}
+                    </button>
                   </div>
                   <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
-                    <div className="bg-[#1A1A1A]/90 border border-white/10 rounded-xl px-3 py-2 text-xs text-white">
-                      {seciliHizmet === "lastikci" ? "🔧" : "🚛"} {firmaFiltreli.filter(f => f.lat && f.lng).length} {seciliHizmet === "cekici" ? "çekici firma" : seciliHizmet === "lastikci" ? "lastikçi firma" : "aktif firma"}
+                    <div className="bg-white rounded-full px-4 py-2 flex items-center gap-2 shadow-lg">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#22C55E] flex-shrink-0" style={{ boxShadow: "0 0 0 3px rgba(34,197,94,0.25)" }}></span>
+                      <span className="text-[#111] font-semibold text-xs">
+                        {firmaFiltreli.filter(f => f.lat && f.lng).length} {seciliHizmet === "cekici" ? "Çekici Firma" : seciliHizmet === "lastikci" ? "Lastikçi Firma" : "Aktif Firma"}
+                      </span>
                     </div>
                     {konumHata && (
-                      <div className="bg-red-900/90 border border-red-500/40 rounded-xl px-3 py-2 text-xs text-red-300 max-w-[220px]">
-                        ⚠️ {konumHata}
-                      </div>
-                    )}
-                    {!userKonum && !konumHata && !konumYukleniyor && (
-                      <div className="bg-yellow-900/80 border border-yellow-500/30 rounded-xl px-3 py-2 text-xs text-yellow-300">
-                        📍 Konum alınamadı
+                      <div className="bg-black/70 border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-400 max-w-[220px] flex items-center gap-2">
+                        <span>📍 Konum izni yok</span>
+                        <button onClick={() => setKonumHata(null)} className="text-gray-600 hover:text-white ml-1">✕</button>
                       </div>
                     )}
                   </div>
@@ -466,7 +480,7 @@ export default function MusteriAna() {
                             <div className="font-bold text-sm">{f.firma_ad}</div>
                             <div className="flex gap-2 mt-1 flex-wrap">
                               <span className="text-[10px] font-bold bg-[#00C853]/10 text-[#00C853] border border-[#00C853]/25 px-2 py-0.5 rounded-full">✓ AKTİF</span>
-                              {f.hizmet_tipi && <span className="text-[10px] font-bold bg-white/5 text-gray-400 border border-white/10 px-2 py-0.5 rounded-full">{f.hizmet_tipi === "lastikci" ? "Lastikçi" : "Çekici"}</span>}
+                              {f.hizmet_tipi && <span className="text-[10px] font-bold bg-white/5 text-gray-400 border border-white/10 px-2 py-0.5 rounded-full">{f.hizmet_tipi === "lastikci" ? "Lastikçi" : f.hizmet_tipi === "her_ikisi" ? "Çekici & Lastikçi" : "Çekici"}</span>}
                               {(f.il || f.ilce) && <span className="text-[10px] text-gray-500">📍 {[f.ilce, f.il].filter(Boolean).join(" / ")}</span>}
                             </div>
                           </div>
@@ -638,23 +652,47 @@ export default function MusteriAna() {
       </div>
 
       {/* ALT NAVİGASYON */}
-      <nav className="flex bg-[#1A1A1A] border-t border-white/5 flex-shrink-0">
-        <button onClick={() => setSayfa("ana")} className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 ${sayfa === "ana" ? "text-[#FF4D00]" : "text-gray-600"}`}>
-          <span className="text-lg">🏠</span><span className="text-[9px] font-bold">Ana</span>
+      <nav className="flex bg-[#111111] border-t border-white/10 flex-shrink-0 relative z-50" style={{ height: 68 }}>
+
+        {/* Ana Sayfa */}
+        <button onClick={() => setSayfa("ana")} className={`flex-1 flex flex-col items-center justify-center gap-1 transition-colors ${sayfa === "ana" ? "text-[#FF4D00]" : "text-[#555]"}`}>
+          <FlatIcon src="/icons/svg/001-home.svg" size={24} />
+          <span className="text-[10px] font-medium">Ana Sayfa</span>
         </button>
-        <button onClick={() => setSayfa("talepler")} className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 relative ${sayfa === "talepler" ? "text-[#FF4D00]" : "text-gray-600"}`}>
-          <span className="text-lg">📋</span><span className="text-[9px] font-bold">Talepler</span>
-          {(aktivTalepler.length > 0 || teklifBekleyen > 0) && <span className={`absolute top-2 right-3 w-2 h-2 rounded-full ${teklifBekleyen > 0 ? "bg-purple-400 animate-pulse" : "bg-[#FF4D00]"}`}></span>}
+
+        {/* Talepler */}
+        <button onClick={() => setSayfa("talepler")} className={`flex-1 flex flex-col items-center justify-center gap-1 relative transition-colors ${sayfa === "talepler" ? "text-[#FF4D00]" : "text-[#555]"}`}>
+          <FlatIcon src="/icons/svg/008-approve.svg" size={24} />
+          <span className="text-[10px] font-medium">Talepler</span>
+          {(aktivTalepler.length > 0 || teklifBekleyen > 0) && (
+            <span className={`absolute top-2 right-[calc(50%-14px)] w-2 h-2 rounded-full ${teklifBekleyen > 0 ? "bg-purple-400 animate-pulse" : "bg-[#FF4D00]"}`}></span>
+          )}
         </button>
-        <div className="flex-1 flex items-center justify-center">
-          <button onClick={() => sosAc()} className="w-12 h-12 rounded-full bg-[#FF4D00] border-2 border-[#0D0D0D] text-xl -mt-4" style={{ boxShadow: "0 0 0 3px rgba(255,77,0,.4)" }}>🆘</button>
+
+        {/* Yardım İste — Merkez */}
+        <div className="flex-1 relative flex flex-col items-center justify-end pb-2">
+          <button
+            onClick={() => sosAc()}
+            className="absolute w-[68px] h-[68px] rounded-full bg-[#FF4D00] overflow-hidden active:scale-95 transition-transform left-1/2 -translate-x-1/2"
+            style={{ top: -34, boxShadow: "0 0 0 4px #111111, 0 0 0 6px rgba(255,77,0,0.45), 0 8px 24px rgba(255,77,0,0.45)" }}
+          >
+            <img src="/tulparLogo.PNG" alt="Tulpar" className="w-full h-full object-cover" />
+          </button>
+          <span className="text-[10px] font-medium text-[#555]">Yardım İste</span>
         </div>
-        <button onClick={() => setSayfa("gecmis")} className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 ${sayfa === "gecmis" ? "text-[#FF4D00]" : "text-gray-600"}`}>
-          <span className="text-lg">🕐</span><span className="text-[9px] font-bold">Geçmiş</span>
+
+        {/* Geçmiş */}
+        <button onClick={() => setSayfa("gecmis")} className={`flex-1 flex flex-col items-center justify-center gap-1 transition-colors ${sayfa === "gecmis" ? "text-[#FF4D00]" : "text-[#555]"}`}>
+          <FlatIcon src="/icons/svg/009-time-past.svg" size={24} />
+          <span className="text-[10px] font-medium">Geçmiş</span>
         </button>
-        <button onClick={() => setSayfa("profil")} className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 ${sayfa === "profil" ? "text-[#FF4D00]" : "text-gray-600"}`}>
-          <span className="text-lg">👤</span><span className="text-[9px] font-bold">Profil</span>
+
+        {/* Profil */}
+        <button onClick={() => setSayfa("profil")} className={`flex-1 flex flex-col items-center justify-center gap-1 transition-colors ${sayfa === "profil" ? "text-[#FF4D00]" : "text-[#555]"}`}>
+          <FlatIcon src="/icons/svg/010-user.svg" size={24} />
+          <span className="text-[10px] font-medium">Profil</span>
         </button>
+
       </nav>
 
       {/* SOS MODAL */}

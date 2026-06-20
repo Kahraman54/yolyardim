@@ -47,6 +47,7 @@ export default function FirmaPanel() {
   const [seciliArac, setSeciliArac] = useState("");
   const [atamaTamam, setAtamaTamam] = useState(false);
   const [fiyatTeklifi, setFiyatTeklifi] = useState("");
+  const [lightbox, setLightbox] = useState<{ urls: string[]; idx: number } | null>(null);
 
   const [hata, setHata] = useState("");
   const [basari, setBasari] = useState("");
@@ -411,10 +412,10 @@ export default function FirmaPanel() {
                         ✔ Hizmeti Tamamla
                       </button>
                     )}
-                    {t.durum === "tamamlandi" && (t.toplam_km || t.ise_baslama_zamani) && (
+                    {t.durum === "tamamlandi" && (t.toplam_km || t.ise_baslama_zamani || (t.foto_teslim_alma?.length || 0) + (t.foto_yukleme?.length || 0) + (t.foto_teslim?.length || 0) + (t.foto_tutanak?.length || 0) > 0) && (
                       <div className="bg-[#0D0D0D] border border-white/5 rounded-xl p-3 mt-1">
                         <div className="text-[10px] text-gray-500 uppercase font-bold mb-2">İş Özeti</div>
-                        <div className="grid grid-cols-3 gap-2 text-center mb-2">
+                        <div className="grid grid-cols-3 gap-2 text-center mb-3">
                           {t.toplam_km != null && (
                             <div><div className="font-black text-base text-[#FF4D00]">{t.toplam_km.toFixed(1)}</div><div className="text-[9px] text-gray-500">km</div></div>
                           )}
@@ -430,6 +431,26 @@ export default function FirmaPanel() {
                             <div className="text-[9px] text-gray-500">fotoğraf</div>
                           </div>
                         </div>
+                        {[
+                          { label: "Teslim Alma", urls: t.foto_teslim_alma },
+                          { label: "Yükleme", urls: t.foto_yukleme },
+                          { label: "Teslim", urls: t.foto_teslim },
+                          { label: "Tutanak", urls: t.foto_tutanak },
+                        ].filter(g => g.urls && g.urls.length > 0).map(g => {
+                          const tumFotolar = [...(t.foto_teslim_alma||[]), ...(t.foto_yukleme||[]), ...(t.foto_teslim||[]), ...(t.foto_tutanak||[])];
+                          return (
+                            <div key={g.label} className="mb-2">
+                              <div className="text-[9px] text-gray-600 mb-1">{g.label}</div>
+                              <div className="flex gap-1.5 flex-wrap">
+                                {g.urls!.map((url, i) => (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img key={i} src={url} alt="" onClick={() => setLightbox({ urls: tumFotolar, idx: tumFotolar.indexOf(url) })}
+                                    className="w-14 h-14 object-cover rounded-lg cursor-pointer hover:opacity-80 transition border border-white/10" />
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -812,6 +833,32 @@ export default function FirmaPanel() {
               </div>
             )}
           </div>
+        </div>
+      )}
+      {lightbox && (
+        <div className="fixed inset-0 bg-black/95 z-[200] flex flex-col" onClick={() => setLightbox(null)}>
+          <div className="flex items-center justify-between px-5 py-3 flex-shrink-0" onClick={e => e.stopPropagation()}>
+            <span className="text-sm text-gray-400">{lightbox.idx + 1} / {lightbox.urls.length}</span>
+            <button onClick={() => setLightbox(null)} className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-lg transition">✕</button>
+          </div>
+          <div className="flex-1 flex items-center justify-center px-4 overflow-hidden" onClick={e => e.stopPropagation()}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={lightbox.urls[lightbox.idx]} alt="tam ekran" className="max-w-full max-h-full object-contain rounded-xl" />
+          </div>
+          {lightbox.urls.length > 1 && (
+            <div className="flex justify-center gap-4 py-4 flex-shrink-0" onClick={e => e.stopPropagation()}>
+              <button onClick={() => setLightbox(l => l && l.idx > 0 ? { ...l, idx: l.idx - 1 } : l)} disabled={lightbox.idx === 0}
+                className="w-12 h-12 rounded-full bg-white/10 disabled:opacity-20 flex items-center justify-center text-xl hover:bg-white/20 transition">‹</button>
+              <div className="flex items-center gap-2">
+                {lightbox.urls.map((_, i) => (
+                  <button key={i} onClick={() => setLightbox(l => l ? { ...l, idx: i } : l)}
+                    className={`w-2 h-2 rounded-full transition ${i === lightbox.idx ? "bg-white" : "bg-white/30"}`} />
+                ))}
+              </div>
+              <button onClick={() => setLightbox(l => l && l.idx < l.urls.length - 1 ? { ...l, idx: l.idx + 1 } : l)} disabled={lightbox.idx === lightbox.urls.length - 1}
+                className="w-12 h-12 rounded-full bg-white/10 disabled:opacity-20 flex items-center justify-center text-xl hover:bg-white/20 transition">›</button>
+            </div>
+          )}
         </div>
       )}
     </main>
