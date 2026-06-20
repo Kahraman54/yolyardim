@@ -38,7 +38,7 @@ export default function FirmaKayit() {
   const [form, setForm] = useState({
     sahipAd: "", sahipSoyad: "", tel: "", email: "",
     firmaAd: "", vergiNo: "", il: "", ilce: "",
-    hizmetBolge: "",
+    hizmetBolge: "", hizmetTipi: "",
   });
 
   async function firmaKaydet() {
@@ -59,6 +59,7 @@ export default function FirmaKayit() {
         il: form.il,
         ilce: form.ilce,
         hizmet_bolgesi: form.hizmetBolge,
+        hizmet_tipi: form.hizmetTipi || null,
         durum: "bekliyor",
       })
       .select()
@@ -218,6 +219,18 @@ export default function FirmaKayit() {
                 </div>
               </div>
             )}
+            <div className="mb-4">
+              <label className="block text-xs font-semibold text-gray-400 mb-2">Hizmet Tipi *</label>
+              <div className="grid grid-cols-2 gap-3">
+                {[["cekici","🚛","Çekici / Kurtarma","Araç çekme, kurtarma hizmetleri"],["lastikci","🔧","Lastikçi","Lastik değişimi, tamir, pat lastik"]].map(([v,ic,lb,ac])=>(
+                  <div key={v} onClick={()=>setForm({...form,hizmetTipi:v})} className={`flex flex-col gap-1 p-3 rounded-xl border cursor-pointer transition ${form.hizmetTipi===v?"border-[#FF4D00] bg-[#FF4D00]/8":"border-white/8 bg-[#1A1A1A]"}`}>
+                    <div className="text-2xl">{ic}</div>
+                    <div className={`text-sm font-bold ${form.hizmetTipi===v?"text-[#FF4D00]":"text-white"}`}>{lb}</div>
+                    <div className="text-[10px] text-gray-500">{ac}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="mb-6"><label className="block text-xs font-semibold text-gray-400 mb-2">Hizmet Bölgesi *</label><textarea value={form.hizmetBolge} onChange={e=>setForm({...form,hizmetBolge:e.target.value})} placeholder="Örn: İstanbul Avrupa yakası, TEM ve E-5 bölgesi..." rows={2} className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition resize-none" /></div>
             <button onClick={firmaKaydet} disabled={yukleniyor} className="bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold px-8 py-3 rounded-xl transition text-sm">
               {yukleniyor ? "Kaydediliyor..." : "Devam Et →"}

@@ -22,7 +22,7 @@ type Musteri = {
   arac_marka?: string; arac_model?: string; arac_plaka?: string;
   cekis_turu?: string; yakit_tipi?: string;
 };
-type Firma = { id: string; firma_ad: string; lat?: number; lng?: number; il?: string; ilce?: string; };
+type Firma = { id: string; firma_ad: string; lat?: number; lng?: number; il?: string; ilce?: string; hizmet_tipi?: string; };
 type Talep = {
   id: string; created_at: string; tip: string; durum: string;
   firma_id?: string; hedef_adres?: string; aciklama?: string;
@@ -73,6 +73,7 @@ export default function MusteriAna() {
   const [appHeight, setAppHeight] = useState("100dvh");
   const [gorunum, setGorunum] = useState<"harita" | "liste">("harita");
   const [seciliFirma, setSeciliFirma] = useState<Firma | null>(null);
+  const [seciliHizmet, setSeciliHizmet] = useState<"cekici" | "lastikci" | null>(null);
 
   // Harita
   const [mapCenter, setMapCenter] = useState({ lat: 39.9334, lng: 32.8597 }); // Türkiye merkezi
@@ -137,8 +138,16 @@ export default function MusteriAna() {
   }, [router]);
 
   useEffect(() => {
-    supabase.from("firmalar").select("id, firma_ad, lat, lng, il, ilce").eq("durum", "aktif")
-      .then(({ data }) => setFirmalar(data || []));
+    supabase.from("firmalar").select("id, firma_ad, lat, lng, il, ilce, hizmet_tipi").eq("durum", "aktif")
+      .then(({ data, error }) => {
+        if (error) {
+          // hizmet_tipi kolonu henüz DB'de yoksa onsuz dene
+          supabase.from("firmalar").select("id, firma_ad, lat, lng, il, ilce").eq("durum", "aktif")
+            .then(({ data: d2 }) => setFirmalar(d2 || []));
+        } else {
+          setFirmalar(data || []);
+        }
+      });
   }, []);
 
   const musteriIdRef = useRef<string | null>(null);
@@ -219,11 +228,18 @@ export default function MusteriAna() {
   function sosAc(belirli?: Firma) {
     if (belirli) { setEnYakinFirma(belirli); }
     else {
-      const lokasyonlu = firmalar.filter(f => f.lat && f.lng);
-      if (lokasyonlu.length > 0) {
-        setEnYakinFirma([...lokasyonlu].sort((a, b) =>
-          haversine(mapCenter.lat, mapCenter.lng, a.lat!, a.lng!) - haversine(mapCenter.lat, mapCenter.lng, b.lat!, b.lng!))[0]);
-      } else { setEnYakinFirma(null); }
+      const ref = userKonum || mapCenter;
+      const lokasyonlu = firmalar
+        .filter(f => {
+          if (!f.lat || !f.lng) return false;
+          if (seciliHizmet && f.hizmet_tipi && f.hizmet_tipi !== seciliHizmet) return false;
+          if (userKonum && haversine(userKonum.lat, userKonum.lng, f.lat, f.lng) > 200) return false;
+          return true;
+        })
+        .sort((a, b) =>
+          haversine(ref.lat, ref.lng, a.lat!, a.lng!) - haversine(ref.lat, ref.lng, b.lat!, b.lng!)
+        );
+      setEnYakinFirma(lokasyonlu[0] || null);
     }
     setSeciliFirma(null); setSosModal(true);
   }
@@ -299,6 +315,19 @@ export default function MusteriAna() {
   const firmaAdi = (firmaId?: string) => firmaId ? (firmalar.find(f => f.id === firmaId)?.firma_ad || "—") : "—";
   const teklifBekleyen = aktivTalepler.filter(t => t.durum === "teklif").length;
 
+  const ref = userKonum || mapCenter;
+  const firmaFiltreli = firmalar
+    .filter(f => {
+      if (seciliHizmet && f.hizmet_tipi && f.hizmet_tipi !== seciliHizmet) return false;
+      if (userKonum && f.lat && f.lng && haversine(userKonum.lat, userKonum.lng, f.lat, f.lng) > 200) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      const kmA = a.lat && a.lng ? haversine(ref.lat, ref.lng, a.lat, a.lng) : 9999;
+      const kmB = b.lat && b.lng ? haversine(ref.lat, ref.lng, b.lat, b.lng) : 9999;
+      return kmA - kmB;
+    });
+
   return (
     <main className="bg-[#0D0D0D] text-white flex flex-col relative overflow-hidden" style={{ height: appHeight }}>
 
@@ -332,9 +361,25 @@ export default function MusteriAna() {
         {/* ANA */}
         {sayfa === "ana" && (
           <div className="h-full flex flex-col">
-            <div className="flex gap-2 px-3 py-2 bg-[#1A1A1A] border-b border-white/5 flex-shrink-0">
-              <button onClick={() => setGorunum("harita")} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${gorunum==="harita"?"bg-[#FF4D00] text-white":"border border-white/10 text-gray-500"}`}>🗺️ Harita</button>
-              <button onClick={() => setGorunum("liste")} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${gorunum==="liste"?"bg-[#FF4D00] text-white":"border border-white/10 text-gray-500"}`}>📋 Firmalar ({firmalar.length})</button>
+            <div className="flex flex-col bg-[#1A1A1A] border-b border-white/5 flex-shrink-0">
+              <div className="flex gap-2 px-3 pt-2 pb-1.5">
+                <button onClick={() => setGorunum("harita")} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${gorunum==="harita"?"bg-[#FF4D00] text-white":"border border-white/10 text-gray-500"}`}>🗺️ Harita</button>
+                <button onClick={() => setGorunum("liste")} className={`flex-1 py-2 rounded-lg text-xs font-bold transition ${gorunum==="liste"?"bg-[#FF4D00] text-white":"border border-white/10 text-gray-500"}`}>📋 Firmalar ({firmaFiltreli.length})</button>
+              </div>
+              <div className="flex gap-2 px-3 pb-2">
+                <button
+                  onClick={() => setSeciliHizmet(s => s === "cekici" ? null : "cekici")}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${seciliHizmet === "cekici" ? "bg-blue-500/20 border border-blue-500/50 text-blue-300" : "border border-white/8 text-gray-500"}`}
+                >
+                  🚛 Çekici
+                </button>
+                <button
+                  onClick={() => setSeciliHizmet(s => s === "lastikci" ? null : "lastikci")}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${seciliHizmet === "lastikci" ? "bg-orange-500/20 border border-orange-500/50 text-orange-300" : "border border-white/8 text-gray-500"}`}
+                >
+                  🔧 Lastikçi
+                </button>
+              </div>
             </div>
             <div className="flex-1 relative overflow-hidden">
               {gorunum === "harita" && (
@@ -346,10 +391,13 @@ export default function MusteriAna() {
                   ) : isLoaded ? (
                     <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={mapCenter} zoom={13} onLoad={onLoad} onUnmount={onUnmount} options={{ styles: MAP_STYLE, disableDefaultUI: true }}>
                       {userKonum && <Marker position={userKonum} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: "#0A84FF", fillOpacity: 1, strokeColor: "#ffffff", strokeWeight: 3 }} />}
-                      {firmalar.filter(f => f.lat && f.lng).map(f => (
-                        <Marker key={f.id} position={{ lat: f.lat!, lng: f.lng! }} onClick={() => setSeciliFirma(f)}
-                          icon={{ url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="170" height="42"><rect x="0" y="0" width="170" height="34" rx="8" fill="${seciliFirma?.id === f.id ? '#FF4D00' : '#1A1A1A'}" stroke="#FF4D00" stroke-width="2"/><text x="10" y="22" font-family="Arial" font-size="12" font-weight="bold" fill="white">🚛 ${f.firma_ad.split(' ').slice(0, 3).join(' ')}</text><polygon points="80,34 90,34 85,42" fill="#FF4D00"/></svg>`)}`, scaledSize: new google.maps.Size(170, 42), anchor: new google.maps.Point(85, 42) }} />
-                      ))}
+                      {firmaFiltreli.filter(f => f.lat && f.lng).map(f => {
+                        const emoji = f.hizmet_tipi === "lastikci" ? "🔧" : "🚛";
+                        return (
+                          <Marker key={f.id} position={{ lat: f.lat!, lng: f.lng! }} onClick={() => setSeciliFirma(f)}
+                            icon={{ url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="170" height="42"><rect x="0" y="0" width="170" height="34" rx="8" fill="${seciliFirma?.id === f.id ? '#FF4D00' : '#1A1A1A'}" stroke="#FF4D00" stroke-width="2"/><text x="10" y="22" font-family="Arial" font-size="12" font-weight="bold" fill="white">${emoji} ${f.firma_ad.split(' ').slice(0, 3).join(' ')}</text><polygon points="80,34 90,34 85,42" fill="#FF4D00"/></svg>`)}`, scaledSize: new google.maps.Size(170, 42), anchor: new google.maps.Point(85, 42) }} />
+                        );
+                      })}
                     </GoogleMap>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-[#1a2332]"><div className="text-gray-500 text-sm">🗺️ Harita yükleniyor...</div></div>
@@ -360,7 +408,9 @@ export default function MusteriAna() {
                     <button onClick={konumIste} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-base shadow-lg">{konumYukleniyor ? "⏳" : "📍"}</button>
                   </div>
                   <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
-                    <div className="bg-[#1A1A1A]/90 border border-white/10 rounded-xl px-3 py-2 text-xs text-white">🚛 {firmalar.filter(f => f.lat && f.lng).length} aktif firma</div>
+                    <div className="bg-[#1A1A1A]/90 border border-white/10 rounded-xl px-3 py-2 text-xs text-white">
+                      {seciliHizmet === "lastikci" ? "🔧" : "🚛"} {firmaFiltreli.filter(f => f.lat && f.lng).length} {seciliHizmet === "cekici" ? "çekici firma" : seciliHizmet === "lastikci" ? "lastikçi firma" : "aktif firma"}
+                    </div>
                     {konumHata && (
                       <div className="bg-red-900/90 border border-red-500/40 rounded-xl px-3 py-2 text-xs text-red-300 max-w-[220px]">
                         ⚠️ {konumHata}
@@ -395,24 +445,34 @@ export default function MusteriAna() {
               )}
               {gorunum === "liste" && (
                 <div className="h-full overflow-y-auto p-3">
-                  {firmalar.length === 0 ? (
-                    <div className="text-center py-14"><div className="text-4xl mb-3">🚛</div><div className="text-gray-500 text-sm">Yakında aktif firma bulunamadı</div></div>
-                  ) : firmalar.map(f => {
-                    const km = f.lat && f.lng ? haversine(mapCenter.lat, mapCenter.lng, f.lat, f.lng) : null;
+                  {userKonum && (
+                    <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl px-3 py-2 mb-3 text-xs text-blue-300">
+                      📍 Konumunuza en yakından en uzağa sıralandı · 200 km içi gösteriliyor
+                    </div>
+                  )}
+                  {firmaFiltreli.length === 0 ? (
+                    <div className="text-center py-14">
+                      <div className="text-4xl mb-3">{seciliHizmet === "lastikci" ? "🔧" : "🚛"}</div>
+                      <div className="text-gray-500 text-sm">{seciliHizmet ? `200 km içinde ${seciliHizmet === "lastikci" ? "lastikçi" : "çekici"} firma bulunamadı` : "Yakında aktif firma bulunamadı"}</div>
+                    </div>
+                  ) : firmaFiltreli.map(f => {
+                    const km = f.lat && f.lng ? haversine(ref.lat, ref.lng, f.lat, f.lng) : null;
+                    const emoji = f.hizmet_tipi === "lastikci" ? "🔧" : "🚛";
                     return (
                       <div key={f.id} className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3">
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="w-11 h-11 rounded-xl bg-[#FF4D00]/10 border border-[#FF4D00]/20 flex items-center justify-center text-xl flex-shrink-0">🚛</div>
+                          <div className="w-11 h-11 rounded-xl bg-[#FF4D00]/10 border border-[#FF4D00]/20 flex items-center justify-center text-xl flex-shrink-0">{emoji}</div>
                           <div className="flex-1 min-w-0">
                             <div className="font-bold text-sm">{f.firma_ad}</div>
-                            <div className="flex gap-2 mt-1">
+                            <div className="flex gap-2 mt-1 flex-wrap">
                               <span className="text-[10px] font-bold bg-[#00C853]/10 text-[#00C853] border border-[#00C853]/25 px-2 py-0.5 rounded-full">✓ AKTİF</span>
-                              {km !== null && <span className="text-[10px] text-gray-500">📍 {km.toFixed(1)} km</span>}
+                              {f.hizmet_tipi && <span className="text-[10px] font-bold bg-white/5 text-gray-400 border border-white/10 px-2 py-0.5 rounded-full">{f.hizmet_tipi === "lastikci" ? "Lastikçi" : "Çekici"}</span>}
+                              {(f.il || f.ilce) && <span className="text-[10px] text-gray-500">📍 {[f.ilce, f.il].filter(Boolean).join(" / ")}</span>}
                             </div>
                           </div>
                           {km !== null && <div className="text-right flex-shrink-0"><div className="font-black text-lg">{km.toFixed(1)}</div><div className="text-[10px] text-gray-500">km</div></div>}
                         </div>
-                        <button onClick={() => { setGorunum("harita"); sosAc(); }} className="w-full bg-[#FF4D00] text-white font-bold py-2.5 rounded-xl text-sm">🆘 Yardım İste</button>
+                        <button onClick={() => sosAc(f)} className="w-full bg-[#FF4D00] text-white font-bold py-2.5 rounded-xl text-sm">🆘 Yardım İste</button>
                       </div>
                     );
                   })}
