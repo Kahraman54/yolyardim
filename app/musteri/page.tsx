@@ -75,8 +75,10 @@ export default function MusteriAna() {
   const [seciliFirma, setSeciliFirma] = useState<Firma | null>(null);
 
   // Harita
-  const [mapCenter, setMapCenter] = useState({ lat: 40.9837, lng: 29.021 });
+  const [mapCenter, setMapCenter] = useState({ lat: 39.9334, lng: 32.8597 }); // Türkiye merkezi
+  const [userKonum, setUserKonum] = useState<{ lat: number; lng: number } | null>(null);
   const [konumYukleniyor, setKonumYukleniyor] = useState(false);
+  const [konumHata, setKonumHata] = useState<string | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const pendingCenterRef = useRef<{ lat: number; lng: number } | null>(null);
@@ -180,18 +182,29 @@ export default function MusteriAna() {
 
   // GPS
   function konumIste() {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      setKonumHata("Tarayıcınız konum desteklemiyor.");
+      return;
+    }
     setKonumYukleniyor(true);
+    setKonumHata(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setUserKonum(c);
         setMapCenter(c);
-        if (mapRef.current) mapRef.current.setCenter(c);
+        if (mapRef.current) { mapRef.current.setCenter(c); mapRef.current.setZoom(14); }
         else pendingCenterRef.current = c;
         setKonumYukleniyor(false);
+        setKonumHata(null);
       },
-      () => setKonumYukleniyor(false),
-      { timeout: 10000, maximumAge: 30000 }
+      (err) => {
+        setKonumYukleniyor(false);
+        if (err.code === 1) setKonumHata("Konum izni reddedildi. Tarayıcı ayarlarından izin verin.");
+        else if (err.code === 3) setKonumHata("Konum alınamadı, zaman aşımı.");
+        else setKonumHata("Konum alınamadı.");
+      },
+      { timeout: 12000, maximumAge: 10000, enableHighAccuracy: true }
     );
   }
   useEffect(() => { konumIste(); }, []); // eslint-disable-line
@@ -217,6 +230,11 @@ export default function MusteriAna() {
 
   async function sosGonder() {
     if (!sorunTip || !musteri) return;
+    const konum = userKonum || mapCenter;
+    if (!userKonum) {
+      const devamEt = window.confirm("Konumunuz alınamadı. Yine de talebi göndermek istiyor musunuz?");
+      if (!devamEt) return;
+    }
     setSosYukleniyor(true);
     const { error } = await supabase.from("talepler").insert({
       musteri_id: musteri.id,
@@ -227,8 +245,8 @@ export default function MusteriAna() {
       tip: sorunTip, durum: "yeni",
       hedef_adres: hedef === "belirli" ? (hedefAdres || null) : (hedef === "onersin" ? "Firma önersin" : null),
       aciklama: sosNot || null,
-      konum_lat: mapCenter.lat, konum_lng: mapCenter.lng,
-      konum_adres: `${mapCenter.lat.toFixed(5)}, ${mapCenter.lng.toFixed(5)}`,
+      konum_lat: konum.lat, konum_lng: konum.lng,
+      konum_adres: `${konum.lat.toFixed(5)}, ${konum.lng.toFixed(5)}`,
     });
     setSosYukleniyor(false);
     if (!error) { setGonderildi(true); if (musteri.id) taleplerYukle(musteri.id); }
@@ -327,7 +345,7 @@ export default function MusteriAna() {
                     </div>
                   ) : isLoaded ? (
                     <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={mapCenter} zoom={13} onLoad={onLoad} onUnmount={onUnmount} options={{ styles: MAP_STYLE, disableDefaultUI: true }}>
-                      <Marker position={mapCenter} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: "#0A84FF", fillOpacity: 1, strokeColor: "#ffffff", strokeWeight: 3 }} />
+                      {userKonum && <Marker position={userKonum} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: "#0A84FF", fillOpacity: 1, strokeColor: "#ffffff", strokeWeight: 3 }} />}
                       {firmalar.filter(f => f.lat && f.lng).map(f => (
                         <Marker key={f.id} position={{ lat: f.lat!, lng: f.lng! }} onClick={() => setSeciliFirma(f)}
                           icon={{ url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="170" height="42"><rect x="0" y="0" width="170" height="34" rx="8" fill="${seciliFirma?.id === f.id ? '#FF4D00' : '#1A1A1A'}" stroke="#FF4D00" stroke-width="2"/><text x="10" y="22" font-family="Arial" font-size="12" font-weight="bold" fill="white">🚛 ${f.firma_ad.split(' ').slice(0, 3).join(' ')}</text><polygon points="80,34 90,34 85,42" fill="#FF4D00"/></svg>`)}`, scaledSize: new google.maps.Size(170, 42), anchor: new google.maps.Point(85, 42) }} />
@@ -341,7 +359,19 @@ export default function MusteriAna() {
                     <button onClick={() => map?.setZoom((map.getZoom() || 13) - 1)} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-lg shadow-lg">－</button>
                     <button onClick={konumIste} className="w-9 h-9 rounded-lg bg-[#1A1A1A] border border-white/10 flex items-center justify-center text-base shadow-lg">{konumYukleniyor ? "⏳" : "📍"}</button>
                   </div>
-                  <div className="absolute top-3 left-3 bg-[#1A1A1A]/90 border border-white/10 rounded-xl px-3 py-2 text-xs text-white z-10">🚛 {firmalar.filter(f => f.lat && f.lng).length} aktif firma</div>
+                  <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
+                    <div className="bg-[#1A1A1A]/90 border border-white/10 rounded-xl px-3 py-2 text-xs text-white">🚛 {firmalar.filter(f => f.lat && f.lng).length} aktif firma</div>
+                    {konumHata && (
+                      <div className="bg-red-900/90 border border-red-500/40 rounded-xl px-3 py-2 text-xs text-red-300 max-w-[220px]">
+                        ⚠️ {konumHata}
+                      </div>
+                    )}
+                    {!userKonum && !konumHata && !konumYukleniyor && (
+                      <div className="bg-yellow-900/80 border border-yellow-500/30 rounded-xl px-3 py-2 text-xs text-yellow-300">
+                        📍 Konum alınamadı
+                      </div>
+                    )}
+                  </div>
                   {seciliFirma && (
                     <div className="absolute bottom-0 left-0 right-0 bg-[#1A1A1A] border-t border-white/10 p-4 z-20">
                       <div className="flex items-start justify-between mb-3">
