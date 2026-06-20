@@ -74,13 +74,17 @@ export default function FirmaPanel() {
   }, [router]);
 
   const profilYukle = useCallback(async (id: string) => {
-    let { data, error } = await supabase.from("firmalar").select("firma_ad, sahip_ad, sahip_soyad, tel, email, il, ilce, adres, vergi_no, vergi_dairesi, banka, iban, lat, lng, hizmet_tipi").eq("id", id).single();
-    if (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let rawData: Record<string, any> | null = null;
+    const r1 = await supabase.from("firmalar").select("firma_ad, sahip_ad, sahip_soyad, tel, email, il, ilce, adres, vergi_no, vergi_dairesi, banka, iban, lat, lng, hizmet_tipi").eq("id", id).single();
+    if (r1.error) {
       // hizmet_tipi kolonu henüz yoksa onsuz dene
       const r2 = await supabase.from("firmalar").select("firma_ad, sahip_ad, sahip_soyad, tel, email, il, ilce, adres, vergi_no, vergi_dairesi, banka, iban, lat, lng").eq("id", id).single();
-      data = r2.data;
+      rawData = r2.data;
+    } else {
+      rawData = r1.data;
     }
-    if (data) setProfil({ firma_ad: data.firma_ad||"", sahip_ad: data.sahip_ad||"", sahip_soyad: data.sahip_soyad||"", tel: data.tel||"", email: data.email||"", il: data.il||"", ilce: data.ilce||"", adres: data.adres||"", vergi_no: data.vergi_no||"", vergi_dairesi: data.vergi_dairesi||"", banka: data.banka||"", iban: data.iban||"", lat: data.lat ? String(data.lat) : "", lng: data.lng ? String(data.lng) : "", hizmet_tipi: (data as {hizmet_tipi?: string}).hizmet_tipi||"" });
+    if (rawData) setProfil({ firma_ad: rawData.firma_ad||"", sahip_ad: rawData.sahip_ad||"", sahip_soyad: rawData.sahip_soyad||"", tel: rawData.tel||"", email: rawData.email||"", il: rawData.il||"", ilce: rawData.ilce||"", adres: rawData.adres||"", vergi_no: rawData.vergi_no||"", vergi_dairesi: rawData.vergi_dairesi||"", banka: rawData.banka||"", iban: rawData.iban||"", lat: rawData.lat ? String(rawData.lat) : "", lng: rawData.lng ? String(rawData.lng) : "", hizmet_tipi: rawData.hizmet_tipi||"" });
   }, []);
 
   const araclarYukle = useCallback(async (id: string) => {
