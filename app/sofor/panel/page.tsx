@@ -26,7 +26,7 @@ type Talep = {
   ise_baslama_zamani?: string; ise_bitis_zamani?: string; toplam_km?: number;
   foto_teslim_alma?: string[]; foto_yukleme?: string[]; foto_teslim?: string[]; foto_tutanak?: string[];
 };
-type Adim = "liste" | "detay" | "yolda" | "teslim_alma" | "yukleme" | "teslimat" | "teslim_foto" | "tutanak" | "ozet";
+type Adim = "liste" | "detay" | "yolda" | "teslim_alma" | "yukleme" | "teslimat" | "teslim_foto" | "tutanak" | "ozet" | "gecmis" | "gecmis_detay";
 type FotoStep = "teslim_alma" | "yukleme" | "teslim" | "tutanak";
 
 const DB_TO_ADIM: Record<string, Adim> = {
@@ -59,6 +59,8 @@ export default function SoforPanel() {
   const [fotoYukleniyor, setFotoYukleniyor] = useState(false);
   const [fotoProgress, setFotoProgress] = useState({ done: 0, total: 0 });
   const [lightbox, setLightbox] = useState<{ urls: string[]; idx: number } | null>(null);
+  const [gecmisTalepler, setGecmisTalepler] = useState<Talep[]>([]);
+  const [seciliGecmis, setSeciliGecmis] = useState<Talep | null>(null);
   const aktifFotoStepRef = useRef<FotoStep | null>(null);
 
   const intervalRef  = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -82,6 +84,16 @@ export default function SoforPanel() {
       .order("created_at", { ascending: false });
     setTalepler(data || []);
     setYukleniyor(false);
+  }, []);
+
+  const gecmisYukle = useCallback(async (soforId: string) => {
+    const { data } = await supabase
+      .from("talepler")
+      .select("id, tip, durum, is_adim, created_at, musteri_id, musteri_ad, musteri_tel, arac_plaka, konum_lat, konum_lng, konum_adres, hedef_adres, aciklama, ise_baslama_zamani, ise_bitis_zamani, toplam_km, foto_teslim_alma, foto_yukleme, foto_teslim, foto_tutanak")
+      .eq("atanan_sofor", soforId)
+      .eq("durum", "tamamlandi")
+      .order("created_at", { ascending: false });
+    setGecmisTalepler(data || []);
   }, []);
 
   useEffect(() => { if (sofor) taleplerYukle(sofor.id); }, [sofor, taleplerYukle]);
@@ -359,8 +371,10 @@ export default function SoforPanel() {
         {/* LİSTE */}
         {adim === "liste" && (
           <div>
-            <div className="font-black text-base mb-1">Atanan Görevler</div>
-            <div className="text-xs text-gray-500 mb-4">Aktif görevleriniz aşağıda listelenmektedir.</div>
+            <div className="flex gap-2 mb-4">
+              <button className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#FF4D00] text-white">Aktif Görevler</button>
+              <button onClick={() => { setAdim("gecmis"); if (sofor) gecmisYukle(sofor.id); }} className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#1A1A1A] text-gray-400 border border-white/8">Geçmiş</button>
+            </div>
             {yukleniyor ? (
               <div className="text-center py-16 text-gray-500 text-sm">Yükleniyor...</div>
             ) : talepler.length === 0 ? (
@@ -388,6 +402,137 @@ export default function SoforPanel() {
             ))}
           </div>
         )}
+
+        {/* GEÇMİŞ LİSTESİ */}
+        {adim === "gecmis" && (
+          <div>
+            <div className="flex gap-2 mb-4">
+              <button onClick={() => setAdim("liste")} className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#1A1A1A] text-gray-400 border border-white/8">Aktif Görevler</button>
+              <button className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#FF4D00] text-white">Geçmiş</button>
+            </div>
+            {gecmisTalepler.length === 0 ? (
+              <div className="bg-[#1A1A1A] border border-white/5 rounded-2xl p-10 text-center">
+                <div className="text-4xl mb-3">📋</div>
+                <div className="text-gray-500 text-sm">Tamamlanmış görev yok</div>
+              </div>
+            ) : gecmisTalepler.map(t => {
+              const sure = t.ise_baslama_zamani && t.ise_bitis_zamani
+                ? formatSure(new Date(t.ise_bitis_zamani).getTime() - new Date(t.ise_baslama_zamani).getTime())
+                : null;
+              const toplamFoto = (t.foto_teslim_alma?.length||0)+(t.foto_yukleme?.length||0)+(t.foto_teslim?.length||0)+(t.foto_tutanak?.length||0);
+              return (
+                <div key={t.id} onClick={() => { setSeciliGecmis(t); setAdim("gecmis_detay"); }} className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3 cursor-pointer hover:border-[#FF4D00]/40 transition">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-[#00C853]/10 flex items-center justify-center">✅</div>
+                      <div>
+                        <div className="font-bold text-sm">{t.tip} Talebi</div>
+                        <div className="text-[11px] text-gray-500">{new Date(t.created_at).toLocaleString("tr-TR")}</div>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-1 rounded-full border bg-[#00C853]/10 text-[#00C853] border-[#00C853]/25">✓ TAMAMLANDI</span>
+                  </div>
+                  {t.musteri_ad && <div className="text-xs text-gray-400 mb-1">👤 {t.musteri_ad}</div>}
+                  <div className="flex gap-3 mt-2">
+                    {(t.toplam_km||0)>0 && <span className="text-[11px] text-gray-500 bg-[#2A2A2A] px-2 py-0.5 rounded-lg">📍 {(t.toplam_km||0).toFixed(1)} km</span>}
+                    {sure && <span className="text-[11px] text-gray-500 bg-[#2A2A2A] px-2 py-0.5 rounded-lg">⏱ {sure}</span>}
+                    {toplamFoto > 0 && <span className="text-[11px] text-gray-500 bg-[#2A2A2A] px-2 py-0.5 rounded-lg">📷 {toplamFoto}</span>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* GEÇMİŞ DETAY */}
+        {adim === "gecmis_detay" && seciliGecmis && (() => {
+          const t = seciliGecmis;
+          const sure = t.ise_baslama_zamani && t.ise_bitis_zamani
+            ? formatSure(new Date(t.ise_bitis_zamani).getTime() - new Date(t.ise_baslama_zamani).getTime())
+            : null;
+          const tumFotolar = [...(t.foto_teslim_alma||[]), ...(t.foto_yukleme||[]), ...(t.foto_teslim||[]), ...(t.foto_tutanak||[])];
+          return (
+            <div>
+              <button onClick={() => setAdim("gecmis")} className="text-xs text-gray-500 hover:text-white mb-4 block">← Geçmişe Dön</button>
+              <div className="flex items-center justify-between mb-4">
+                <div className="font-black text-base">{t.tip} Talebi</div>
+                <span className="text-[10px] font-bold px-2 py-1 rounded-full border bg-[#00C853]/10 text-[#00C853] border-[#00C853]/25">✓ TAMAMLANDI</span>
+              </div>
+
+              {/* Müşteri & Araç */}
+              <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3 space-y-3">
+                <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Talep Bilgileri</div>
+                {t.musteri_ad && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-[#2A2A2A] flex items-center justify-center font-bold text-sm">{t.musteri_ad[0]}</div>
+                    <div><div className="font-bold text-sm">{t.musteri_ad}</div>{t.musteri_tel && <div className="text-xs text-gray-500">{tel(t.musteri_tel)}</div>}</div>
+                  </div>
+                )}
+                {t.arac_plaka && (
+                  <div className="flex items-center gap-3 bg-[#2A2A2A] rounded-xl p-3">
+                    <span className="text-xl">🚗</span>
+                    <div className="font-black text-sm">{t.arac_plaka}</div>
+                  </div>
+                )}
+                {t.konum_adres && (
+                  <div className="flex items-start gap-2 text-xs">
+                    <span className="text-[#FF4D00] mt-0.5">📍</span>
+                    <div><div className="text-gray-500 uppercase font-bold text-[10px]">Alınış Yeri</div><div className="text-gray-300">{t.konum_adres}</div></div>
+                  </div>
+                )}
+                {t.hedef_adres && (
+                  <div className="flex items-start gap-2 text-xs">
+                    <span className="mt-0.5">🎯</span>
+                    <div><div className="text-gray-500 uppercase font-bold text-[10px]">Hedef</div><div className="text-gray-300">{t.hedef_adres}</div></div>
+                  </div>
+                )}
+                {t.aciklama && (
+                  <div className="bg-yellow-500/5 border border-yellow-500/15 rounded-xl p-3 text-xs text-yellow-200">💬 &ldquo;{t.aciklama}&rdquo;</div>
+                )}
+              </div>
+
+              {/* İş Özeti */}
+              <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3">
+                <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">İş Özeti</div>
+                <div className="grid grid-cols-3 gap-3 text-center mb-4">
+                  <div className="bg-[#0D0D0D] rounded-xl p-3">
+                    <div className="font-black text-lg text-[#FF4D00]">{(t.toplam_km||0).toFixed(1)}</div>
+                    <div className="text-[9px] text-gray-500 mt-0.5">KM</div>
+                  </div>
+                  <div className="bg-[#0D0D0D] rounded-xl p-3">
+                    <div className="font-black text-lg">{sure || "—"}</div>
+                    <div className="text-[9px] text-gray-500 mt-0.5">Süre</div>
+                  </div>
+                  <div className="bg-[#0D0D0D] rounded-xl p-3">
+                    <div className="font-black text-lg text-[#00C853]">{tumFotolar.length}</div>
+                    <div className="text-[9px] text-gray-500 mt-0.5">Fotoğraf</div>
+                  </div>
+                </div>
+                <div className="text-[10px] text-gray-600 mb-1">{t.ise_baslama_zamani ? new Date(t.ise_baslama_zamani).toLocaleString("tr-TR") : ""} {t.ise_bitis_zamani ? `→ ${new Date(t.ise_bitis_zamani).toLocaleString("tr-TR")}` : ""}</div>
+
+                {/* Fotoğraflar */}
+                {[
+                  { label: "Teslim Alma", urls: t.foto_teslim_alma },
+                  { label: "Yükleme", urls: t.foto_yukleme },
+                  { label: "Teslim", urls: t.foto_teslim },
+                  { label: "Tutanak", urls: t.foto_tutanak },
+                ].filter(g => g.urls && g.urls.length > 0).map(g => (
+                  <div key={g.label} className="mb-3">
+                    <div className="text-[9px] text-gray-600 uppercase font-bold mb-1.5">{g.label}</div>
+                    <div className="flex gap-1.5 flex-wrap">
+                      {g.urls!.map((url, i) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img key={i} src={url} alt={g.label}
+                          onClick={() => setLightbox({ urls: tumFotolar, idx: tumFotolar.indexOf(url) })}
+                          className="w-16 h-16 object-cover rounded-xl cursor-pointer hover:opacity-80 transition border border-white/10" />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* DETAY */}
         {adim === "detay" && seciliTalep && (
