@@ -342,7 +342,7 @@ export default function SoforPanel() {
 
 
       {/* Adım göstergesi */}
-      {!["liste","detay","ozet"].includes(adim) && (
+      {!["liste","detay","ozet","gecmis","gecmis_detay"].includes(adim) && (
         <div className="px-4 pt-3 pb-2 bg-[#1A1A1A] border-b border-white/5">
           <div className="flex items-center">
             {ADIM_SIRALAMA.map((s, i) => {
