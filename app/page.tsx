@@ -1,24 +1,10 @@
+import NavBar from "./components/NavBar";
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#0B0F14] text-[#F5F8FA]" style={{ fontFamily: "var(--font-barlow), Arial, sans-serif" }}>
 
-      {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-[#0B0F14]/95 backdrop-blur-md border-b border-[#5C7386]/20">
-        <div className="flex items-center gap-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/tulpar-logo-v3.png" alt="Tulpar" className="h-8 w-auto" />
-          <div className="font-black text-xl tracking-tight uppercase">
-            Tulpar<span className="text-[#00D4FF]"> Assist</span>
-          </div>
-        </div>
-        <div className="hidden md:flex gap-2">
-          <a href="/firma/kayit" className="px-5 py-2.5 rounded-lg text-sm font-semibold text-[#9DB4C6] border border-[#5C7386]/40 hover:border-[#9DB4C6] hover:text-[#F5F8FA] transition tracking-wide">Tedarikçimiz Ol</a>
-          <a href="/firma/giris" className="px-5 py-2.5 rounded-lg text-sm font-semibold text-[#9DB4C6] border border-[#5C7386]/40 hover:border-[#9DB4C6] hover:text-[#F5F8FA] transition tracking-wide">Tedarikçi Paneli</a>
-          <a href="/sofor" className="px-5 py-2.5 rounded-lg text-sm font-semibold text-[#9DB4C6] border border-[#5C7386]/40 hover:border-[#9DB4C6] hover:text-[#F5F8FA] transition tracking-wide">Şoför Paneli</a>
-          <a href="/giris" className="px-5 py-2.5 rounded-lg bg-[#00D4FF] text-[#0B0F14] text-sm font-bold hover:bg-[#0099BB] transition tracking-wide">Giriş Yap</a>
-        </div>
-        <a href="/giris" className="md:hidden px-4 py-2 rounded-lg bg-[#00D4FF] text-[#0B0F14] text-sm font-bold">Giriş</a>
-      </nav>
+      <NavBar />
 
       {/* HERO */}
       <section className="relative min-h-screen flex flex-col justify-center pt-24 pb-16 px-6 overflow-hidden">
@@ -236,7 +222,7 @@ export default function Home() {
           <div className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/tulpar-logo-v3.png" alt="Tulpar" className="h-7 w-auto" />
-            <div className="font-black text-lg uppercase tracking-tight">Tulpar<span className="text-[#00D4FF]"> Assist</span></div>
+            <div className="font-black text-lg italic tracking-tight">Tulpar<span className="text-[#00D4FF]">Assist</span></div>
           </div>
           <div className="flex gap-6 text-sm text-[#5C7386] font-semibold">
             <a href="#" className="hover:text-[#9DB4C6] transition">Hakkımızda</a>
