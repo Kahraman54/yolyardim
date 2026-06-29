@@ -8,7 +8,8 @@ export default function Home() {
 
       {/* HERO */}
       <section className="relative min-h-screen flex flex-col justify-center pt-24 pb-16 px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_900px_600px_at_60%_40%,rgba(28,42,57,0.6),transparent_70%)] pointer-events-none" />
+        <div className="absolute inset-0 pointer-events-none hidden md:block bg-[radial-gradient(ellipse_900px_600px_at_60%_40%,rgba(28,42,57,0.5),transparent_70%)]" />
+        <div className="absolute inset-0 pointer-events-none md:hidden bg-[radial-gradient(ellipse_400px_300px_at_50%_30%,rgba(0,212,255,0.04),transparent_80%)]" />
 
         <div className="max-w-6xl mx-auto w-full flex items-center gap-8">
           {/* Sol: içerik */}
