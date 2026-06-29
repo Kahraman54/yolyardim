@@ -51,42 +51,51 @@ export default function FirmaGiris() {
   return (
     <main className="min-h-screen bg-[#0D0D0D] text-white flex items-center justify-center p-5">
       <div className="w-full max-w-sm">
-        <Link href="/" className="font-black text-xl tracking-tight mb-8 block">
-          Tulpar<span className="text-[#FF4D00]"> Assist</span>
+        <Link href="/" className="font-black italic tracking-tight mb-6 flex items-center gap-4" style={{ fontSize: "clamp(2.5rem, 8vw, 4rem)" }}>
+          <img src="/tulpar-logo-v3.png" alt="" className="w-auto object-contain flex-shrink-0" style={{ height: "clamp(4rem, 12vw, 6rem)" }} />
+          <span>Tulpar<span className="text-[#00D4FF]">Assist</span></span>
         </Link>
 
-        <h1 className="font-black text-2xl mb-1">Firma Girişi</h1>
-        <p className="text-gray-500 text-sm mb-8">Kayıtlı telefon numaranızla giriş yapın.</p>
+        <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-7">
+          <h1 className="font-black text-xl mb-1">Tedarikçi Paneli Girişi</h1>
+          <p className="text-gray-500 text-sm mb-6">Kayıtlı telefon numaranızla giriş yapın.</p>
 
-        {hata && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-xl mb-5">
-            ⚠️ {hata}
+          {hata && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-lg mb-4">
+              ⚠️ {hata}
+            </div>
+          )}
+
+          <div className="mb-4">
+            <label className="block text-xs font-semibold text-gray-400 mb-2">Telefon *</label>
+            <div className="flex">
+              <div className="bg-[#2A2A2A] border border-white/8 border-r-0 rounded-l-lg px-3 flex items-center text-sm font-bold flex-shrink-0">🇹🇷 +90</div>
+              <input
+                value={tel}
+                onChange={e => { let v = e.target.value.replace(/\D/g, ""); if (v.startsWith("0")) v = v.slice(1); setTel(v.slice(0, 10)); }}
+                onKeyDown={e => e.key === "Enter" && girisYap()}
+                placeholder="5XX XXX XX XX"
+                className="flex-1 bg-[#2A2A2A] border border-white/8 rounded-r-lg px-3 py-3 text-sm text-white outline-none focus:border-[#00D4FF] transition"
+              />
+            </div>
           </div>
-        )}
 
-        <div className="mb-5">
-          <label className="block text-xs font-semibold text-gray-400 mb-2">Telefon Numarası</label>
-          <input
-            value={tel}
-            onChange={e => setTel(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && girisYap()}
-            placeholder="0532 xxx xx xx"
-            className="w-full bg-[#1A1A1A] border border-white/8 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition"
-          />
+          <button
+            onClick={girisYap}
+            disabled={yukleniyor}
+            className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[#0B0F14] font-bold py-3 rounded-xl transition text-sm"
+          >
+            {yukleniyor ? "Kontrol ediliyor..." : "Giriş Yap →"}
+          </button>
+
+          <div className="text-center mt-4">
+            <Link href="/" className="text-xs text-gray-500 hover:text-white transition">← Ana sayfaya dön</Link>
+          </div>
         </div>
 
-        <button
-          onClick={girisYap}
-          disabled={yukleniyor}
-          className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-3 rounded-xl transition text-sm"
-        >
-          {yukleniyor ? "Kontrol ediliyor..." : "Giriş Yap →"}
-        </button>
-
-        <div className="mt-6 text-center">
-          <Link href="/firma/kayit" className="text-xs text-gray-600 hover:text-white transition">
-            Henüz kayıt olmadın mı? Firma Ol →
-          </Link>
+        <div className="text-center mt-5 text-xs text-gray-600">
+          Henüz aramıza katılmadın mı?{" "}
+          <Link href="/firma/kayit" className="text-[#00D4FF] font-semibold">Hemen Tedarikçimiz Ol</Link>
         </div>
       </div>
     </main>

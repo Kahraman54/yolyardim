@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
+import { apiPatch } from "../../../lib/api";
 
 function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371;
@@ -136,10 +137,10 @@ export default function SoforPanel() {
         if (d < 0.5) { km += d; toplamKmRef.current = km; setToplamKm(km); }
       }
       prevPosRef.current = { lat, lng };
-      await supabase.from("talepler").update({
+      await apiPatch("talepler", talepId, {
         sofor_konum_lat: lat, sofor_konum_lng: lng,
         sofor_konum_updated_at: new Date().toISOString(), toplam_km: km,
-      }).eq("id", talepId);
+      });
     }, () => {
       // Sessizce yoksay, interval bir sonraki denemede tekrar çalışacak
     }, { timeout: 10000, maximumAge: 5000 });
@@ -196,20 +197,21 @@ export default function SoforPanel() {
     setIslemYapiliyor(true);
     let lat = 0, lng = 0;
     try { const p = await new Promise<GeolocationPosition>((r,j) => navigator.geolocation.getCurrentPosition(r,j,{timeout:10000})); lat=p.coords.latitude; lng=p.coords.longitude; } catch {}
-    const { error } = await supabase.from("talepler").update({
-      durum:"yolda", is_adim:"yolda", ise_baslama_zamani: new Date().toISOString(),
-      baslangic_lat: lat||null, baslangic_lng: lng||null,
-      sofor_konum_lat: lat||null, sofor_konum_lng: lng||null, sofor_konum_updated_at: new Date().toISOString(),
-    }).eq("id", seciliTalep.id);
+    try {
+      await apiPatch("talepler", seciliTalep.id, {
+        durum:"yolda", is_adim:"yolda", ise_baslama_zamani: new Date().toISOString(),
+        baslangic_lat: lat||null, baslangic_lng: lng||null,
+        sofor_konum_lat: lat||null, sofor_konum_lng: lng||null, sofor_konum_updated_at: new Date().toISOString(),
+      });
+    } catch (e) { setIslemYapiliyor(false); setFotoHata((e as Error).message); return; }
     setIslemYapiliyor(false);
-    if (error) { setFotoHata(error.message); return; }
     setSeciliTalep(p => p ? { ...p, durum:"yolda", is_adim:"yolda", ise_baslama_zamani: new Date().toISOString() } : p);
     setAdim("yolda"); kmAktifRef.current = true; startGPS(seciliTalep.id);
   }
 
   async function dbAdimGec(dbAdim: string, yerelAdim: Adim, extra?: Record<string,unknown>) {
     if (!seciliTalep) return;
-    await supabase.from("talepler").update({ is_adim: dbAdim, ...extra }).eq("id", seciliTalep.id);
+    await apiPatch("talepler", seciliTalep.id, { is_adim: dbAdim, ...extra });
     setAdim(yerelAdim);
   }
 
@@ -232,10 +234,10 @@ export default function SoforPanel() {
     if (!seciliTalep) return;
     setIslemYapiliyor(true);
     const bitisTarih = new Date().toISOString();
-    await supabase.from("talepler").update({
+    await apiPatch("talepler", seciliTalep.id, {
       durum:"tamamlandi", is_adim:"tamamlandi", ise_bitis_zamani: bitisTarih,
       foto_tutanak: fotolar.tutanak, toplam_km: toplamKmRef.current,
-    }).eq("id", seciliTalep.id);
+    });
     setIslemYapiliyor(false);
     setSeciliTalep(p => p ? { ...p, ise_bitis_zamani: bitisTarih } : p);
     setAdim("ozet");
@@ -270,7 +272,7 @@ export default function SoforPanel() {
         <button
           onClick={() => fotoSec(step)}
           disabled={fotoYukleniyor}
-          className="w-full flex items-center justify-center gap-3 bg-[#FF4D00]/10 hover:bg-[#FF4D00]/20 border-2 border-dashed border-[#FF4D00]/50 hover:border-[#FF4D00] text-[#FF4D00] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
+          className="w-full flex items-center justify-center gap-3 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border-2 border-dashed border-[#00D4FF]/50 hover:border-[#00D4FF] text-[#00D4FF] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
         >
           {fotoYukleniyor ? (
             <><span className="animate-spin">⏳</span> Yükleniyor {fotoProgress.done}/{fotoProgress.total}...</>
@@ -306,7 +308,7 @@ export default function SoforPanel() {
         <button
           onClick={devamAksiyon}
           disabled={devamDisabled || islemYapiliyor || arr.length === 0}
-          className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-4 rounded-xl transition text-sm"
+          className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-white font-bold py-4 rounded-xl transition text-sm"
         >
           {islemYapiliyor ? "Kaydediliyor..." : devamButon}
         </button>
@@ -322,7 +324,7 @@ export default function SoforPanel() {
       {/* HEADER */}
       <header className="flex items-center justify-between px-4 py-3 bg-[#1A1A1A] border-b border-white/5 flex-shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-[#FF4D00] flex items-center justify-center text-xs font-black">
+          <div className="w-8 h-8 rounded-full bg-[#00D4FF] flex items-center justify-center text-xs font-black">
             {sofor.ad[0]}{sofor.soyad?.[0] || ""}
           </div>
           <div>
@@ -350,10 +352,10 @@ export default function SoforPanel() {
               return (
                 <div key={s} className="flex items-center flex-1">
                   <div className="flex flex-col items-center flex-shrink-0">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${gecildi ? "bg-[#00C853] border-[#00C853] text-black" : aktif ? "border-[#FF4D00] text-[#FF4D00] bg-[#FF4D00]/10" : "border-white/10 text-gray-600"}`}>
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${gecildi ? "bg-[#00C853] border-[#00C853] text-black" : aktif ? "border-[#00D4FF] text-[#00D4FF] bg-[#00D4FF]/10" : "border-white/10 text-gray-600"}`}>
                       {gecildi ? "✓" : i+1}
                     </div>
-                    <div className={`text-[8px] font-bold mt-0.5 ${aktif ? "text-[#FF4D00]" : gecildi ? "text-[#00C853]" : "text-gray-600"}`}>{ADIM_ETIKET[s]}</div>
+                    <div className={`text-[8px] font-bold mt-0.5 ${aktif ? "text-[#00D4FF]" : gecildi ? "text-[#00C853]" : "text-gray-600"}`}>{ADIM_ETIKET[s]}</div>
                   </div>
                   {i < ADIM_SIRALAMA.length-1 && <div className={`flex-1 h-0.5 mx-0.5 mb-3 ${gecildi ? "bg-[#00C853]" : "bg-white/10"}`}></div>}
                 </div>
@@ -372,7 +374,7 @@ export default function SoforPanel() {
         {adim === "liste" && (
           <div>
             <div className="flex gap-2 mb-4">
-              <button className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#FF4D00] text-white">Aktif Görevler</button>
+              <button className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#00D4FF] text-[#0B0F14]">Aktif Görevler</button>
               <button onClick={() => { setAdim("gecmis"); if (sofor) gecmisYukle(sofor.id); }} className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#1A1A1A] text-gray-400 border border-white/8">Geçmiş</button>
             </div>
             {yukleniyor ? (
@@ -383,10 +385,10 @@ export default function SoforPanel() {
                 <div className="text-gray-500 text-sm">Atanmış görev yok</div>
               </div>
             ) : talepler.map(t => (
-              <div key={t.id} onClick={() => talepSec(t)} className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3 cursor-pointer hover:border-[#FF4D00]/40 transition">
+              <div key={t.id} onClick={() => talepSec(t)} className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3 cursor-pointer hover:border-[#00D4FF]/40 transition">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#FF4D00]/10 flex items-center justify-center">🚛</div>
+                    <div className="w-9 h-9 rounded-lg bg-[#00D4FF]/10 flex items-center justify-center">🚛</div>
                     <div>
                       <div className="font-bold text-sm">{t.tip} Talebi</div>
                       <div className="text-[11px] text-gray-500">{new Date(t.created_at).toLocaleString("tr-TR")}</div>
@@ -408,7 +410,7 @@ export default function SoforPanel() {
           <div>
             <div className="flex gap-2 mb-4">
               <button onClick={() => setAdim("liste")} className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#1A1A1A] text-gray-400 border border-white/8">Aktif Görevler</button>
-              <button className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#FF4D00] text-white">Geçmiş</button>
+              <button className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#00D4FF] text-[#0B0F14]">Geçmiş</button>
             </div>
             {gecmisTalepler.length === 0 ? (
               <div className="bg-[#1A1A1A] border border-white/5 rounded-2xl p-10 text-center">
@@ -421,7 +423,7 @@ export default function SoforPanel() {
                 : null;
               const toplamFoto = (t.foto_teslim_alma?.length||0)+(t.foto_yukleme?.length||0)+(t.foto_teslim?.length||0)+(t.foto_tutanak?.length||0);
               return (
-                <div key={t.id} onClick={() => { setSeciliGecmis(t); setAdim("gecmis_detay"); }} className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3 cursor-pointer hover:border-[#FF4D00]/40 transition">
+                <div key={t.id} onClick={() => { setSeciliGecmis(t); setAdim("gecmis_detay"); }} className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3 cursor-pointer hover:border-[#00D4FF]/40 transition">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-[#00C853]/10 flex items-center justify-center">✅</div>
@@ -476,7 +478,7 @@ export default function SoforPanel() {
                 )}
                 {t.konum_adres && (
                   <div className="flex items-start gap-2 text-xs">
-                    <span className="text-[#FF4D00] mt-0.5">📍</span>
+                    <span className="text-[#00D4FF] mt-0.5">📍</span>
                     <div><div className="text-gray-500 uppercase font-bold text-[10px]">Alınış Yeri</div><div className="text-gray-300">{t.konum_adres}</div></div>
                   </div>
                 )}
@@ -496,7 +498,7 @@ export default function SoforPanel() {
                 <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">İş Özeti</div>
                 <div className="grid grid-cols-3 gap-3 text-center mb-4">
                   <div className="bg-[#0D0D0D] rounded-xl p-3">
-                    <div className="font-black text-lg text-[#FF4D00]">{(t.toplam_km||0).toFixed(1)}</div>
+                    <div className="font-black text-lg text-[#00D4FF]">{(t.toplam_km||0).toFixed(1)}</div>
                     <div className="text-[9px] text-gray-500 mt-0.5">KM</div>
                   </div>
                   <div className="bg-[#0D0D0D] rounded-xl p-3">
@@ -560,14 +562,14 @@ export default function SoforPanel() {
             {seciliTalep.konum_lat && (
               <a href={`https://maps.google.com/?q=${seciliTalep.konum_lat},${seciliTalep.konum_lng}`} target="_blank" rel="noopener noreferrer" className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3 flex items-center gap-3">
                 <span className="text-2xl">📍</span>
-                <div className="flex-1"><div className="text-[10px] text-gray-500 uppercase font-bold">Aracın Yeri</div><div className="text-sm font-semibold text-[#FF4D00]">{seciliTalep.konum_adres || `${seciliTalep.konum_lat?.toFixed(5)}, ${seciliTalep.konum_lng?.toFixed(5)}`}</div></div>
+                <div className="flex-1"><div className="text-[10px] text-gray-500 uppercase font-bold">Aracın Yeri</div><div className="text-sm font-semibold text-[#00D4FF]">{seciliTalep.konum_adres || `${seciliTalep.konum_lat?.toFixed(5)}, ${seciliTalep.konum_lng?.toFixed(5)}`}</div></div>
                 <span className="text-gray-400">→</span>
               </a>
             )}
             {seciliTalep.hedef_adres && <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-3 mb-3 flex items-center gap-2"><span>🎯</span><div><div className="text-[10px] text-gray-500 uppercase font-bold">Hedef</div><div className="text-sm font-semibold">{seciliTalep.hedef_adres}</div></div></div>}
             {seciliTalep.aciklama && <div className="bg-yellow-500/5 border border-yellow-500/15 rounded-xl p-3 text-xs text-yellow-200 mb-4">💬 &ldquo;{seciliTalep.aciklama}&rdquo;</div>}
             {fotoHata && <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl mb-3">⚠️ {fotoHata}</div>}
-            <button onClick={iseBasla} disabled={islemYapiliyor} className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-4 rounded-xl transition text-sm">
+            <button onClick={iseBasla} disabled={islemYapiliyor} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-white font-bold py-4 rounded-xl transition text-sm">
               {islemYapiliyor ? "Başlatılıyor..." : "🚛 İşe Başla — Yola Çık"}
             </button>
           </div>
@@ -579,13 +581,13 @@ export default function SoforPanel() {
             <div className="font-black text-2xl mb-1">Yolda 🚛</div>
             <div className="text-gray-500 text-xs mb-5">Müşteriye gidiyorsunuz. GPS ve KM takibi aktif.</div>
             <div className="grid grid-cols-2 gap-3 mb-5">
-              <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 text-center"><div className="text-2xl font-black text-[#FF4D00]">{gecenSure}</div><div className="text-[10px] text-gray-500 mt-1">Geçen Süre</div></div>
+              <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 text-center"><div className="text-2xl font-black text-[#00D4FF]">{gecenSure}</div><div className="text-[10px] text-gray-500 mt-1">Geçen Süre</div></div>
               <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 text-center"><div className="text-2xl font-black">{toplamKm.toFixed(1)}<span className="text-sm font-normal text-gray-500"> km</span></div><div className="text-[10px] text-gray-500 mt-1">Kilometre</div></div>
             </div>
             {sonKonum && <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl p-3 mb-4 text-xs text-blue-300 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse flex-shrink-0"></span>Konumunuz müşteriye iletiliyor</div>}
             {seciliTalep.musteri_tel && <a href={`tel:${tel(seciliTalep.musteri_tel)}`} className="flex items-center gap-3 bg-[#1A1A1A] border border-white/8 rounded-xl p-3 mb-3"><span className="text-xl">📞</span><div><div className="text-[10px] text-gray-500">Müşteri</div><div className="font-bold text-blue-400">{seciliTalep.musteri_ad} · {tel(seciliTalep.musteri_tel)}</div></div></a>}
-            {seciliTalep.konum_lat && <a href={`https://maps.google.com/?q=${seciliTalep.konum_lat},${seciliTalep.konum_lng}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-[#1A1A1A] border border-white/8 rounded-xl p-3 mb-6"><span className="text-xl">📍</span><div className="flex-1"><div className="text-[10px] text-gray-500">Müşterinin Konumu</div><div className="text-sm font-semibold text-[#FF4D00]">{seciliTalep.konum_adres || "Haritada Aç"}</div></div><span className="text-gray-400">→</span></a>}
-            <button onClick={() => dbAdimGec("arac_yaninda","teslim_alma")} className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] text-white font-bold py-4 rounded-xl transition text-sm">📍 Araç Yanına Vardım</button>
+            {seciliTalep.konum_lat && <a href={`https://maps.google.com/?q=${seciliTalep.konum_lat},${seciliTalep.konum_lng}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-[#1A1A1A] border border-white/8 rounded-xl p-3 mb-6"><span className="text-xl">📍</span><div className="flex-1"><div className="text-[10px] text-gray-500">Müşterinin Konumu</div><div className="text-sm font-semibold text-[#00D4FF]">{seciliTalep.konum_adres || "Haritada Aç"}</div></div><span className="text-gray-400">→</span></a>}
+            <button onClick={() => dbAdimGec("arac_yaninda","teslim_alma")} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] text-[#0B0F14] font-bold py-4 rounded-xl transition text-sm">📍 Araç Yanına Vardım</button>
           </div>
         )}
 
@@ -617,7 +619,7 @@ export default function SoforPanel() {
             <div className="font-black text-2xl mb-1">Teslimata Gidiliyor 🎯</div>
             <div className="text-gray-500 text-xs mb-5">Araç yüklendi, hedefe gidiyorsunuz.</div>
             <div className="grid grid-cols-2 gap-3 mb-5">
-              <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 text-center"><div className="text-2xl font-black text-[#FF4D00]">{gecenSure}</div><div className="text-[10px] text-gray-500 mt-1">Toplam Süre</div></div>
+              <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 text-center"><div className="text-2xl font-black text-[#00D4FF]">{gecenSure}</div><div className="text-[10px] text-gray-500 mt-1">Toplam Süre</div></div>
               <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 text-center"><div className="text-2xl font-black">{toplamKm.toFixed(1)}<span className="text-sm font-normal text-gray-500"> km</span></div><div className="text-[10px] text-gray-500 mt-1">Kilometre</div></div>
             </div>
             {seciliTalep.hedef_adres && <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-3 mb-4 flex items-center gap-2"><span>🎯</span><div><div className="text-[10px] text-gray-500 uppercase font-bold">Hedef</div><div className="text-sm font-semibold">{seciliTalep.hedef_adres}</div></div></div>}
@@ -653,7 +655,7 @@ export default function SoforPanel() {
             <button
               onClick={() => fotoSec("tutanak")}
               disabled={fotoYukleniyor}
-              className="w-full flex items-center justify-center gap-3 bg-[#FF4D00]/10 hover:bg-[#FF4D00]/20 border-2 border-dashed border-[#FF4D00]/50 hover:border-[#FF4D00] text-[#FF4D00] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
+              className="w-full flex items-center justify-center gap-3 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border-2 border-dashed border-[#00D4FF]/50 hover:border-[#00D4FF] text-[#00D4FF] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
             >
               {fotoYukleniyor ? <><span className="animate-spin">⏳</span> Yükleniyor...</> : <><span className="text-xl">📄</span> Tutanak Fotoğrafı Ekle</>}
             </button>
@@ -693,7 +695,7 @@ export default function SoforPanel() {
                 <span className="text-xl">🚗</span><div className="flex-1"><div className="text-xs text-gray-500">Araç</div><div className="font-bold">{seciliTalep.arac_plaka || "—"}</div></div>
               </div>
               <div className="grid grid-cols-2 gap-4 pb-3 border-b border-white/5">
-                <div><div className="text-xs text-gray-500">Toplam KM</div><div className="font-black text-xl text-[#FF4D00]">{toplamKm.toFixed(1)} km</div></div>
+                <div><div className="text-xs text-gray-500">Toplam KM</div><div className="font-black text-xl text-[#00D4FF]">{toplamKm.toFixed(1)} km</div></div>
                 <div><div className="text-xs text-gray-500">Süre</div><div className="font-black text-xl">{seciliTalep.ise_baslama_zamani && seciliTalep.ise_bitis_zamani ? formatSure(new Date(seciliTalep.ise_bitis_zamani).getTime() - new Date(seciliTalep.ise_baslama_zamani).getTime()) : gecenSure}</div></div>
               </div>
               <div>

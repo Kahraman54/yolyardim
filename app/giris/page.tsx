@@ -54,13 +54,12 @@ export default function Giris() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0D0D0D] flex items-center justify-center p-5">
+    <main className="min-h-screen bg-[#0D0D0D] text-white flex items-center justify-center p-5">
       <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <Link href="/" className="font-black text-2xl">
-            Tulpar<span className="text-[#FF4D00]"> Assist</span>
-          </Link>
-        </div>
+        <Link href="/" className="font-black italic tracking-tight mb-6 flex items-center gap-4" style={{ fontSize: "clamp(2.5rem, 8vw, 4rem)" }}>
+          <img src="/tulpar-logo-v3.png" alt="" className="w-auto object-contain flex-shrink-0" style={{ height: "clamp(4rem, 12vw, 6rem)" }} />
+          <span>Tulpar<span className="text-[#00D4FF]">Assist</span></span>
+        </Link>
         <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-7">
           {adim === "tel" && (
             <div>
@@ -74,15 +73,15 @@ export default function Giris() {
                   <input
                     type="tel"
                     value={tel}
-                    onChange={e => { setTel(e.target.value.replace(/\D/g, "").slice(0, 10)); setHata(""); }}
+                    onChange={e => { let v = e.target.value.replace(/\D/g, ""); if (v.startsWith("0")) v = v.slice(1); setTel(v.slice(0, 10)); setHata(""); }}
                     onKeyDown={e => e.key === "Enter" && telKontrol()}
                     placeholder="5XX XXX XX XX"
-                    className="flex-1 bg-[#2A2A2A] border border-white/8 rounded-r-lg px-3 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition"
+                    className="flex-1 bg-[#2A2A2A] border border-white/8 rounded-r-lg px-3 py-3 text-sm text-white outline-none focus:border-[#00D4FF] transition"
                   />
                 </div>
               </div>
               <button onClick={telKontrol} disabled={tel.replace(/\D/g,"").length < 10 || yukleniyor}
-                className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-3 rounded-xl transition text-sm">
+                className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-white font-bold py-3 rounded-xl transition text-sm">
                 {yukleniyor ? "Kontrol ediliyor..." : "Devam Et →"}
               </button>
               <div className="text-center mt-4">
@@ -99,22 +98,22 @@ export default function Giris() {
               <div className="grid grid-cols-2 gap-3 mb-5">
                 <div>
                   <label className="block text-xs font-semibold text-gray-400 mb-2">Ad *</label>
-                  <input type="text" value={ad} onChange={e => setAd(e.target.value)} onKeyDown={e => e.key === "Enter" && kayitOl()} placeholder="Adın" className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition" />
+                  <input type="text" value={ad} onChange={e => setAd(e.target.value)} onKeyDown={e => e.key === "Enter" && kayitOl()} placeholder="Adın" className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#00D4FF] transition" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-400 mb-2">Soyad</label>
-                  <input type="text" value={soyad} onChange={e => setSoyad(e.target.value)} onKeyDown={e => e.key === "Enter" && kayitOl()} placeholder="Soyadın" className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#FF4D00] transition" />
+                  <input type="text" value={soyad} onChange={e => setSoyad(e.target.value)} onKeyDown={e => e.key === "Enter" && kayitOl()} placeholder="Soyadın" className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#00D4FF] transition" />
                 </div>
               </div>
               <button onClick={kayitOl} disabled={!ad || yukleniyor}
-                className="w-full bg-[#FF4D00] hover:bg-[#CC3D00] disabled:opacity-40 text-white font-bold py-3 rounded-xl transition text-sm">
+                className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-white font-bold py-3 rounded-xl transition text-sm">
                 {yukleniyor ? "Kaydediliyor..." : "Devam Et →"}
               </button>
             </div>
           )}
         </div>
         <div className="text-center mt-5 text-xs text-gray-600">
-          Firma mısın? <Link href="/firma/kayit" className="text-[#FF4D00] font-semibold">Firma paneline git</Link>
+          Tedarikçimiz misin? <Link href="/firma/giris" className="text-[#00D4FF] font-semibold">Tedarikçi paneline git</Link>
         </div>
       </div>
     </main>

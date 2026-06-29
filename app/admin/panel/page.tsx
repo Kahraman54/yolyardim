@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
+import { apiPatch } from "../../../lib/api";
 
 type Firma = {
   id: string; firma_ad: string; sahip_ad: string; sahip_soyad: string;
@@ -207,12 +208,12 @@ export default function AdminPanel() {
 
   async function firmaOnayla(id: string) {
     setIslemYapiliyor(id);
-    await supabase.from("firmalar").update({ durum: "aktif" }).eq("id", id);
+    await apiPatch("firmalar", id, { durum: "aktif" });
     setIslemYapiliyor(null); setSeciliFirmaDetay(null); bekleyenleriYukle();
   }
   async function firmaReddet(id: string) {
     setIslemYapiliyor(id + "_red");
-    await supabase.from("firmalar").update({ durum: "reddedildi" }).eq("id", id);
+    await apiPatch("firmalar", id, { durum: "reddedildi" });
     setIslemYapiliyor(null); setSeciliFirmaDetay(null); bekleyenleriYukle();
   }
 
@@ -241,11 +242,11 @@ export default function AdminPanel() {
       {/* SIDEBAR */}
       <aside className="w-48 bg-[#141414] border-r border-white/5 flex flex-col flex-shrink-0">
         <div className="p-4 border-b border-white/5">
-          <div className="font-black text-base mb-0.5">Tulpar<span className="text-[#FF4D00]"> Assist</span></div>
-          <div className="text-[9px] text-[#FF4D00] font-bold tracking-widest uppercase">Admin Paneli</div>
+          <div className="font-black text-base mb-0.5">Tulpar<span className="text-[#00D4FF]"> Assist</span></div>
+          <div className="text-[9px] text-[#00D4FF] font-bold tracking-widest uppercase">Admin Paneli</div>
         </div>
         <div className="p-3 border-b border-white/5 flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#FF4D00] flex items-center justify-center text-xs font-black">A</div>
+          <div className="w-7 h-7 rounded-lg bg-[#00D4FF] flex items-center justify-center text-xs font-black">A</div>
           <div><div className="text-xs font-bold">Admin</div><div className="text-[10px] text-gray-600">Süper Admin</div></div>
         </div>
         <nav className="flex-1 p-2">
@@ -254,9 +255,9 @@ export default function AdminPanel() {
             { id:"panel", icon:"📊", label:"Genel Bakış" },
             { id:"talepler", icon:"📋", label:"Tüm Talepler", badge: istatistik.talepAktif > 0 ? String(istatistik.talepAktif) : undefined },
           ].map(m => (
-            <button key={m.id} onClick={() => setSayfa(m.id)} className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-medium mb-0.5 transition text-left ${sayfa===m.id?"bg-[#FF4D00]/10 text-[#FF4D00] font-semibold":"text-gray-500 hover:bg-white/5 hover:text-white"}`}>
+            <button key={m.id} onClick={() => setSayfa(m.id)} className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-medium mb-0.5 transition text-left ${sayfa===m.id?"bg-[#00D4FF]/10 text-[#00D4FF] font-semibold":"text-gray-500 hover:bg-white/5 hover:text-white"}`}>
               <span className="text-sm">{m.icon}</span>{m.label}
-              {m.badge && <span className="ml-auto bg-[#FF4D00] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">{m.badge}</span>}
+              {m.badge && <span className="ml-auto bg-[#00D4FF] text-[#0B0F14] text-[9px] font-bold px-1.5 py-0.5 rounded-full">{m.badge}</span>}
             </button>
           ))}
           <div className="text-[9px] text-gray-600 font-bold uppercase tracking-widest px-2 py-2 mt-2">Yönetim</div>
@@ -266,7 +267,7 @@ export default function AdminPanel() {
             { id:"kullanicilar", icon:"👥", label:"Kullanıcılar" },
             { id:"istatistik", icon:"📈", label:"İstatistikler" },
           ].map(m => (
-            <button key={m.id} onClick={() => setSayfa(m.id)} className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-medium mb-0.5 transition text-left ${sayfa===m.id?"bg-[#FF4D00]/10 text-[#FF4D00] font-semibold":"text-gray-500 hover:bg-white/5 hover:text-white"}`}>
+            <button key={m.id} onClick={() => setSayfa(m.id)} className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-medium mb-0.5 transition text-left ${sayfa===m.id?"bg-[#00D4FF]/10 text-[#00D4FF] font-semibold":"text-gray-500 hover:bg-white/5 hover:text-white"}`}>
               <span className="text-sm">{m.icon}</span>{m.label}
               {m.badge && <span className="ml-auto bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">{m.badge}</span>}
             </button>
@@ -296,7 +297,7 @@ export default function AdminPanel() {
               <div className="grid grid-cols-4 gap-3 mb-5">
                 {[
                   { l:"Aktif Firma", v: istatistik.aktif, c:"text-[#00C853]", b:"border-[#00C853]/15" },
-                  { l:"Onay Bekleyen", v: istatistik.bekliyor, c:"text-[#FF4D00]", b:"border-[#FF4D00]/20" },
+                  { l:"Onay Bekleyen", v: istatistik.bekliyor, c:"text-[#00D4FF]", b:"border-[#00D4FF]/20" },
                   { l:"Toplam Talep", v: istatistik.talepToplam, c:"text-white", b:"" },
                   { l:"Kayıtlı Müşteri", v: istatistik.musteriToplam, c:"text-white", b:"" },
                 ].map(s => (
@@ -324,7 +325,7 @@ export default function AdminPanel() {
               <div className="bg-[#141414] border border-white/5 rounded-xl p-4">
                 <div className="text-sm font-bold mb-3">Hızlı Erişim</div>
                 <div className="grid grid-cols-3 gap-3">
-                  <button onClick={() => setSayfa("belgeler")} className="bg-[#FF4D00]/10 border border-[#FF4D00]/20 text-[#FF4D00] font-bold py-3 rounded-xl text-sm hover:bg-[#FF4D00]/20 transition">📄 Belge Onayla</button>
+                  <button onClick={() => setSayfa("belgeler")} className="bg-[#00D4FF]/10 border border-[#00D4FF]/20 text-[#00D4FF] font-bold py-3 rounded-xl text-sm hover:bg-[#00D4FF]/20 transition">📄 Belge Onayla</button>
                   <button onClick={() => setSayfa("talepler")} className="bg-white/5 border border-white/10 font-bold py-3 rounded-xl text-sm hover:bg-white/10 transition">📋 Tüm Talepler</button>
                   <button onClick={() => setSayfa("kullanicilar")} className="bg-white/5 border border-white/10 font-bold py-3 rounded-xl text-sm hover:bg-white/10 transition">👥 Kullanıcılar</button>
                 </div>
@@ -341,11 +342,11 @@ export default function AdminPanel() {
                 <div className="p-3 border-b border-white/5 space-y-2 flex-shrink-0">
                   <input value={talepArama} onChange={e => setTalepArama(e.target.value)}
                     placeholder="🔍 Müşteri, plaka, firma..."
-                    className="w-full bg-[#1E1E1E] border border-white/8 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#FF4D00] transition" />
+                    className="w-full bg-[#1E1E1E] border border-white/8 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#00D4FF] transition" />
                   <div className="flex gap-1 flex-wrap">
                     {["hepsi","yeni","teklif","kabul","yolda","tamamlandi","reddedildi"].map(f => (
                       <button key={f} onClick={() => setTalepFiltre(f)}
-                        className={`text-[10px] font-bold px-2 py-1 rounded-full border transition ${talepFiltre === f ? "border-[#FF4D00] bg-[#FF4D00]/10 text-[#FF4D00]" : "border-white/8 text-gray-500 hover:border-white/20"}`}>
+                        className={`text-[10px] font-bold px-2 py-1 rounded-full border transition ${talepFiltre === f ? "border-[#00D4FF] bg-[#00D4FF]/10 text-[#00D4FF]" : "border-white/8 text-gray-500 hover:border-white/20"}`}>
                         {f === "hepsi" ? `Hepsi (${talepler.length})` : DURUM_LABEL[f]?.replace(/[^\w\s]/g, "").trim() + ` (${talepler.filter(t => t.durum === f).length})`}
                       </button>
                     ))}
@@ -359,7 +360,7 @@ export default function AdminPanel() {
                     <div className="text-center py-10 text-gray-600 text-sm">Talep bulunamadı.</div>
                   ) : filtrelenmis.map(t => (
                     <div key={t.id} onClick={() => setSeciliTalep(t)}
-                      className={`px-4 py-3 border-b border-white/5 cursor-pointer transition ${seciliTalep?.id === t.id ? "bg-[#FF4D00]/5 border-l-2 border-l-[#FF4D00]" : "hover:bg-white/3"}`}>
+                      className={`px-4 py-3 border-b border-white/5 cursor-pointer transition ${seciliTalep?.id === t.id ? "bg-[#00D4FF]/5 border-l-2 border-l-[#00D4FF]" : "hover:bg-white/3"}`}>
                       <div className="flex items-start justify-between gap-2 mb-1">
                         <div className="flex-1 min-w-0">
                           <span className="font-bold text-xs">{t.tip}</span>
@@ -423,7 +424,7 @@ export default function AdminPanel() {
                         <div><span className="text-gray-500 text-xs">Firma</span><div className="font-semibold">{seciliTalep.firma_id ? (firmaMap[seciliTalep.firma_id] || "—") : "Atanmadı"}</div></div>
                         <div><span className="text-gray-500 text-xs">Şoför</span><div className="font-semibold">{seciliTalep.atanan_sofor ? (soforMap[seciliTalep.atanan_sofor] || "—") : "Atanmadı"}</div></div>
                         <div><span className="text-gray-500 text-xs">Araç (Firma)</span><div className="font-semibold">{seciliTalep.atanan_arac || "—"}</div></div>
-                        {seciliTalep.fiyat_teklifi && <div><span className="text-gray-500 text-xs">Fiyat</span><div className="font-black text-[#FF4D00]">{seciliTalep.fiyat_teklifi.toLocaleString("tr-TR")} ₺</div></div>}
+                        {seciliTalep.fiyat_teklifi && <div><span className="text-gray-500 text-xs">Fiyat</span><div className="font-black text-[#00D4FF]">{seciliTalep.fiyat_teklifi.toLocaleString("tr-TR")} ₺</div></div>}
                       </div>
                     </div>
 
@@ -434,13 +435,13 @@ export default function AdminPanel() {
                         {(seciliTalep.konum_lat || seciliTalep.konum_adres) && (
                           <a href={seciliTalep.konum_lat ? `https://maps.google.com/?q=${seciliTalep.konum_lat},${seciliTalep.konum_lng}` : `https://maps.google.com/?q=${encodeURIComponent(seciliTalep.konum_adres!)}`}
                             target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-2 bg-[#FF4D00]/6 border border-[#FF4D00]/20 rounded-lg px-3 py-2 mb-2 hover:bg-[#FF4D00]/12 transition group">
+                            className="flex items-center gap-2 bg-[#00D4FF]/6 border border-[#00D4FF]/20 rounded-lg px-3 py-2 mb-2 hover:bg-[#00D4FF]/12 transition group">
                             <span>📍</span>
                             <div className="flex-1 min-w-0">
                               <div className="text-[10px] text-gray-500">Müşteri Konumu</div>
-                              <div className="text-xs font-semibold text-[#FF4D00] truncate">{seciliTalep.konum_adres || `${seciliTalep.konum_lat?.toFixed(5)}, ${seciliTalep.konum_lng?.toFixed(5)}`}</div>
+                              <div className="text-xs font-semibold text-[#00D4FF] truncate">{seciliTalep.konum_adres || `${seciliTalep.konum_lat?.toFixed(5)}, ${seciliTalep.konum_lng?.toFixed(5)}`}</div>
                             </div>
-                            <span className="text-[10px] text-[#FF4D00] opacity-60 group-hover:opacity-100">→</span>
+                            <span className="text-[10px] text-[#00D4FF] opacity-60 group-hover:opacity-100">→</span>
                           </a>
                         )}
                         {seciliTalep.hedef_adres && (
@@ -486,7 +487,7 @@ export default function AdminPanel() {
                         <div className="grid grid-cols-3 gap-3">
                           {seciliTalep.toplam_km != null && (
                             <div className="text-center bg-[#222] rounded-lg p-3">
-                              <div className="font-black text-xl text-[#FF4D00]">{seciliTalep.toplam_km.toFixed(1)}</div>
+                              <div className="font-black text-xl text-[#00D4FF]">{seciliTalep.toplam_km.toFixed(1)}</div>
                               <div className="text-[10px] text-gray-500 mt-0.5">km</div>
                             </div>
                           )}
@@ -498,7 +499,7 @@ export default function AdminPanel() {
                           )}
                           {seciliTalep.fiyat_teklifi && (
                             <div className="text-center bg-[#222] rounded-lg p-3">
-                              <div className="font-black text-xl text-[#FF4D00]">{seciliTalep.fiyat_teklifi.toLocaleString("tr-TR")}</div>
+                              <div className="font-black text-xl text-[#00D4FF]">{seciliTalep.fiyat_teklifi.toLocaleString("tr-TR")}</div>
                               <div className="text-[10px] text-gray-500 mt-0.5">₺</div>
                             </div>
                           )}
@@ -510,7 +511,7 @@ export default function AdminPanel() {
                           </div>
                         )}
                         {seciliTalep.is_adim && (
-                          <div className="mt-2 text-xs"><span className="text-gray-500">Şu an: </span><span className="font-bold text-[#FF4D00]">{seciliTalep.is_adim}</span></div>
+                          <div className="mt-2 text-xs"><span className="text-gray-500">Şu an: </span><span className="font-bold text-[#00D4FF]">{seciliTalep.is_adim}</span></div>
                         )}
                       </div>
                     )}
@@ -577,7 +578,7 @@ export default function AdminPanel() {
                     <div className="bg-[#141414] border border-white/5 rounded-xl p-8 text-center text-gray-500 text-sm">✅ Bekleyen başvuru yok.</div>
                   ) : bekleyenFirmalar.map(f => (
                     <div key={f.id} onClick={() => belgeleriGoster(f)}
-                      className={`p-4 rounded-xl border cursor-pointer transition mb-2 ${seciliFirmaDetay?.id === f.id ? "border-[#FF4D00] bg-[#FF4D00]/4" : "border-white/8 bg-[#141414] hover:border-white/20"}`}>
+                      className={`p-4 rounded-xl border cursor-pointer transition mb-2 ${seciliFirmaDetay?.id === f.id ? "border-[#00D4FF] bg-[#00D4FF]/4" : "border-white/8 bg-[#141414] hover:border-white/20"}`}>
                       <div className="font-bold text-sm mb-1">{f.firma_ad}</div>
                       <div className="text-xs text-gray-500">{f.sahip_ad} {f.sahip_soyad} · {f.il}</div>
                       <div className="text-xs text-gray-600 mt-1">{f.tel}</div>
@@ -634,19 +635,19 @@ export default function AdminPanel() {
               <div className="border-r border-white/5 flex flex-col overflow-hidden">
                 <div className="p-3 border-b border-white/5 space-y-2 flex-shrink-0">
                   <input value={firmaArama} onChange={e => setFirmaArama(e.target.value)} placeholder="🔍 Firma ara..."
-                    className="w-full bg-[#1E1E1E] border border-white/8 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#FF4D00] transition" />
+                    className="w-full bg-[#1E1E1E] border border-white/8 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#00D4FF] transition" />
                   <div className="text-xs text-gray-500">{firmaListeYukleniyor ? "Yükleniyor..." : `${tumFirmalar.length} firma`}</div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-3">
                   {tumFirmalar.filter(f => !firmaArama || f.firma_ad.toLowerCase().includes(firmaArama.toLowerCase()) || f.il?.toLowerCase().includes(firmaArama.toLowerCase())).map(f => (
                     <div key={f.id} onClick={() => firmaDetayYukle(f)}
-                      className={`p-3 rounded-xl border cursor-pointer transition mb-2 ${seciliFirmaListe?.id === f.id ? "border-[#FF4D00] bg-[#FF4D00]/4" : "border-white/8 bg-[#141414] hover:border-white/20"}`}>
+                      className={`p-3 rounded-xl border cursor-pointer transition mb-2 ${seciliFirmaListe?.id === f.id ? "border-[#00D4FF] bg-[#00D4FF]/4" : "border-white/8 bg-[#141414] hover:border-white/20"}`}>
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <div className="font-bold text-sm truncate">{f.firma_ad}</div>
                           <div className="text-xs text-gray-500 mt-0.5">{f.il}{f.ilce ? ` / ${f.ilce}` : ""} · {f.tel}</div>
                         </div>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${f.durum==="aktif"?"bg-[#00C853]/10 text-[#00C853]":f.durum==="bekliyor"?"bg-[#FF4D00]/10 text-[#FF4D00]":"bg-red-500/10 text-red-400"}`}>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${f.durum==="aktif"?"bg-[#00C853]/10 text-[#00C853]":f.durum==="bekliyor"?"bg-[#00D4FF]/10 text-[#00D4FF]":"bg-red-500/10 text-red-400"}`}>
                           {f.durum==="aktif"?"Aktif":f.durum==="bekliyor"?"Bekliyor":"Reddedildi"}
                         </span>
                       </div>
@@ -666,7 +667,7 @@ export default function AdminPanel() {
                             <div className="font-black text-base">{seciliFirmaListe.firma_ad}</div>
                             <div className="text-xs text-gray-400 mt-0.5">{seciliFirmaListe.sahip_ad} {seciliFirmaListe.sahip_soyad}</div>
                           </div>
-                          <span className={`text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0 border ${seciliFirmaListe.durum==="aktif"?"bg-[#00C853]/10 text-[#00C853] border-[#00C853]/20":seciliFirmaListe.durum==="bekliyor"?"bg-[#FF4D00]/10 text-[#FF4D00] border-[#FF4D00]/20":"bg-red-500/10 text-red-400 border-red-500/20"}`}>
+                          <span className={`text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0 border ${seciliFirmaListe.durum==="aktif"?"bg-[#00C853]/10 text-[#00C853] border-[#00C853]/20":seciliFirmaListe.durum==="bekliyor"?"bg-[#00D4FF]/10 text-[#00D4FF] border-[#00D4FF]/20":"bg-red-500/10 text-red-400 border-red-500/20"}`}>
                             {seciliFirmaListe.durum==="aktif"?"✓ Aktif":seciliFirmaListe.durum==="bekliyor"?"⏳ Bekliyor":"✕ Reddedildi"}
                           </span>
                         </div>
@@ -718,13 +719,13 @@ export default function AdminPanel() {
               <div className="border-r border-white/5 flex flex-col overflow-hidden">
                 <div className="p-3 border-b border-white/5 space-y-2 flex-shrink-0">
                   <input value={musteriArama} onChange={e => setMusteriArama(e.target.value)} placeholder="🔍 İsim veya telefon ara..."
-                    className="w-full bg-[#1E1E1E] border border-white/8 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#FF4D00] transition" />
+                    className="w-full bg-[#1E1E1E] border border-white/8 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#00D4FF] transition" />
                   <div className="text-xs text-gray-500">{musteriYukleniyor ? "Yükleniyor..." : `${musteriler.length} kayıtlı kullanıcı`}</div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-3">
                   {musteriler.filter(m => !musteriArama || `${m.ad||""} ${m.soyad||""}`.toLowerCase().includes(musteriArama.toLowerCase()) || m.tel.includes(musteriArama)).map(m => (
                     <div key={m.id} onClick={() => setSeciliMusteri(m)}
-                      className={`p-3 rounded-xl border cursor-pointer transition mb-2 ${seciliMusteri?.id === m.id ? "border-[#FF4D00] bg-[#FF4D00]/4" : "border-white/8 bg-[#141414] hover:border-white/20"}`}>
+                      className={`p-3 rounded-xl border cursor-pointer transition mb-2 ${seciliMusteri?.id === m.id ? "border-[#00D4FF] bg-[#00D4FF]/4" : "border-white/8 bg-[#141414] hover:border-white/20"}`}>
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-[#2A2A2A] flex items-center justify-center text-xs font-bold flex-shrink-0">{m.ad ? m.ad[0].toUpperCase() : "?"}</div>
                         <div className="flex-1 min-w-0">
@@ -744,7 +745,7 @@ export default function AdminPanel() {
                 {seciliMusteri ? (
                   <div className="flex-1 overflow-y-auto">
                     <div className="p-4 border-b border-white/5 flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-[#FF4D00]/15 border border-[#FF4D00]/20 flex items-center justify-center text-xl font-black text-[#FF4D00] flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-[#00D4FF]/15 border border-[#00D4FF]/20 flex items-center justify-center text-xl font-black text-[#00D4FF] flex-shrink-0">
                         {seciliMusteri.ad ? seciliMusteri.ad[0].toUpperCase() : "👤"}
                       </div>
                       <div>
@@ -766,7 +767,7 @@ export default function AdminPanel() {
                     </div>
                     <div className="p-4">
                       <button onClick={() => { setTalepArama(seciliMusteri.tel); setSayfa("talepler"); }}
-                        className="w-full text-xs font-bold border border-white/10 hover:border-[#FF4D00]/30 text-gray-400 hover:text-[#FF4D00] py-2 rounded-lg transition">
+                        className="w-full text-xs font-bold border border-white/10 hover:border-[#00D4FF]/30 text-gray-400 hover:text-[#00D4FF] py-2 rounded-lg transition">
                         📋 Bu müşterinin taleplerini gör →
                       </button>
                     </div>
@@ -779,14 +780,14 @@ export default function AdminPanel() {
           {/* İSTATİSTİK */}
           {sayfa === "istatistik" && (
             <div className="flex-1 overflow-y-auto p-5">
-              <div className="grid grid-cols-3 gap-4 mb-5">
+              <div className="grid grid-cols-3 gap-4 mb-6">
                 {[
                   { l:"Toplam Talep", v: istatistik.talepToplam, c:"text-white" },
                   { l:"Aktif Talepler", v: istatistik.talepAktif, c:"text-blue-400" },
                   { l:"Tamamlanan", v: istatistik.talepTamamlandi, c:"text-[#00C853]" },
                   { l:"Toplam Firma", v: istatistik.toplam, c:"text-white" },
                   { l:"Aktif Firma", v: istatistik.aktif, c:"text-[#00C853]" },
-                  { l:"Onay Bekleyen", v: istatistik.bekliyor, c:"text-[#FF4D00]" },
+                  { l:"Onay Bekleyen", v: istatistik.bekliyor, c:"text-[#00D4FF]" },
                   { l:"Kayıtlı Müşteri", v: istatistik.musteriToplam, c:"text-white" },
                   { l:"Reddedilen Firma", v: istatistik.reddedildi, c:"text-red-400" },
                 ].map(s => (
@@ -795,6 +796,55 @@ export default function AdminPanel() {
                     <div className={`font-black text-3xl ${s.c}`}>{s.v}</div>
                   </div>
                 ))}
+              </div>
+
+              {/* Talep Dağılımı Grafiği */}
+              <div className="bg-[#141414] border border-white/5 rounded-xl p-5 mb-4">
+                <div className="text-xs text-gray-500 uppercase font-bold mb-4">Talep Dağılımı</div>
+                {(() => {
+                  const bars = [
+                    { l: "Aktif", v: istatistik.talepAktif, c: "bg-blue-500", tc: "text-blue-400" },
+                    { l: "Tamamlanan", v: istatistik.talepTamamlandi, c: "bg-[#00C853]", tc: "text-[#00C853]" },
+                    { l: "Toplam", v: istatistik.talepToplam, c: "bg-white/30", tc: "text-white" },
+                  ];
+                  const max = Math.max(...bars.map(b => b.v), 1);
+                  return bars.map(b => (
+                    <div key={b.l} className="mb-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-gray-400">{b.l}</span>
+                        <span className={`text-xs font-black ${b.tc}`}>{b.v}</span>
+                      </div>
+                      <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                        <div className={`h-full ${b.c} rounded-full transition-all duration-700`} style={{ width: `${(b.v / max) * 100}%` }} />
+                      </div>
+                    </div>
+                  ));
+                })()}
+              </div>
+
+              {/* Firma Dağılımı Grafiği */}
+              <div className="bg-[#141414] border border-white/5 rounded-xl p-5">
+                <div className="text-xs text-gray-500 uppercase font-bold mb-4">Firma Durumu</div>
+                {(() => {
+                  const bars = [
+                    { l: "Aktif", v: istatistik.aktif, c: "bg-[#00C853]", tc: "text-[#00C853]" },
+                    { l: "Onay Bekleyen", v: istatistik.bekliyor, c: "bg-[#00D4FF]", tc: "text-[#00D4FF]" },
+                    { l: "Reddedilen", v: istatistik.reddedildi, c: "bg-red-700", tc: "text-red-400" },
+                    { l: "Toplam", v: istatistik.toplam, c: "bg-white/30", tc: "text-white" },
+                  ];
+                  const max = Math.max(...bars.map(b => b.v), 1);
+                  return bars.map(b => (
+                    <div key={b.l} className="mb-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-gray-400">{b.l}</span>
+                        <span className={`text-xs font-black ${b.tc}`}>{b.v}</span>
+                      </div>
+                      <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                        <div className={`h-full ${b.c} rounded-full transition-all duration-700`} style={{ width: `${(b.v / max) * 100}%` }} />
+                      </div>
+                    </div>
+                  ));
+                })()}
               </div>
             </div>
           )}
