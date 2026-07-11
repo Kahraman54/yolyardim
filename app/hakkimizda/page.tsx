@@ -6,11 +6,13 @@ export default function Hakkimizda() {
   return (
     <main className="min-h-screen bg-[#0B0F14] text-[#F5F8FA]" style={{ fontFamily: "var(--font-barlow), Arial, sans-serif" }}>
       <div className="max-w-4xl mx-auto px-6 py-16">
-        <Link href="/" className="font-black italic text-2xl tracking-tight inline-flex items-center gap-2 mb-14">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/tulpar-logo-v3.png" alt="Tulpar" className="h-9 w-auto" />
-          <span>Tulpar<span className="text-[#00D4FF]">Assist</span></span>
-        </Link>
+        <div className="flex justify-center mb-14">
+          <Link href="/" className="font-black italic tracking-tight flex items-center gap-4" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/tulpar-logo-v3.png" alt="Tulpar" className="w-auto object-contain flex-shrink-0" style={{ height: "clamp(3.5rem, 9vw, 6rem)" }} />
+            <span>Tulpar<span className="text-[#00D4FF]">Assist</span></span>
+          </Link>
+        </div>
 
         {/* HERO */}
         <div className="mb-16">
