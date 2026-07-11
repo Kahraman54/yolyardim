@@ -226,6 +226,7 @@ export default function Home() {
             <div className="font-black text-lg italic tracking-tight">Tulpar<span className="text-[#00D4FF]">Assist</span></div>
           </div>
           <div className="flex gap-6 text-sm text-[#5C7386] font-semibold">
+            <a href="/hakkimizda" className="hover:text-[#9DB4C6] transition">Hakkımızda</a>
             <a href="/gizlilik" className="hover:text-[#9DB4C6] transition">Gizlilik</a>
             <a href="/kullanim-sartlari" className="hover:text-[#9DB4C6] transition">Kullanım Şartları</a>
             <a href="mailto:tunahank@tulparassist.com" className="hover:text-[#9DB4C6] transition">İletişim</a>
