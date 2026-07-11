@@ -19,11 +19,12 @@ export default function FirmaGiris() {
     const sadeceSayi = tel.replace(/\D/g, "");
     const sonOnHane = sadeceSayi.slice(-10);
 
-    const { data: tumFirmalar } = await supabase
+    const { data: adaylar } = await supabase
       .from("firmalar")
-      .select("id, firma_ad, tel, durum");
+      .select("id, firma_ad, tel, durum")
+      .ilike("tel", `%${sonOnHane}`);
 
-    const data = (tumFirmalar || []).find(f =>
+    const data = (adaylar || []).find(f =>
       f.tel.replace(/\D/g, "").slice(-10) === sonOnHane
     );
 

@@ -2,20 +2,30 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const ADMIN_SIFRE = "356890Tuna";
-
 export default function AdminGiris() {
   const router = useRouter();
   const [sifre, setSifre] = useState("");
   const [hata, setHata] = useState(false);
+  const [yukleniyor, setYukleniyor] = useState(false);
 
-  function giris() {
-    if (sifre === ADMIN_SIFRE) {
-      localStorage.setItem("admin", "1");
-      router.push("/admin/panel");
-    } else {
+  async function giris() {
+    setYukleniyor(true);
+    try {
+      const res = await fetch("/api/admin-giris", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre }),
+      });
+      if (res.ok) {
+        localStorage.setItem("admin", "1");
+        router.push("/admin/panel");
+      } else {
+        setHata(true);
+      }
+    } catch {
       setHata(true);
     }
+    setYukleniyor(false);
   }
 
   return (
@@ -44,9 +54,10 @@ export default function AdminGiris() {
         </div>
         <button
           onClick={giris}
-          className="w-full bg-[#00D4FF] hover:bg-[#0099BB] text-[#0B0F14] font-bold py-3 rounded-xl transition text-sm"
+          disabled={yukleniyor}
+          className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[#0B0F14] font-bold py-3 rounded-xl transition text-sm"
         >
-          Giriş Yap →
+          {yukleniyor ? "Kontrol ediliyor..." : "Giriş Yap →"}
         </button>
       </div>
     </main>
