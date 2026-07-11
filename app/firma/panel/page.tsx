@@ -239,11 +239,6 @@ export default function FirmaPanel() {
               </button>
             ))}
           </nav>
-          <div className="p-2 border-t border-white/5">
-            <button onClick={() => { localStorage.removeItem("firma"); router.push("/firma/giris"); }} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-600 hover:text-white transition">
-              🚪 Çıkış
-            </button>
-          </div>
         </aside>
       )}
 
@@ -270,11 +265,23 @@ export default function FirmaPanel() {
             <div className="font-black text-sm">
               {sayfa === "panel" ? "Panel" : sayfa === "talepler" ? "Talepler" : sayfa === "araclar" ? "Araçlarım" : "Şoförlerim"}
             </div>
-            {yeniTalepler.length > 0 && (
-              <button onClick={() => setSayfa("talepler")} className="text-[11px] text-[#00D4FF] font-bold bg-[#00D4FF]/10 border border-[#00D4FF]/25 px-3 py-1.5 rounded-lg animate-pulse">
-                🔴 {yeniTalepler.length} Yeni Talep
+            <div className="flex items-center gap-2">
+              {yeniTalepler.length > 0 && (
+                <button onClick={() => setSayfa("talepler")} className="text-[11px] text-[#00D4FF] font-bold bg-[#00D4FF]/10 border border-[#00D4FF]/25 px-3 py-1.5 rounded-lg animate-pulse">
+                  🔴 {yeniTalepler.length} Yeni Talep
+                </button>
+              )}
+              <button
+                onClick={() => { localStorage.removeItem("firma"); router.push("/firma/giris"); }}
+                title="Çıkış Yap"
+                className="w-8 h-8 bg-[#252525] rounded-lg flex items-center justify-center flex-shrink-0 text-[#aaa] hover:text-white transition"
+              >
+                <span
+                  className="flex-shrink-0 bg-current block"
+                  style={{ width: 16, height: 16, maskImage: "url('/icons/svg/003-exit.svg')", maskSize: "contain", maskRepeat: "no-repeat", maskPosition: "center", WebkitMaskImage: "url('/icons/svg/003-exit.svg')", WebkitMaskSize: "contain", WebkitMaskRepeat: "no-repeat", WebkitMaskPosition: "center" }}
+                />
               </button>
-            )}
+            </div>
           </div>
         )}
 
