@@ -63,10 +63,10 @@ export default function Home() {
         <div className="max-w-6xl mx-auto w-full mt-20 pt-10 border-t border-[#5C7386]/20">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { val: "1.200+", label: "Kayıtlı Firma" },
-              { val: "81 İl", label: "Türkiye Geneli" },
-              { val: "12 dk", label: "Ort. Varış Süresi" },
-              { val: "4.8 ★", label: "Kullanıcı Puanı" },
+              { val: "7/24", label: "Kesintisiz Hizmet" },
+              { val: "Canlı", label: "Konum Takibi" },
+              { val: "Şeffaf", label: "Önceden Fiyat" },
+              { val: "Güvenli", label: "Fotoğraflı Teslim" },
             ].map((s) => (
               <div key={s.label}>
                 <div className="font-black text-3xl italic text-[#F5F8FA]">{s.val}</div>
@@ -226,10 +226,9 @@ export default function Home() {
             <div className="font-black text-lg italic tracking-tight">Tulpar<span className="text-[#00D4FF]">Assist</span></div>
           </div>
           <div className="flex gap-6 text-sm text-[#5C7386] font-semibold">
-            <a href="#" className="hover:text-[#9DB4C6] transition">Hakkımızda</a>
-            <a href="#" className="hover:text-[#9DB4C6] transition">Gizlilik</a>
-            <a href="#" className="hover:text-[#9DB4C6] transition">Kullanım Şartları</a>
-            <a href="#" className="hover:text-[#9DB4C6] transition">İletişim</a>
+            <a href="/gizlilik" className="hover:text-[#9DB4C6] transition">Gizlilik</a>
+            <a href="/kullanim-sartlari" className="hover:text-[#9DB4C6] transition">Kullanım Şartları</a>
+            <a href="mailto:tunahank@tulparassist.com" className="hover:text-[#9DB4C6] transition">İletişim</a>
           </div>
           <div className="text-sm text-[#5C7386] font-semibold">© 2026 Tulpar Assist</div>
         </div>

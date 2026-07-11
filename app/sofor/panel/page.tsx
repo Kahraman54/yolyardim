@@ -30,6 +30,79 @@ type Talep = {
 type Adim = "liste" | "detay" | "yolda" | "teslim_alma" | "yukleme" | "teslimat" | "teslim_foto" | "tutanak" | "ozet" | "gecmis" | "gecmis_detay";
 type FotoStep = "teslim_alma" | "yukleme" | "teslim" | "tutanak";
 
+// Fotoğraf bölümü bileşeni — render dışında tanımlı, tüm durum props ile gelir
+function FotoBlok({ step, baslik, aciklama, devamButon, devamAksiyon, devamDisabled,
+  fotolar, fotoHata, fotoYukleniyor, fotoProgress, islemYapiliyor,
+  onFotoSec, onFotoCikar, onHataKapat, onLightbox }: {
+  step: FotoStep; baslik: string; aciklama: string;
+  devamButon: string; devamAksiyon: () => void; devamDisabled?: boolean;
+  fotolar: Record<FotoStep, string[]>; fotoHata: string; fotoYukleniyor: boolean;
+  fotoProgress: { done: number; total: number }; islemYapiliyor: boolean;
+  onFotoSec: (s: FotoStep) => void; onFotoCikar: (s: FotoStep, i: number) => void;
+  onHataKapat: () => void; onLightbox: (l: { urls: string[]; idx: number }) => void;
+}) {
+  const arr = fotolar[step];
+  return (
+    <div>
+      <div className="font-black text-lg mb-1">{baslik}</div>
+      <div className="text-gray-500 text-xs mb-5">{aciklama}</div>
+
+      {fotoHata && (
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl mb-3 flex items-center justify-between">
+          <span>⚠️ {fotoHata}</span>
+          <button onClick={onHataKapat} className="underline ml-2">Kapat</button>
+        </div>
+      )}
+
+      {/* Yükleme butonu */}
+      <button
+        onClick={() => onFotoSec(step)}
+        disabled={fotoYukleniyor}
+        className="w-full flex items-center justify-center gap-3 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border-2 border-dashed border-[#00D4FF]/50 hover:border-[#00D4FF] text-[#00D4FF] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
+      >
+        {fotoYukleniyor ? (
+          <><span className="animate-spin">⏳</span> Yükleniyor {fotoProgress.done}/{fotoProgress.total}...</>
+        ) : (
+          <><span className="text-xl">📷</span> {arr.length > 0 ? "Daha Fazla Fotoğraf Ekle" : "Fotoğraf Seç"}</>
+        )}
+      </button>
+
+      {/* Yüklenen fotoğraflar */}
+      {arr.length > 0 && (
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          {arr.map((url, i) => (
+            <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-[#00C853]/30">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={url} alt={`foto-${i+1}`} className="w-full h-full object-cover cursor-pointer" onClick={() => onLightbox({ urls: arr, idx: i })} />
+              <button
+                onClick={() => onFotoCikar(step, i)}
+                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white text-[10px] flex items-center justify-center hover:bg-red-500 transition"
+              >✕</button>
+              <div className="absolute bottom-0 inset-x-0 bg-black/50 text-[9px] text-center py-0.5 text-[#00C853] font-bold">{i+1}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {arr.length > 0 && (
+        <div className="flex items-center justify-between text-xs mb-5">
+          <span className="text-[#00C853] font-bold">✓ {arr.length} fotoğraf yüklendi</span>
+          <span className="text-gray-500">İstediğiniz kadar ekleyebilirsiniz</span>
+        </div>
+      )}
+
+      <button
+        onClick={devamAksiyon}
+        disabled={devamDisabled || islemYapiliyor || arr.length === 0}
+        className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-white font-bold py-4 rounded-xl transition text-sm"
+      >
+        {islemYapiliyor ? "Kaydediliyor..." : devamButon}
+      </button>
+      {arr.length === 0 && <p className="text-center text-xs text-gray-600 mt-2">Devam etmek için en az 1 fotoğraf ekleyin</p>}
+    </div>
+  );
+}
+
 const DB_TO_ADIM: Record<string, Adim> = {
   yolda: "yolda", arac_yaninda: "teslim_alma", yukleniyor: "yukleme",
   teslimat_yolunda: "teslimat", teslimatta: "teslim_foto",
@@ -250,72 +323,12 @@ export default function SoforPanel() {
   const kmAktif = adim === "yolda" || adim === "teslimat";
   const adimSira = ADIM_SIRALAMA.indexOf(adim);
 
-  // Fotoğraf bölümü bileşeni
-  function FotoBlok({ step, baslik, aciklama, devamButon, devamAksiyon, devamDisabled }: {
-    step: FotoStep; baslik: string; aciklama: string;
-    devamButon: string; devamAksiyon: () => void; devamDisabled?: boolean;
-  }) {
-    const arr = fotolar[step];
-    return (
-      <div>
-        <div className="font-black text-lg mb-1">{baslik}</div>
-        <div className="text-gray-500 text-xs mb-5">{aciklama}</div>
-
-        {fotoHata && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl mb-3 flex items-center justify-between">
-            <span>⚠️ {fotoHata}</span>
-            <button onClick={() => setFotoHata("")} className="underline ml-2">Kapat</button>
-          </div>
-        )}
-
-        {/* Yükleme butonu */}
-        <button
-          onClick={() => fotoSec(step)}
-          disabled={fotoYukleniyor}
-          className="w-full flex items-center justify-center gap-3 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border-2 border-dashed border-[#00D4FF]/50 hover:border-[#00D4FF] text-[#00D4FF] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
-        >
-          {fotoYukleniyor ? (
-            <><span className="animate-spin">⏳</span> Yükleniyor {fotoProgress.done}/{fotoProgress.total}...</>
-          ) : (
-            <><span className="text-xl">📷</span> {arr.length > 0 ? "Daha Fazla Fotoğraf Ekle" : "Fotoğraf Seç"}</>
-          )}
-        </button>
-
-        {/* Yüklenen fotoğraflar */}
-        {arr.length > 0 && (
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            {arr.map((url, i) => (
-              <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-[#00C853]/30">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={url} alt={`foto-${i+1}`} className="w-full h-full object-cover cursor-pointer" onClick={() => setLightbox({ urls: arr, idx: i })} />
-                <button
-                  onClick={() => fotoCikar(step, i)}
-                  className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white text-[10px] flex items-center justify-center hover:bg-red-500 transition"
-                >✕</button>
-                <div className="absolute bottom-0 inset-x-0 bg-black/50 text-[9px] text-center py-0.5 text-[#00C853] font-bold">{i+1}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {arr.length > 0 && (
-          <div className="flex items-center justify-between text-xs mb-5">
-            <span className="text-[#00C853] font-bold">✓ {arr.length} fotoğraf yüklendi</span>
-            <span className="text-gray-500">İstediğiniz kadar ekleyebilirsiniz</span>
-          </div>
-        )}
-
-        <button
-          onClick={devamAksiyon}
-          disabled={devamDisabled || islemYapiliyor || arr.length === 0}
-          className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-white font-bold py-4 rounded-xl transition text-sm"
-        >
-          {islemYapiliyor ? "Kaydediliyor..." : devamButon}
-        </button>
-        {arr.length === 0 && <p className="text-center text-xs text-gray-600 mt-2">Devam etmek için en az 1 fotoğraf ekleyin</p>}
-      </div>
-    );
-  }
+  // FotoBlok'a her kullanımda geçen ortak proplar
+  const fotoOrtak = {
+    fotolar, fotoHata, fotoYukleniyor, fotoProgress, islemYapiliyor,
+    onFotoSec: fotoSec, onFotoCikar: fotoCikar,
+    onHataKapat: () => setFotoHata(""), onLightbox: setLightbox,
+  };
 
   if (!sofor) return null;
 
@@ -594,6 +607,7 @@ export default function SoforPanel() {
         {/* TESLİM ALMA */}
         {adim === "teslim_alma" && seciliTalep && (
           <FotoBlok
+            {...fotoOrtak}
             step="teslim_alma"
             baslik="📸 Teslim Alma Fotoğrafları"
             aciklama="Araç çekilmeden önce fotoğraf çekin. İstediğiniz kadar ekleyebilirsiniz."
@@ -605,6 +619,7 @@ export default function SoforPanel() {
         {/* YÜKLEME */}
         {adim === "yukleme" && seciliTalep && (
           <FotoBlok
+            {...fotoOrtak}
             step="yukleme"
             baslik="🔗 Yükleme Fotoğrafları"
             aciklama="Araç bağlandıktan sonra fotoğraf çekin."
@@ -631,6 +646,7 @@ export default function SoforPanel() {
         {/* TESLİM FOTOĞRAFLARI */}
         {adim === "teslim_foto" && seciliTalep && (
           <FotoBlok
+            {...fotoOrtak}
             step="teslim"
             baslik="🏁 Teslim Fotoğrafları"
             aciklama="Araç teslim edildi. Fotoğraf çekin."

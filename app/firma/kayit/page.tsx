@@ -12,6 +12,30 @@ const adimlar = [
   { n: 5, label: "Onay" },
 ];
 
+function SolPanel({ adim, onAdimTikla }: { adim: number; onAdimTikla?: () => void }) {
+  return (
+    <div className="flex flex-col h-full">
+      <Link href="/" className="font-black italic flex items-center gap-3 mb-1.5 text-2xl leading-none">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/tulpar-logo-v3.png" alt="" className="h-10 w-auto object-contain flex-shrink-0" />
+        <span>Tulpar<span className="text-[#00D4FF]">Assist</span></span>
+      </Link>
+      <div className="text-xs text-[#00D4FF] font-bold tracking-widest uppercase mb-6">Tedarikçi Kaydı</div>
+      <div className="flex flex-col gap-1 flex-1">
+        {adimlar.map(a => (
+          <div key={a.n} onClick={onAdimTikla} className={`flex items-center gap-2 px-2 py-2 rounded-lg ${adim === a.n ? "bg-[#00D4FF]/10" : ""}`}>
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 border-2 transition-all ${a.n < adim ? "bg-[#00C853] border-[#00C853] text-black" : adim === a.n ? "border-[#00D4FF] text-[#00D4FF]" : "border-white/10 text-gray-600"}`}>
+              {a.n < adim ? "✓" : a.n}
+            </div>
+            <span className={`text-xs font-medium ${adim === a.n ? "text-white font-semibold" : "text-gray-600"}`}>{a.label}</span>
+          </div>
+        ))}
+      </div>
+      <Link href="/" className="text-[11px] text-gray-600 hover:text-white transition">← Ana Sayfaya Dön</Link>
+    </div>
+  );
+}
+
 export default function FirmaKayit() {
   const [adim, setAdim] = useState(1);
   const [yukleniyor, setYukleniyor] = useState(false);
@@ -126,33 +150,12 @@ export default function FirmaKayit() {
   function ileri() { if (adim < 5) setAdim(adim + 1); }
   function geri() { if (adim > 1) setAdim(adim - 1); }
 
-  const SolPanel = () => (
-    <div className="flex flex-col h-full">
-      <Link href="/" className="font-black italic flex items-center gap-3 mb-1.5 text-2xl leading-none">
-        <img src="/tulpar-logo-v3.png" alt="" className="h-10 w-auto object-contain flex-shrink-0" />
-        <span>Tulpar<span className="text-[#00D4FF]">Assist</span></span>
-      </Link>
-      <div className="text-xs text-[#00D4FF] font-bold tracking-widest uppercase mb-6">Tedarikçi Kaydı</div>
-      <div className="flex flex-col gap-1 flex-1">
-        {adimlar.map(a => (
-          <div key={a.n} onClick={() => mobil && setMenuAcik(false)} className={`flex items-center gap-2 px-2 py-2 rounded-lg ${adim === a.n ? "bg-[#00D4FF]/10" : ""}`}>
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 border-2 transition-all ${a.n < adim ? "bg-[#00C853] border-[#00C853] text-black" : adim === a.n ? "border-[#00D4FF] text-[#00D4FF]" : "border-white/10 text-gray-600"}`}>
-              {a.n < adim ? "✓" : a.n}
-            </div>
-            <span className={`text-xs font-medium ${adim === a.n ? "text-white font-semibold" : "text-gray-600"}`}>{a.label}</span>
-          </div>
-        ))}
-      </div>
-      <Link href="/" className="text-[11px] text-gray-600 hover:text-white transition">← Ana Sayfaya Dön</Link>
-    </div>
-  );
-
   return (
     <main className="min-h-screen bg-[#0D0D0D] text-white flex">
       {/* SOL PANEL - masaüstü */}
       {!mobil && (
         <div className="w-52 bg-[#1A1A1A] border-r border-white/5 p-5 flex flex-col flex-shrink-0">
-          <SolPanel />
+          <SolPanel adim={adim} />
         </div>
       )}
 
@@ -160,7 +163,7 @@ export default function FirmaKayit() {
       {mobil && menuAcik && (
         <div className="fixed inset-0 z-50 flex">
           <div className="w-56 bg-[#1A1A1A] border-r border-white/5 p-5 flex flex-col">
-            <SolPanel />
+            <SolPanel adim={adim} onAdimTikla={() => setMenuAcik(false)} />
           </div>
           <div className="flex-1 bg-black/60" onClick={() => setMenuAcik(false)} />
         </div>
