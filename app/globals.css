@@ -1,8 +1,41 @@
 @import "tailwindcss";
 
+/* ============================================================
+   TEMA TOKENLARI
+   Varsayılan: koyu tema (mevcut tasarım — Arctic Prestige gece)
+   [data-theme="light"]: açık tema (kutup gündüzü)
+   ============================================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0d0f14;            /* sayfa zemini */
+  --bg-trans: rgba(11, 15, 20, 0.95); /* yarı saydam nav zemini */
+  --surface: #1a1a1a;       /* kart / panel zemini */
+  --surface-2: #282828;     /* input / ikincil yüzey */
+  --panel: #1e2a39;         /* lacivert bölüm zemini */
+  --text: #f5f8fa;          /* ana metin */
+  --text-2: #9db4c6;        /* ikincil metin */
+  --text-3: #64798c;        /* soluk metin / etiket */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-2: rgba(255, 255, 255, 0.16);
+  --hover: rgba(255, 255, 255, 0.06);
+  --accent-text: #00d4ff;   /* açık zeminde koyulaşan vurgu metni */
+
+  --background: var(--bg);
+  --foreground: var(--text);
+}
+
+[data-theme="light"] {
+  --bg: #eef3f7;
+  --bg-trans: rgba(238, 243, 247, 0.93);
+  --surface: #ffffff;
+  --surface-2: #e6edf2;
+  --panel: #dde7ef;
+  --text: #0c1a26;
+  --text-2: #3f5a6e;
+  --text-3: #64798c;
+  --border: rgba(12, 32, 50, 0.12);
+  --border-2: rgba(12, 32, 50, 0.22);
+  --hover: rgba(12, 32, 50, 0.06);
+  --accent-text: #007fa3;
 }
 
 @theme inline {
@@ -12,15 +45,31 @@
   --font-mono: monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-barlow), Arial, sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Beyaz gövdeli Tulpar logosu açık temada siyaha döner
+   (inline filter kullanan yerler — ör. cyan buton içi — kendi filtresini korur) */
+[data-theme="light"] img[src="/tulpar-logo-v3.png"] {
+  filter: brightness(0);
+}
+
+/* Hero attaki mavi parıltı — açık temada at siyaha döner, parıltı korunur */
+.hero-horse {
+  filter: drop-shadow(0 0 40px rgba(0, 212, 255, 0.15)) drop-shadow(0 0 80px rgba(0, 212, 255, 0.08));
+}
+[data-theme="light"] .hero-horse {
+  filter: brightness(0) drop-shadow(0 0 40px rgba(0, 212, 255, 0.2));
+}
+
+/* Hero arka plan sisi — koyu temada lacivert, açık temada buz mavisi */
+.hero-overlay {
+  background: radial-gradient(ellipse 900px 600px at 60% 40%, rgba(28, 42, 57, 0.5), transparent 70%);
+}
+[data-theme="light"] .hero-overlay {
+  background: radial-gradient(ellipse 900px 600px at 60% 40%, rgba(0, 212, 255, 0.08), transparent 70%);
 }

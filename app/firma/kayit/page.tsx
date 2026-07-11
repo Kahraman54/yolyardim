@@ -18,20 +18,20 @@ function SolPanel({ adim, onAdimTikla }: { adim: number; onAdimTikla?: () => voi
       <Link href="/" className="font-black italic flex items-center gap-3 mb-1.5 text-2xl leading-none">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/tulpar-logo-v3.png" alt="" className="h-10 w-auto object-contain flex-shrink-0" />
-        <span>Tulpar<span className="text-[#00D4FF]">Assist</span></span>
+        <span>Tulpar<span className="text-[var(--accent-text)]">Assist</span></span>
       </Link>
-      <div className="text-xs text-[#00D4FF] font-bold tracking-widest uppercase mb-6">Tedarikçi Kaydı</div>
+      <div className="text-xs text-[var(--accent-text)] font-bold tracking-widest uppercase mb-6">Tedarikçi Kaydı</div>
       <div className="flex flex-col gap-1 flex-1">
         {adimlar.map(a => (
           <div key={a.n} onClick={onAdimTikla} className={`flex items-center gap-2 px-2 py-2 rounded-lg ${adim === a.n ? "bg-[#00D4FF]/10" : ""}`}>
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 border-2 transition-all ${a.n < adim ? "bg-[#00C853] border-[#00C853] text-black" : adim === a.n ? "border-[#00D4FF] text-[#00D4FF]" : "border-white/10 text-gray-600"}`}>
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 border-2 transition-all ${a.n < adim ? "bg-[#00C853] border-[#00C853] text-black" : adim === a.n ? "border-[#00D4FF] text-[var(--accent-text)]" : "border-[var(--border)] text-[var(--text-3)]"}`}>
               {a.n < adim ? "✓" : a.n}
             </div>
-            <span className={`text-xs font-medium ${adim === a.n ? "text-white font-semibold" : "text-gray-600"}`}>{a.label}</span>
+            <span className={`text-xs font-medium ${adim === a.n ? "text-[var(--text)] font-semibold" : "text-[var(--text-3)]"}`}>{a.label}</span>
           </div>
         ))}
       </div>
-      <Link href="/" className="text-[11px] text-gray-600 hover:text-white transition">← Ana Sayfaya Dön</Link>
+      <Link href="/" className="text-[11px] text-[var(--text-3)] hover:text-[var(--text)] transition">← Ana Sayfaya Dön</Link>
     </div>
   );
 }
@@ -151,10 +151,10 @@ export default function FirmaKayit() {
   function geri() { if (adim > 1) setAdim(adim - 1); }
 
   return (
-    <main className="min-h-screen bg-[#0D0D0D] text-white flex">
+    <main className="min-h-screen bg-[var(--bg)] text-[var(--text)] flex">
       {/* SOL PANEL - masaüstü */}
       {!mobil && (
-        <div className="w-52 bg-[#1A1A1A] border-r border-white/5 p-5 flex flex-col flex-shrink-0">
+        <div className="w-52 bg-[var(--surface)] border-r border-[var(--border)] p-5 flex flex-col flex-shrink-0">
           <SolPanel adim={adim} />
         </div>
       )}
@@ -162,7 +162,7 @@ export default function FirmaKayit() {
       {/* MOBİL MENU OVERLAY */}
       {mobil && menuAcik && (
         <div className="fixed inset-0 z-50 flex">
-          <div className="w-56 bg-[#1A1A1A] border-r border-white/5 p-5 flex flex-col">
+          <div className="w-56 bg-[var(--surface)] border-r border-[var(--border)] p-5 flex flex-col">
             <SolPanel adim={adim} onAdimTikla={() => setMenuAcik(false)} />
           </div>
           <div className="flex-1 bg-black/60" onClick={() => setMenuAcik(false)} />
@@ -174,15 +174,15 @@ export default function FirmaKayit() {
         {/* MOBİL HEADER */}
         {mobil && (
           <div className="flex items-center justify-between mb-5">
-            <button onClick={() => setMenuAcik(true)} className="flex items-center gap-2 bg-[#1A1A1A] border border-white/10 rounded-xl px-3 py-2">
+            <button onClick={() => setMenuAcik(true)} className="flex items-center gap-2 bg-[var(--surface)] border border-[var(--border)] rounded-xl px-3 py-2">
               <span className="text-base">☰</span>
-              <span className="text-xs font-bold text-gray-300">Adım {adim}/5 — {adimlar[adim-1].label}</span>
-              <span className="text-[10px] text-[#00D4FF] font-bold">▼</span>
+              <span className="text-xs font-bold text-[var(--text-2)]">Adım {adim}/5 — {adimlar[adim-1].label}</span>
+              <span className="text-[10px] text-[var(--accent-text)] font-bold">▼</span>
             </button>
-            <Link href="/" className="text-[11px] text-gray-600">← Geri</Link>
+            <Link href="/" className="text-[11px] text-[var(--text-3)]">← Geri</Link>
           </div>
         )}
-        <div className="h-1 bg-white/5 rounded-full mb-8 overflow-hidden">
+        <div className="h-1 bg-[var(--hover)] rounded-full mb-8 overflow-hidden">
           <div className="h-full bg-[#00D4FF] rounded-full transition-all duration-500" style={{width: `${(adim/5)*100}%`}} />
         </div>
 
@@ -192,60 +192,60 @@ export default function FirmaKayit() {
         {adim === 1 && (
           <div className="max-w-2xl">
             <h1 className="font-black text-2xl mb-1">Tedarikçi Bilgileri</h1>
-            <p className="text-gray-500 text-sm mb-7">Platformda görünecek bilgileri ekle.</p>
+            <p className="text-[var(--text-3)] text-sm mb-7">Platformda görünecek bilgileri ekle.</p>
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <div><label className="block text-xs font-semibold text-gray-400 mb-2">Ad *</label><input value={form.sahipAd} onChange={e=>setForm({...form,sahipAd:e.target.value})} placeholder="Adınız" className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#00D4FF] transition" /></div>
-              <div><label className="block text-xs font-semibold text-gray-400 mb-2">Soyad *</label><input value={form.sahipSoyad} onChange={e=>setForm({...form,sahipSoyad:e.target.value})} placeholder="Soyadınız" className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#00D4FF] transition" /></div>
+              <div><label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Ad *</label><input value={form.sahipAd} onChange={e=>setForm({...form,sahipAd:e.target.value})} placeholder="Adınız" className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition" /></div>
+              <div><label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Soyad *</label><input value={form.sahipSoyad} onChange={e=>setForm({...form,sahipSoyad:e.target.value})} placeholder="Soyadınız" className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition" /></div>
             </div>
-            <div className="mb-4"><label className="block text-xs font-semibold text-gray-400 mb-2">Firma Adı *</label><input value={form.firmaAd} onChange={e=>setForm({...form,firmaAd:e.target.value})} placeholder="Yıldız Çekici & Yol Yardım" className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#00D4FF] transition" /></div>
+            <div className="mb-4"><label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Firma Adı *</label><input value={form.firmaAd} onChange={e=>setForm({...form,firmaAd:e.target.value})} placeholder="Yıldız Çekici & Yol Yardım" className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition" /></div>
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <div><label className="block text-xs font-semibold text-gray-400 mb-2">Telefon *</label><input value={form.tel} onChange={e=>setForm({...form,tel:e.target.value})} placeholder="0532 xxx xx xx" className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#00D4FF] transition" /></div>
-              <div><label className="block text-xs font-semibold text-gray-400 mb-2">E-posta</label><input value={form.email} onChange={e=>setForm({...form,email:e.target.value})} placeholder="firma@ornek.com" className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#00D4FF] transition" /></div>
+              <div><label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Telefon *</label><input value={form.tel} onChange={e=>setForm({...form,tel:e.target.value})} placeholder="0532 xxx xx xx" className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition" /></div>
+              <div><label className="block text-xs font-semibold text-[var(--text-2)] mb-2">E-posta</label><input value={form.email} onChange={e=>setForm({...form,email:e.target.value})} placeholder="firma@ornek.com" className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition" /></div>
             </div>
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <div><label className="block text-xs font-semibold text-gray-400 mb-2">Vergi No</label><input value={form.vergiNo} onChange={e=>setForm({...form,vergiNo:e.target.value})} placeholder="1234567890" className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#00D4FF] transition" /></div>
-              <div><label className="block text-xs font-semibold text-gray-400 mb-2">İl *</label>
+              <div><label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Vergi No</label><input value={form.vergiNo} onChange={e=>setForm({...form,vergiNo:e.target.value})} placeholder="1234567890" className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition" /></div>
+              <div><label className="block text-xs font-semibold text-[var(--text-2)] mb-2">İl *</label>
                 <div className="relative">
-                  <select value={form.il} onChange={e=>setForm({...form, il:e.target.value, ilce:""})} className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#00D4FF] transition appearance-none pr-8">
+                  <select value={form.il} onChange={e=>setForm({...form, il:e.target.value, ilce:""})} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition appearance-none pr-8">
                     <option value="">İl seçin...</option>
                     {iller.map((il,i) => <option key={il} value={il}>{String(i+1).padStart(2,"0")} - {il}</option>)}
                   </select>
-                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▼</span>
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-2)] text-xs">▼</span>
                 </div>
               </div>
             </div>
             {form.il && (
-              <div className="mb-4"><label className="block text-xs font-semibold text-gray-400 mb-2">İlçe *</label>
+              <div className="mb-4"><label className="block text-xs font-semibold text-[var(--text-2)] mb-2">İlçe *</label>
                 <div className="relative">
-                  <select value={form.ilce} onChange={e=>setForm({...form, ilce:e.target.value})} className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#00D4FF] transition appearance-none pr-8">
+                  <select value={form.ilce} onChange={e=>setForm({...form, ilce:e.target.value})} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition appearance-none pr-8">
                     <option value="">İlçe seçin...</option>
                     {(ilIlceler[form.il] || []).map(ilce => <option key={ilce} value={ilce}>{ilce}</option>)}
                   </select>
-                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▼</span>
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-2)] text-xs">▼</span>
                 </div>
               </div>
             )}
             <div className="mb-4">
-              <label className="block text-xs font-semibold text-gray-400 mb-2">Hizmet Tipi *</label>
+              <label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Hizmet Tipi *</label>
               <div className="grid grid-cols-2 gap-3">
                 {[["cekici","🚛","Çekici / Kurtarma","Araç çekme, kurtarma hizmetleri"],["lastikci","🔧","Lastikçi","Lastik değişimi, tamir, pat lastik"]].map(([v,ic,lb,ac])=>(
-                  <div key={v} onClick={()=>setForm({...form,hizmetTipi:v})} className={`flex flex-col gap-1 p-3 rounded-xl border cursor-pointer transition ${form.hizmetTipi===v?"border-[#00D4FF] bg-[#00D4FF]/8":"border-white/8 bg-[#1A1A1A]"}`}>
+                  <div key={v} onClick={()=>setForm({...form,hizmetTipi:v})} className={`flex flex-col gap-1 p-3 rounded-xl border cursor-pointer transition ${form.hizmetTipi===v?"border-[#00D4FF] bg-[#00D4FF]/8":"border-[var(--border)] bg-[var(--surface)]"}`}>
                     <div className="text-2xl">{ic}</div>
-                    <div className={`text-sm font-bold ${form.hizmetTipi===v?"text-[#00D4FF]":"text-white"}`}>{lb}</div>
-                    <div className="text-[10px] text-gray-500">{ac}</div>
+                    <div className={`text-sm font-bold ${form.hizmetTipi===v?"text-[var(--accent-text)]":"text-[var(--text)]"}`}>{lb}</div>
+                    <div className="text-[10px] text-[var(--text-3)]">{ac}</div>
                   </div>
                 ))}
               </div>
-              <div onClick={()=>setForm({...form,hizmetTipi:"her_ikisi"})} className={`mt-3 flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${form.hizmetTipi==="her_ikisi"?"border-[#00D4FF] bg-[#00D4FF]/8":"border-white/8 bg-[#1A1A1A]"}`}>
+              <div onClick={()=>setForm({...form,hizmetTipi:"her_ikisi"})} className={`mt-3 flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${form.hizmetTipi==="her_ikisi"?"border-[#00D4FF] bg-[#00D4FF]/8":"border-[var(--border)] bg-[var(--surface)]"}`}>
                 <div className="text-2xl">🚛🔧</div>
                 <div>
-                  <div className={`text-sm font-bold ${form.hizmetTipi==="her_ikisi"?"text-[#00D4FF]":"text-white"}`}>Her İkisi</div>
-                  <div className="text-[10px] text-gray-500">Hem çekici hem lastikçi hizmetleri</div>
+                  <div className={`text-sm font-bold ${form.hizmetTipi==="her_ikisi"?"text-[var(--accent-text)]":"text-[var(--text)]"}`}>Her İkisi</div>
+                  <div className="text-[10px] text-[var(--text-3)]">Hem çekici hem lastikçi hizmetleri</div>
                 </div>
               </div>
             </div>
-            <div className="mb-6"><label className="block text-xs font-semibold text-gray-400 mb-2">Hizmet Bölgesi *</label><textarea value={form.hizmetBolge} onChange={e=>setForm({...form,hizmetBolge:e.target.value})} placeholder="Örn: İstanbul Avrupa yakası, TEM ve E-5 bölgesi..." rows={2} className="w-full bg-[#1A1A1A] border border-white/8 rounded-lg px-3 py-3 text-sm text-white outline-none focus:border-[#00D4FF] transition resize-none" /></div>
-            <button onClick={firmaKaydet} disabled={yukleniyor} className="bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-white font-bold px-8 py-3 rounded-xl transition text-sm">
+            <div className="mb-6"><label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Hizmet Bölgesi *</label><textarea value={form.hizmetBolge} onChange={e=>setForm({...form,hizmetBolge:e.target.value})} placeholder="Örn: İstanbul Avrupa yakası, TEM ve E-5 bölgesi..." rows={2} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition resize-none" /></div>
+            <button onClick={firmaKaydet} disabled={yukleniyor} className="bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold px-8 py-3 rounded-xl transition text-sm">
               {yukleniyor ? "Kaydediliyor..." : "Devam Et →"}
             </button>
           </div>
@@ -255,7 +255,7 @@ export default function FirmaKayit() {
         {adim === 2 && (
           <div className="max-w-2xl">
             <h1 className="font-black text-2xl mb-1">Belgeler</h1>
-            <p className="text-gray-500 text-sm mb-6">Belgeler onaylandıktan sonra aktif olursunuz.</p>
+            <p className="text-[var(--text-3)] text-sm mb-6">Belgeler onaylandıktan sonra aktif olursunuz.</p>
             <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl p-4 text-xs text-blue-300 mb-6">ℹ️ Belgeler güvenli sunucularımızda saklanır. Müşterilere yalnızca &quot;Onaylı&quot; rozeti gösterilir.</div>
             <div className="space-y-4">
               {(["k1o","ticaret"] as const).map((key) => {
@@ -263,8 +263,8 @@ export default function FirmaKayit() {
                 const dosya = belgeDosyalari[key];
                 return (
                   <div key={key}>
-                    <label className="block text-xs font-semibold text-gray-400 mb-2">{label}</label>
-                    <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition ${dosya ? "border-[#00C853]/50 bg-[#00C853]/5" : "border-white/10 hover:border-[#00D4FF]"}`}>
+                    <label className="block text-xs font-semibold text-[var(--text-2)] mb-2">{label}</label>
+                    <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition ${dosya ? "border-[#00C853]/50 bg-[#00C853]/5" : "border-[var(--border)] hover:border-[#00D4FF]"}`}>
                       <input
                         type="file"
                         accept=".pdf,.jpg,.jpeg,.png"
@@ -278,13 +278,13 @@ export default function FirmaKayit() {
                         <>
                           <div className="text-3xl mb-2">✅</div>
                           <div className="text-sm font-semibold text-[#00C853] mb-1 break-all px-2">{dosya.name}</div>
-                          <div className="text-xs text-gray-500">Değiştirmek için tıklayın</div>
+                          <div className="text-xs text-[var(--text-3)]">Değiştirmek için tıklayın</div>
                         </>
                       ) : (
                         <>
                           <div className="text-3xl mb-2">📄</div>
                           <div className="text-sm font-semibold mb-1">Tıklayın veya sürükleyin</div>
-                          <div className="text-xs text-gray-600">PDF, JPG, PNG — maks. 10MB</div>
+                          <div className="text-xs text-[var(--text-3)]">PDF, JPG, PNG — maks. 10MB</div>
                         </>
                       )}
                     </label>
@@ -293,11 +293,11 @@ export default function FirmaKayit() {
               })}
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={geri} className="px-6 py-3 rounded-xl border border-white/10 text-sm font-semibold hover:border-white/30 transition">← Geri</button>
+              <button onClick={geri} className="px-6 py-3 rounded-xl border border-[var(--border)] text-sm font-semibold hover:border-white/30 transition">← Geri</button>
               <button
                 onClick={belgeleriYukle}
                 disabled={belgeYukleniyor || !belgeDosyalari.k1o || !belgeDosyalari.ticaret}
-                className="bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-white font-bold px-8 py-3 rounded-xl transition text-sm"
+                className="bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold px-8 py-3 rounded-xl transition text-sm"
               >
                 {belgeYukleniyor ? "Yükleniyor..." : "Devam Et →"}
               </button>
@@ -309,20 +309,20 @@ export default function FirmaKayit() {
         {adim === 3 && (
           <div className="max-w-2xl">
             <h1 className="font-black text-2xl mb-1">Araç Filosu</h1>
-            <p className="text-gray-500 text-sm mb-6">En az 1 araç eklemen gerekiyor.</p>
+            <p className="text-[var(--text-3)] text-sm mb-6">En az 1 araç eklemen gerekiyor.</p>
             <div className="space-y-3 mb-4">
               {araclar.map((a, i) => (
-                <div key={i} className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 flex items-center gap-3">
+                <div key={i} className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 flex items-center gap-3">
                   <span className="text-2xl">🚛</span>
-                  <div className="flex-1"><div className="font-bold text-sm">{a.plaka}</div><div className="text-xs text-gray-500">{a.tur}</div></div>
-                  <button onClick={() => setAraclar(araclar.filter((_,j) => j!==i))} className="text-gray-600 hover:text-red-400 transition text-lg">🗑</button>
+                  <div className="flex-1"><div className="font-bold text-sm">{a.plaka}</div><div className="text-xs text-[var(--text-3)]">{a.tur}</div></div>
+                  <button onClick={() => setAraclar(araclar.filter((_,j) => j!==i))} className="text-[var(--text-3)] hover:text-red-400 transition text-lg">🗑</button>
                 </div>
               ))}
             </div>
-            <button onClick={() => setAracModal(true)} className="w-full flex items-center gap-2 justify-center py-3 rounded-xl border border-dashed border-white/10 text-gray-500 hover:border-[#00D4FF] hover:text-[#00D4FF] transition text-sm font-semibold mb-6">+ Araç Ekle</button>
+            <button onClick={() => setAracModal(true)} className="w-full flex items-center gap-2 justify-center py-3 rounded-xl border border-dashed border-[var(--border)] text-[var(--text-3)] hover:border-[#00D4FF] hover:text-[var(--accent-text)] transition text-sm font-semibold mb-6">+ Araç Ekle</button>
             <div className="flex gap-3">
-              <button onClick={geri} className="px-6 py-3 rounded-xl border border-white/10 text-sm font-semibold">← Geri</button>
-              <button onClick={araclariKaydet} disabled={araclar.length === 0 || yukleniyor} className="bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-white font-bold px-8 py-3 rounded-xl transition text-sm">
+              <button onClick={geri} className="px-6 py-3 rounded-xl border border-[var(--border)] text-sm font-semibold">← Geri</button>
+              <button onClick={araclariKaydet} disabled={araclar.length === 0 || yukleniyor} className="bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold px-8 py-3 rounded-xl transition text-sm">
                 {yukleniyor ? "Kaydediliyor..." : "Devam Et →"}
               </button>
             </div>
@@ -333,20 +333,20 @@ export default function FirmaKayit() {
         {adim === 4 && (
           <div className="max-w-2xl">
             <h1 className="font-black text-2xl mb-1">Şoförler</h1>
-            <p className="text-gray-500 text-sm mb-6">En az 1 şoför eklemelisin.</p>
+            <p className="text-[var(--text-3)] text-sm mb-6">En az 1 şoför eklemelisin.</p>
             <div className="space-y-3 mb-4">
               {soforler.map((s, i) => (
-                <div key={i} className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#2A2A2A] flex items-center justify-center font-bold text-sm">{s.ad[0]}{s.soyad[0]}</div>
-                  <div className="flex-1"><div className="font-bold text-sm">{s.ad} {s.soyad}</div><div className="text-xs text-gray-500">+90 {s.tel}</div></div>
-                  <button onClick={() => setSoforler(soforler.filter((_,j) => j!==i))} className="text-gray-600 hover:text-red-400 transition text-lg">🗑</button>
+                <div key={i} className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[var(--surface-2)] flex items-center justify-center font-bold text-sm">{s.ad[0]}{s.soyad[0]}</div>
+                  <div className="flex-1"><div className="font-bold text-sm">{s.ad} {s.soyad}</div><div className="text-xs text-[var(--text-3)]">+90 {s.tel}</div></div>
+                  <button onClick={() => setSoforler(soforler.filter((_,j) => j!==i))} className="text-[var(--text-3)] hover:text-red-400 transition text-lg">🗑</button>
                 </div>
               ))}
             </div>
-            <button onClick={() => setSoforModal(true)} className="w-full flex items-center gap-2 justify-center py-3 rounded-xl border border-dashed border-white/10 text-gray-500 hover:border-[#00D4FF] hover:text-[#00D4FF] transition text-sm font-semibold mb-6">+ Şoför Ekle</button>
+            <button onClick={() => setSoforModal(true)} className="w-full flex items-center gap-2 justify-center py-3 rounded-xl border border-dashed border-[var(--border)] text-[var(--text-3)] hover:border-[#00D4FF] hover:text-[var(--accent-text)] transition text-sm font-semibold mb-6">+ Şoför Ekle</button>
             <div className="flex gap-3">
-              <button onClick={geri} className="px-6 py-3 rounded-xl border border-white/10 text-sm font-semibold">← Geri</button>
-              <button onClick={soforleriKaydet} disabled={soforler.length === 0 || yukleniyor} className="bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-white font-bold px-8 py-3 rounded-xl transition text-sm">
+              <button onClick={geri} className="px-6 py-3 rounded-xl border border-[var(--border)] text-sm font-semibold">← Geri</button>
+              <button onClick={soforleriKaydet} disabled={soforler.length === 0 || yukleniyor} className="bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold px-8 py-3 rounded-xl transition text-sm">
                 {yukleniyor ? "Kaydediliyor..." : "Başvuruyu Gönder →"}
               </button>
             </div>
@@ -358,12 +358,12 @@ export default function FirmaKayit() {
           <div className="max-w-lg text-center py-10">
             <div className="text-6xl mb-5">⏳</div>
             <h1 className="font-black text-2xl mb-3">Başvurun alındı!</h1>
-            <p className="text-gray-500 text-sm mb-8 leading-relaxed">Belgelerini inceliyoruz. Genellikle <strong className="text-white">24–48 saat</strong> içinde onaylanır. Onay sonrası <strong className="text-white">Firma Girişi</strong> ekranından panele erişebilirsiniz.</p>
-            <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-5 text-left space-y-3 mb-8">
+            <p className="text-[var(--text-3)] text-sm mb-8 leading-relaxed">Belgelerini inceliyoruz. Genellikle <strong className="text-[var(--text)]">24–48 saat</strong> içinde onaylanır. Onay sonrası <strong className="text-[var(--text)]">Firma Girişi</strong> ekranından panele erişebilirsiniz.</p>
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 text-left space-y-3 mb-8">
               {["Firma bilgileri kaydedildi ✓","Belgeler yüklendi ✓","Araç bilgileri kaydedildi ✓","Şoför bilgileri kaydedildi ✓"].map(i => (
                 <div key={i} className="flex items-center gap-3 text-sm"><span className="text-[#00C853]">●</span>{i}</div>
               ))}
-              <div className="flex items-center gap-3 text-sm"><span className="text-[#00D4FF] animate-pulse">●</span>Admin incelemesi bekleniyor</div>
+              <div className="flex items-center gap-3 text-sm"><span className="text-[var(--accent-text)] animate-pulse">●</span>Admin incelemesi bekleniyor</div>
             </div>
             <Link href="/" className="inline-block bg-[#00D4FF] hover:bg-[#0099BB] text-[#0B0F14] font-bold px-8 py-3 rounded-xl transition text-sm">Ana Sayfaya Dön →</Link>
           </div>
@@ -373,13 +373,13 @@ export default function FirmaKayit() {
       {/* ARAÇ MODAL */}
       {aracModal && (
         <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-5" onClick={() => setAracModal(false)}>
-          <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-5"><h2 className="font-black text-lg">Araç Ekle</h2><button onClick={() => setAracModal(false)} className="w-7 h-7 bg-[#2A2A2A] rounded-lg text-gray-400 text-sm">✕</button></div>
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-5"><h2 className="font-black text-lg">Araç Ekle</h2><button onClick={() => setAracModal(false)} className="w-7 h-7 bg-[var(--surface-2)] rounded-lg text-[var(--text-2)] text-sm">✕</button></div>
             <div className="grid grid-cols-2 gap-3 mb-4">
-              <div><label className="block text-xs font-semibold text-gray-400 mb-2">Plaka *</label><input value={yeniArac.plaka} onChange={e => setYeniArac({...yeniArac, plaka: e.target.value.toUpperCase()})} placeholder="34 XY 1234" className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#00D4FF]" /></div>
-              <div><label className="block text-xs font-semibold text-gray-400 mb-2">Araç Türü *</label>
+              <div><label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Plaka *</label><input value={yeniArac.plaka} onChange={e => setYeniArac({...yeniArac, plaka: e.target.value.toUpperCase()})} placeholder="34 XY 1234" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" /></div>
+              <div><label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Araç Türü *</label>
                 <div className="relative">
-                  <select value={yeniArac.tur} onChange={e => setYeniArac({...yeniArac, tur: e.target.value})} className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#00D4FF] appearance-none pr-7">
+                  <select value={yeniArac.tur} onChange={e => setYeniArac({...yeniArac, tur: e.target.value})} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] appearance-none pr-7">
                     <option value="">Seçin</option>
                     <option>Sabit Kasa</option>
                     <option>Kayar Kasa</option>
@@ -388,7 +388,7 @@ export default function FirmaKayit() {
                     <option>Çoklu Çekici</option>
                     <option>Gözlüklü Çekici</option>
                   </select>
-                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▼</span>
+                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-2)] text-xs">▼</span>
                 </div>
               </div>
             </div>
@@ -400,13 +400,13 @@ export default function FirmaKayit() {
       {/* ŞOFÖR MODAL */}
       {soforModal && (
         <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-5" onClick={() => setSoforModal(false)}>
-          <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-center mb-5"><h2 className="font-black text-lg">Şoför Ekle</h2><button onClick={() => setSoforModal(false)} className="w-7 h-7 bg-[#2A2A2A] rounded-lg text-gray-400 text-sm">✕</button></div>
+          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-5"><h2 className="font-black text-lg">Şoför Ekle</h2><button onClick={() => setSoforModal(false)} className="w-7 h-7 bg-[var(--surface-2)] rounded-lg text-[var(--text-2)] text-sm">✕</button></div>
             <div className="grid grid-cols-2 gap-3 mb-3">
-              <div><label className="block text-xs font-semibold text-gray-400 mb-2">Ad *</label><input value={yeniSofor.ad} onChange={e => setYeniSofor({...yeniSofor, ad: e.target.value})} placeholder="Ad" className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#00D4FF]" /></div>
-              <div><label className="block text-xs font-semibold text-gray-400 mb-2">Soyad *</label><input value={yeniSofor.soyad} onChange={e => setYeniSofor({...yeniSofor, soyad: e.target.value})} placeholder="Soyad" className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#00D4FF]" /></div>
+              <div><label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Ad *</label><input value={yeniSofor.ad} onChange={e => setYeniSofor({...yeniSofor, ad: e.target.value})} placeholder="Ad" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" /></div>
+              <div><label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Soyad *</label><input value={yeniSofor.soyad} onChange={e => setYeniSofor({...yeniSofor, soyad: e.target.value})} placeholder="Soyad" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" /></div>
             </div>
-            <div className="mb-4"><label className="block text-xs font-semibold text-gray-400 mb-2">Telefon *</label><input value={yeniSofor.tel} onChange={e => setYeniSofor({...yeniSofor, tel: e.target.value})} placeholder="5XX XXX XX XX" className="w-full bg-[#2A2A2A] border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-[#00D4FF]" /></div>
+            <div className="mb-4"><label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Telefon *</label><input value={yeniSofor.tel} onChange={e => setYeniSofor({...yeniSofor, tel: e.target.value})} placeholder="5XX XXX XX XX" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" /></div>
             <button onClick={() => { if(yeniSofor.ad && yeniSofor.soyad && yeniSofor.tel){ setSoforler([...soforler, yeniSofor]); setYeniSofor({ad:"",soyad:"",tel:""}); setSoforModal(false); }}} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] text-[#0B0F14] font-bold py-3 rounded-xl transition text-sm">Şoförü Kaydet</button>
           </div>
         </div>

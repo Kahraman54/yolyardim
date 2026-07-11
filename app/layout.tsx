@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed } from "next/font/google";
 import "./globals.css";
+import ThemeToggle from "./components/ThemeToggle";
 
 const barlow = Barlow_Condensed({
   variable: "--font-barlow",
@@ -33,13 +34,16 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${barlow.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <head>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#00D4FF" />
+        <script dangerouslySetInnerHTML={{ __html: `try{if(localStorage.getItem('tema')==='light')document.documentElement.setAttribute('data-theme','light')}catch(e){}` }} />
       </head>
       <body className="min-h-full flex flex-col">
         {children}
+        <ThemeToggle />
         <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}` }} />
       </body>
     </html>

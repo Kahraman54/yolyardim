@@ -45,7 +45,7 @@ function FotoBlok({ step, baslik, aciklama, devamButon, devamAksiyon, devamDisab
   return (
     <div>
       <div className="font-black text-lg mb-1">{baslik}</div>
-      <div className="text-gray-500 text-xs mb-5">{aciklama}</div>
+      <div className="text-[var(--text-3)] text-xs mb-5">{aciklama}</div>
 
       {fotoHata && (
         <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl mb-3 flex items-center justify-between">
@@ -58,7 +58,7 @@ function FotoBlok({ step, baslik, aciklama, devamButon, devamAksiyon, devamDisab
       <button
         onClick={() => onFotoSec(step)}
         disabled={fotoYukleniyor}
-        className="w-full flex items-center justify-center gap-3 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border-2 border-dashed border-[#00D4FF]/50 hover:border-[#00D4FF] text-[#00D4FF] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
+        className="w-full flex items-center justify-center gap-3 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border-2 border-dashed border-[#00D4FF]/50 hover:border-[#00D4FF] text-[var(--accent-text)] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
       >
         {fotoYukleniyor ? (
           <><span className="animate-spin">⏳</span> Yükleniyor {fotoProgress.done}/{fotoProgress.total}...</>
@@ -76,7 +76,7 @@ function FotoBlok({ step, baslik, aciklama, devamButon, devamAksiyon, devamDisab
               <img src={url} alt={`foto-${i+1}`} className="w-full h-full object-cover cursor-pointer" onClick={() => onLightbox({ urls: arr, idx: i })} />
               <button
                 onClick={() => onFotoCikar(step, i)}
-                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white text-[10px] flex items-center justify-center hover:bg-red-500 transition"
+                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-[var(--text)] text-[10px] flex items-center justify-center hover:bg-red-500 transition"
               >✕</button>
               <div className="absolute bottom-0 inset-x-0 bg-black/50 text-[9px] text-center py-0.5 text-[#00C853] font-bold">{i+1}</div>
             </div>
@@ -87,18 +87,18 @@ function FotoBlok({ step, baslik, aciklama, devamButon, devamAksiyon, devamDisab
       {arr.length > 0 && (
         <div className="flex items-center justify-between text-xs mb-5">
           <span className="text-[#00C853] font-bold">✓ {arr.length} fotoğraf yüklendi</span>
-          <span className="text-gray-500">İstediğiniz kadar ekleyebilirsiniz</span>
+          <span className="text-[var(--text-3)]">İstediğiniz kadar ekleyebilirsiniz</span>
         </div>
       )}
 
       <button
         onClick={devamAksiyon}
         disabled={devamDisabled || islemYapiliyor || arr.length === 0}
-        className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-white font-bold py-4 rounded-xl transition text-sm"
+        className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold py-4 rounded-xl transition text-sm"
       >
         {islemYapiliyor ? "Kaydediliyor..." : devamButon}
       </button>
-      {arr.length === 0 && <p className="text-center text-xs text-gray-600 mt-2">Devam etmek için en az 1 fotoğraf ekleyin</p>}
+      {arr.length === 0 && <p className="text-center text-xs text-[var(--text-3)] mt-2">Devam etmek için en az 1 fotoğraf ekleyin</p>}
     </div>
   );
 }
@@ -333,16 +333,16 @@ export default function SoforPanel() {
   if (!sofor) return null;
 
   return (
-    <main className="min-h-screen bg-[#0D0D0D] text-white flex flex-col">
+    <main className="min-h-screen bg-[var(--bg)] text-[var(--text)] flex flex-col">
       {/* HEADER */}
-      <header className="flex items-center justify-between px-4 py-3 bg-[#1A1A1A] border-b border-white/5 flex-shrink-0">
+      <header className="flex items-center justify-between px-4 py-3 bg-[var(--surface)] border-b border-[var(--border)] flex-shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-[#00D4FF] flex items-center justify-center text-xs font-black">
             {sofor.ad[0]}{sofor.soyad?.[0] || ""}
           </div>
           <div>
             <div className="text-xs font-bold">{sofor.ad} {sofor.soyad}</div>
-            <div className="text-[10px] text-gray-500">Şoför Paneli</div>
+            <div className="text-[10px] text-[var(--text-3)]">Şoför Paneli</div>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -351,26 +351,26 @@ export default function SoforPanel() {
               <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>GPS
             </div>
           )}
-          <button onClick={cikis} className="text-[10px] text-gray-500 bg-[#2A2A2A] border border-white/8 px-2.5 py-1.5 rounded-lg">Çıkış</button>
+          <button onClick={cikis} className="text-[10px] text-[var(--text-3)] bg-[var(--surface-2)] border border-[var(--border)] px-2.5 py-1.5 rounded-lg">Çıkış</button>
         </div>
       </header>
 
 
       {/* Adım göstergesi */}
       {!["liste","detay","ozet","gecmis","gecmis_detay"].includes(adim) && (
-        <div className="px-4 pt-3 pb-2 bg-[#1A1A1A] border-b border-white/5">
+        <div className="px-4 pt-3 pb-2 bg-[var(--surface)] border-b border-[var(--border)]">
           <div className="flex items-center">
             {ADIM_SIRALAMA.map((s, i) => {
               const gecildi = i < adimSira, aktif = i === adimSira;
               return (
                 <div key={s} className="flex items-center flex-1">
                   <div className="flex flex-col items-center flex-shrink-0">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${gecildi ? "bg-[#00C853] border-[#00C853] text-black" : aktif ? "border-[#00D4FF] text-[#00D4FF] bg-[#00D4FF]/10" : "border-white/10 text-gray-600"}`}>
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${gecildi ? "bg-[#00C853] border-[#00C853] text-black" : aktif ? "border-[#00D4FF] text-[var(--accent-text)] bg-[#00D4FF]/10" : "border-[var(--border)] text-[var(--text-3)]"}`}>
                       {gecildi ? "✓" : i+1}
                     </div>
-                    <div className={`text-[8px] font-bold mt-0.5 ${aktif ? "text-[#00D4FF]" : gecildi ? "text-[#00C853]" : "text-gray-600"}`}>{ADIM_ETIKET[s]}</div>
+                    <div className={`text-[8px] font-bold mt-0.5 ${aktif ? "text-[var(--accent-text)]" : gecildi ? "text-[#00C853]" : "text-[var(--text-3)]"}`}>{ADIM_ETIKET[s]}</div>
                   </div>
-                  {i < ADIM_SIRALAMA.length-1 && <div className={`flex-1 h-0.5 mx-0.5 mb-3 ${gecildi ? "bg-[#00C853]" : "bg-white/10"}`}></div>}
+                  {i < ADIM_SIRALAMA.length-1 && <div className={`flex-1 h-0.5 mx-0.5 mb-3 ${gecildi ? "bg-[#00C853]" : "bg-[var(--hover)]"}`}></div>}
                 </div>
               );
             })}
@@ -388,31 +388,31 @@ export default function SoforPanel() {
           <div>
             <div className="flex gap-2 mb-4">
               <button className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#00D4FF] text-[#0B0F14]">Aktif Görevler</button>
-              <button onClick={() => { setAdim("gecmis"); if (sofor) gecmisYukle(sofor.id); }} className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#1A1A1A] text-gray-400 border border-white/8">Geçmiş</button>
+              <button onClick={() => { setAdim("gecmis"); if (sofor) gecmisYukle(sofor.id); }} className="flex-1 py-2 rounded-xl text-sm font-bold bg-[var(--surface)] text-[var(--text-2)] border border-[var(--border)]">Geçmiş</button>
             </div>
             {yukleniyor ? (
-              <div className="text-center py-16 text-gray-500 text-sm">Yükleniyor...</div>
+              <div className="text-center py-16 text-[var(--text-3)] text-sm">Yükleniyor...</div>
             ) : talepler.length === 0 ? (
-              <div className="bg-[#1A1A1A] border border-white/5 rounded-2xl p-10 text-center">
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-10 text-center">
                 <div className="text-4xl mb-3">📋</div>
-                <div className="text-gray-500 text-sm">Atanmış görev yok</div>
+                <div className="text-[var(--text-3)] text-sm">Atanmış görev yok</div>
               </div>
             ) : talepler.map(t => (
-              <div key={t.id} onClick={() => talepSec(t)} className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3 cursor-pointer hover:border-[#00D4FF]/40 transition">
+              <div key={t.id} onClick={() => talepSec(t)} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 mb-3 cursor-pointer hover:border-[#00D4FF]/40 transition">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-lg bg-[#00D4FF]/10 flex items-center justify-center">🚛</div>
                     <div>
                       <div className="font-bold text-sm">{t.tip} Talebi</div>
-                      <div className="text-[11px] text-gray-500">{new Date(t.created_at).toLocaleString("tr-TR")}</div>
+                      <div className="text-[11px] text-[var(--text-3)]">{new Date(t.created_at).toLocaleString("tr-TR")}</div>
                     </div>
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${t.durum==="yolda"?"bg-blue-500/10 text-blue-400 border-blue-500/25 animate-pulse":"bg-[#00C853]/10 text-[#00C853] border-[#00C853]/25"}`}>
                     {t.durum==="yolda"?"🚛 YOLDA":"✓ KABUL"}
                   </span>
                 </div>
-                {t.musteri_ad && <div className="text-xs text-gray-400">👤 {t.musteri_ad}</div>}
-                {(t.toplam_km||0)>0 && <div className="text-xs text-gray-500 mt-0.5">📍 {(t.toplam_km||0).toFixed(1)} km</div>}
+                {t.musteri_ad && <div className="text-xs text-[var(--text-2)]">👤 {t.musteri_ad}</div>}
+                {(t.toplam_km||0)>0 && <div className="text-xs text-[var(--text-3)] mt-0.5">📍 {(t.toplam_km||0).toFixed(1)} km</div>}
               </div>
             ))}
           </div>
@@ -422,13 +422,13 @@ export default function SoforPanel() {
         {adim === "gecmis" && (
           <div>
             <div className="flex gap-2 mb-4">
-              <button onClick={() => setAdim("liste")} className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#1A1A1A] text-gray-400 border border-white/8">Aktif Görevler</button>
+              <button onClick={() => setAdim("liste")} className="flex-1 py-2 rounded-xl text-sm font-bold bg-[var(--surface)] text-[var(--text-2)] border border-[var(--border)]">Aktif Görevler</button>
               <button className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#00D4FF] text-[#0B0F14]">Geçmiş</button>
             </div>
             {gecmisTalepler.length === 0 ? (
-              <div className="bg-[#1A1A1A] border border-white/5 rounded-2xl p-10 text-center">
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-10 text-center">
                 <div className="text-4xl mb-3">📋</div>
-                <div className="text-gray-500 text-sm">Tamamlanmış görev yok</div>
+                <div className="text-[var(--text-3)] text-sm">Tamamlanmış görev yok</div>
               </div>
             ) : gecmisTalepler.map(t => {
               const sure = t.ise_baslama_zamani && t.ise_bitis_zamani
@@ -436,22 +436,22 @@ export default function SoforPanel() {
                 : null;
               const toplamFoto = (t.foto_teslim_alma?.length||0)+(t.foto_yukleme?.length||0)+(t.foto_teslim?.length||0)+(t.foto_tutanak?.length||0);
               return (
-                <div key={t.id} onClick={() => { setSeciliGecmis(t); setAdim("gecmis_detay"); }} className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3 cursor-pointer hover:border-[#00D4FF]/40 transition">
+                <div key={t.id} onClick={() => { setSeciliGecmis(t); setAdim("gecmis_detay"); }} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 mb-3 cursor-pointer hover:border-[#00D4FF]/40 transition">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-[#00C853]/10 flex items-center justify-center">✅</div>
                       <div>
                         <div className="font-bold text-sm">{t.tip} Talebi</div>
-                        <div className="text-[11px] text-gray-500">{new Date(t.created_at).toLocaleString("tr-TR")}</div>
+                        <div className="text-[11px] text-[var(--text-3)]">{new Date(t.created_at).toLocaleString("tr-TR")}</div>
                       </div>
                     </div>
                     <span className="text-[10px] font-bold px-2 py-1 rounded-full border bg-[#00C853]/10 text-[#00C853] border-[#00C853]/25">✓ TAMAMLANDI</span>
                   </div>
-                  {t.musteri_ad && <div className="text-xs text-gray-400 mb-1">👤 {t.musteri_ad}</div>}
+                  {t.musteri_ad && <div className="text-xs text-[var(--text-2)] mb-1">👤 {t.musteri_ad}</div>}
                   <div className="flex gap-3 mt-2">
-                    {(t.toplam_km||0)>0 && <span className="text-[11px] text-gray-500 bg-[#2A2A2A] px-2 py-0.5 rounded-lg">📍 {(t.toplam_km||0).toFixed(1)} km</span>}
-                    {sure && <span className="text-[11px] text-gray-500 bg-[#2A2A2A] px-2 py-0.5 rounded-lg">⏱ {sure}</span>}
-                    {toplamFoto > 0 && <span className="text-[11px] text-gray-500 bg-[#2A2A2A] px-2 py-0.5 rounded-lg">📷 {toplamFoto}</span>}
+                    {(t.toplam_km||0)>0 && <span className="text-[11px] text-[var(--text-3)] bg-[var(--surface-2)] px-2 py-0.5 rounded-lg">📍 {(t.toplam_km||0).toFixed(1)} km</span>}
+                    {sure && <span className="text-[11px] text-[var(--text-3)] bg-[var(--surface-2)] px-2 py-0.5 rounded-lg">⏱ {sure}</span>}
+                    {toplamFoto > 0 && <span className="text-[11px] text-[var(--text-3)] bg-[var(--surface-2)] px-2 py-0.5 rounded-lg">📷 {toplamFoto}</span>}
                   </div>
                 </div>
               );
@@ -468,37 +468,37 @@ export default function SoforPanel() {
           const tumFotolar = [...(t.foto_teslim_alma||[]), ...(t.foto_yukleme||[]), ...(t.foto_teslim||[]), ...(t.foto_tutanak||[])];
           return (
             <div>
-              <button onClick={() => setAdim("gecmis")} className="text-xs text-gray-500 hover:text-white mb-4 block">← Geçmişe Dön</button>
+              <button onClick={() => setAdim("gecmis")} className="text-xs text-[var(--text-3)] hover:text-[var(--text)] mb-4 block">← Geçmişe Dön</button>
               <div className="flex items-center justify-between mb-4">
                 <div className="font-black text-base">{t.tip} Talebi</div>
                 <span className="text-[10px] font-bold px-2 py-1 rounded-full border bg-[#00C853]/10 text-[#00C853] border-[#00C853]/25">✓ TAMAMLANDI</span>
               </div>
 
               {/* Müşteri & Araç */}
-              <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3 space-y-3">
-                <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Talep Bilgileri</div>
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 mb-3 space-y-3">
+                <div className="text-[10px] text-[var(--text-3)] font-bold uppercase tracking-widest">Talep Bilgileri</div>
                 {t.musteri_ad && (
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#2A2A2A] flex items-center justify-center font-bold text-sm">{t.musteri_ad[0]}</div>
-                    <div><div className="font-bold text-sm">{t.musteri_ad}</div>{t.musteri_tel && <div className="text-xs text-gray-500">{tel(t.musteri_tel)}</div>}</div>
+                    <div className="w-9 h-9 rounded-full bg-[var(--surface-2)] flex items-center justify-center font-bold text-sm">{t.musteri_ad[0]}</div>
+                    <div><div className="font-bold text-sm">{t.musteri_ad}</div>{t.musteri_tel && <div className="text-xs text-[var(--text-3)]">{tel(t.musteri_tel)}</div>}</div>
                   </div>
                 )}
                 {t.arac_plaka && (
-                  <div className="flex items-center gap-3 bg-[#2A2A2A] rounded-xl p-3">
+                  <div className="flex items-center gap-3 bg-[var(--surface-2)] rounded-xl p-3">
                     <span className="text-xl">🚗</span>
                     <div className="font-black text-sm">{t.arac_plaka}</div>
                   </div>
                 )}
                 {t.konum_adres && (
                   <div className="flex items-start gap-2 text-xs">
-                    <span className="text-[#00D4FF] mt-0.5">📍</span>
-                    <div><div className="text-gray-500 uppercase font-bold text-[10px]">Alınış Yeri</div><div className="text-gray-300">{t.konum_adres}</div></div>
+                    <span className="text-[var(--accent-text)] mt-0.5">📍</span>
+                    <div><div className="text-[var(--text-3)] uppercase font-bold text-[10px]">Alınış Yeri</div><div className="text-[var(--text-2)]">{t.konum_adres}</div></div>
                   </div>
                 )}
                 {t.hedef_adres && (
                   <div className="flex items-start gap-2 text-xs">
                     <span className="mt-0.5">🎯</span>
-                    <div><div className="text-gray-500 uppercase font-bold text-[10px]">Hedef</div><div className="text-gray-300">{t.hedef_adres}</div></div>
+                    <div><div className="text-[var(--text-3)] uppercase font-bold text-[10px]">Hedef</div><div className="text-[var(--text-2)]">{t.hedef_adres}</div></div>
                   </div>
                 )}
                 {t.aciklama && (
@@ -507,23 +507,23 @@ export default function SoforPanel() {
               </div>
 
               {/* İş Özeti */}
-              <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3">
-                <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">İş Özeti</div>
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 mb-3">
+                <div className="text-[10px] text-[var(--text-3)] font-bold uppercase tracking-widest mb-3">İş Özeti</div>
                 <div className="grid grid-cols-3 gap-3 text-center mb-4">
-                  <div className="bg-[#0D0D0D] rounded-xl p-3">
-                    <div className="font-black text-lg text-[#00D4FF]">{(t.toplam_km||0).toFixed(1)}</div>
-                    <div className="text-[9px] text-gray-500 mt-0.5">KM</div>
+                  <div className="bg-[var(--bg)] rounded-xl p-3">
+                    <div className="font-black text-lg text-[var(--accent-text)]">{(t.toplam_km||0).toFixed(1)}</div>
+                    <div className="text-[9px] text-[var(--text-3)] mt-0.5">KM</div>
                   </div>
-                  <div className="bg-[#0D0D0D] rounded-xl p-3">
+                  <div className="bg-[var(--bg)] rounded-xl p-3">
                     <div className="font-black text-lg">{sure || "—"}</div>
-                    <div className="text-[9px] text-gray-500 mt-0.5">Süre</div>
+                    <div className="text-[9px] text-[var(--text-3)] mt-0.5">Süre</div>
                   </div>
-                  <div className="bg-[#0D0D0D] rounded-xl p-3">
+                  <div className="bg-[var(--bg)] rounded-xl p-3">
                     <div className="font-black text-lg text-[#00C853]">{tumFotolar.length}</div>
-                    <div className="text-[9px] text-gray-500 mt-0.5">Fotoğraf</div>
+                    <div className="text-[9px] text-[var(--text-3)] mt-0.5">Fotoğraf</div>
                   </div>
                 </div>
-                <div className="text-[10px] text-gray-600 mb-1">{t.ise_baslama_zamani ? new Date(t.ise_baslama_zamani).toLocaleString("tr-TR") : ""} {t.ise_bitis_zamani ? `→ ${new Date(t.ise_bitis_zamani).toLocaleString("tr-TR")}` : ""}</div>
+                <div className="text-[10px] text-[var(--text-3)] mb-1">{t.ise_baslama_zamani ? new Date(t.ise_baslama_zamani).toLocaleString("tr-TR") : ""} {t.ise_bitis_zamani ? `→ ${new Date(t.ise_bitis_zamani).toLocaleString("tr-TR")}` : ""}</div>
 
                 {/* Fotoğraflar */}
                 {[
@@ -533,13 +533,13 @@ export default function SoforPanel() {
                   { label: "Tutanak", urls: t.foto_tutanak },
                 ].filter(g => g.urls && g.urls.length > 0).map(g => (
                   <div key={g.label} className="mb-3">
-                    <div className="text-[9px] text-gray-600 uppercase font-bold mb-1.5">{g.label}</div>
+                    <div className="text-[9px] text-[var(--text-3)] uppercase font-bold mb-1.5">{g.label}</div>
                     <div className="flex gap-1.5 flex-wrap">
                       {g.urls!.map((url, i) => (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img key={i} src={url} alt={g.label}
                           onClick={() => setLightbox({ urls: tumFotolar, idx: tumFotolar.indexOf(url) })}
-                          className="w-16 h-16 object-cover rounded-xl cursor-pointer hover:opacity-80 transition border border-white/10" />
+                          className="w-16 h-16 object-cover rounded-xl cursor-pointer hover:opacity-80 transition border border-[var(--border)]" />
                       ))}
                     </div>
                   </div>
@@ -552,37 +552,37 @@ export default function SoforPanel() {
         {/* DETAY */}
         {adim === "detay" && seciliTalep && (
           <div>
-            <button onClick={() => { setSeciliTalep(null); setAdim("liste"); }} className="text-xs text-gray-500 hover:text-white mb-4 block">← Geri</button>
+            <button onClick={() => { setSeciliTalep(null); setAdim("liste"); }} className="text-xs text-[var(--text-3)] hover:text-[var(--text)] mb-4 block">← Geri</button>
             <div className="font-black text-base mb-4">{seciliTalep.tip} Talebi</div>
-            <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3">
-              <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3">Müşteri Bilgileri</div>
-              {seciliTalep.musteri_ad && <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-full bg-[#2A2A2A] flex items-center justify-center font-bold">{seciliTalep.musteri_ad[0]}</div><div className="font-bold">{seciliTalep.musteri_ad}</div></div>}
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 mb-3">
+              <div className="text-[10px] text-[var(--text-3)] font-bold uppercase tracking-widest mb-3">Müşteri Bilgileri</div>
+              {seciliTalep.musteri_ad && <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-full bg-[var(--surface-2)] flex items-center justify-center font-bold">{seciliTalep.musteri_ad[0]}</div><div className="font-bold">{seciliTalep.musteri_ad}</div></div>}
               {seciliTalep.musteri_tel && (
                 <a href={`tel:${tel(seciliTalep.musteri_tel)}`} className="flex items-center gap-3 bg-blue-500/8 border border-blue-500/20 rounded-xl p-3 mb-3">
                   <span className="text-xl">📞</span>
-                  <div className="flex-1"><div className="text-[10px] text-gray-500 uppercase font-bold">Telefon</div><div className="font-bold text-blue-400 text-sm">{tel(seciliTalep.musteri_tel)}</div></div>
+                  <div className="flex-1"><div className="text-[10px] text-[var(--text-3)] uppercase font-bold">Telefon</div><div className="font-bold text-blue-400 text-sm">{tel(seciliTalep.musteri_tel)}</div></div>
                   <span className="text-[10px] bg-blue-500/15 text-blue-400 px-2 py-1 rounded-lg font-bold">Ara →</span>
                 </a>
               )}
-              <div className="bg-[#2A2A2A] rounded-xl p-3 flex items-center gap-3">
+              <div className="bg-[var(--surface-2)] rounded-xl p-3 flex items-center gap-3">
                 <span className="text-2xl">🚗</span>
                 <div>
                   <div className="font-black text-sm">{seciliTalep.arac_plaka || "Plaka belirtilmemiş"}</div>
-                  {musteriDetay && <div className="text-xs text-gray-500">{[musteriDetay.arac_marka, musteriDetay.arac_model, musteriDetay.yakit_tipi, musteriDetay.cekis_turu].filter(Boolean).join(" · ")}</div>}
+                  {musteriDetay && <div className="text-xs text-[var(--text-3)]">{[musteriDetay.arac_marka, musteriDetay.arac_model, musteriDetay.yakit_tipi, musteriDetay.cekis_turu].filter(Boolean).join(" · ")}</div>}
                 </div>
               </div>
             </div>
             {seciliTalep.konum_lat && (
-              <a href={`https://maps.google.com/?q=${seciliTalep.konum_lat},${seciliTalep.konum_lng}`} target="_blank" rel="noopener noreferrer" className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-4 mb-3 flex items-center gap-3">
+              <a href={`https://maps.google.com/?q=${seciliTalep.konum_lat},${seciliTalep.konum_lng}`} target="_blank" rel="noopener noreferrer" className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 mb-3 flex items-center gap-3">
                 <span className="text-2xl">📍</span>
-                <div className="flex-1"><div className="text-[10px] text-gray-500 uppercase font-bold">Aracın Yeri</div><div className="text-sm font-semibold text-[#00D4FF]">{seciliTalep.konum_adres || `${seciliTalep.konum_lat?.toFixed(5)}, ${seciliTalep.konum_lng?.toFixed(5)}`}</div></div>
-                <span className="text-gray-400">→</span>
+                <div className="flex-1"><div className="text-[10px] text-[var(--text-3)] uppercase font-bold">Aracın Yeri</div><div className="text-sm font-semibold text-[var(--accent-text)]">{seciliTalep.konum_adres || `${seciliTalep.konum_lat?.toFixed(5)}, ${seciliTalep.konum_lng?.toFixed(5)}`}</div></div>
+                <span className="text-[var(--text-2)]">→</span>
               </a>
             )}
-            {seciliTalep.hedef_adres && <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-3 mb-3 flex items-center gap-2"><span>🎯</span><div><div className="text-[10px] text-gray-500 uppercase font-bold">Hedef</div><div className="text-sm font-semibold">{seciliTalep.hedef_adres}</div></div></div>}
+            {seciliTalep.hedef_adres && <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3 mb-3 flex items-center gap-2"><span>🎯</span><div><div className="text-[10px] text-[var(--text-3)] uppercase font-bold">Hedef</div><div className="text-sm font-semibold">{seciliTalep.hedef_adres}</div></div></div>}
             {seciliTalep.aciklama && <div className="bg-yellow-500/5 border border-yellow-500/15 rounded-xl p-3 text-xs text-yellow-200 mb-4">💬 &ldquo;{seciliTalep.aciklama}&rdquo;</div>}
             {fotoHata && <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl mb-3">⚠️ {fotoHata}</div>}
-            <button onClick={iseBasla} disabled={islemYapiliyor} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-white font-bold py-4 rounded-xl transition text-sm">
+            <button onClick={iseBasla} disabled={islemYapiliyor} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold py-4 rounded-xl transition text-sm">
               {islemYapiliyor ? "Başlatılıyor..." : "🚛 İşe Başla — Yola Çık"}
             </button>
           </div>
@@ -592,14 +592,14 @@ export default function SoforPanel() {
         {adim === "yolda" && seciliTalep && (
           <div>
             <div className="font-black text-2xl mb-1">Yolda 🚛</div>
-            <div className="text-gray-500 text-xs mb-5">Müşteriye gidiyorsunuz. GPS ve KM takibi aktif.</div>
+            <div className="text-[var(--text-3)] text-xs mb-5">Müşteriye gidiyorsunuz. GPS ve KM takibi aktif.</div>
             <div className="grid grid-cols-2 gap-3 mb-5">
-              <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 text-center"><div className="text-2xl font-black text-[#00D4FF]">{gecenSure}</div><div className="text-[10px] text-gray-500 mt-1">Geçen Süre</div></div>
-              <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 text-center"><div className="text-2xl font-black">{toplamKm.toFixed(1)}<span className="text-sm font-normal text-gray-500"> km</span></div><div className="text-[10px] text-gray-500 mt-1">Kilometre</div></div>
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 text-center"><div className="text-2xl font-black text-[var(--accent-text)]">{gecenSure}</div><div className="text-[10px] text-[var(--text-3)] mt-1">Geçen Süre</div></div>
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 text-center"><div className="text-2xl font-black">{toplamKm.toFixed(1)}<span className="text-sm font-normal text-[var(--text-3)]"> km</span></div><div className="text-[10px] text-[var(--text-3)] mt-1">Kilometre</div></div>
             </div>
             {sonKonum && <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl p-3 mb-4 text-xs text-blue-300 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse flex-shrink-0"></span>Konumunuz müşteriye iletiliyor</div>}
-            {seciliTalep.musteri_tel && <a href={`tel:${tel(seciliTalep.musteri_tel)}`} className="flex items-center gap-3 bg-[#1A1A1A] border border-white/8 rounded-xl p-3 mb-3"><span className="text-xl">📞</span><div><div className="text-[10px] text-gray-500">Müşteri</div><div className="font-bold text-blue-400">{seciliTalep.musteri_ad} · {tel(seciliTalep.musteri_tel)}</div></div></a>}
-            {seciliTalep.konum_lat && <a href={`https://maps.google.com/?q=${seciliTalep.konum_lat},${seciliTalep.konum_lng}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-[#1A1A1A] border border-white/8 rounded-xl p-3 mb-6"><span className="text-xl">📍</span><div className="flex-1"><div className="text-[10px] text-gray-500">Müşterinin Konumu</div><div className="text-sm font-semibold text-[#00D4FF]">{seciliTalep.konum_adres || "Haritada Aç"}</div></div><span className="text-gray-400">→</span></a>}
+            {seciliTalep.musteri_tel && <a href={`tel:${tel(seciliTalep.musteri_tel)}`} className="flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3 mb-3"><span className="text-xl">📞</span><div><div className="text-[10px] text-[var(--text-3)]">Müşteri</div><div className="font-bold text-blue-400">{seciliTalep.musteri_ad} · {tel(seciliTalep.musteri_tel)}</div></div></a>}
+            {seciliTalep.konum_lat && <a href={`https://maps.google.com/?q=${seciliTalep.konum_lat},${seciliTalep.konum_lng}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3 mb-6"><span className="text-xl">📍</span><div className="flex-1"><div className="text-[10px] text-[var(--text-3)]">Müşterinin Konumu</div><div className="text-sm font-semibold text-[var(--accent-text)]">{seciliTalep.konum_adres || "Haritada Aç"}</div></div><span className="text-[var(--text-2)]">→</span></a>}
             <button onClick={() => dbAdimGec("arac_yaninda","teslim_alma")} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] text-[#0B0F14] font-bold py-4 rounded-xl transition text-sm">📍 Araç Yanına Vardım</button>
           </div>
         )}
@@ -632,12 +632,12 @@ export default function SoforPanel() {
         {adim === "teslimat" && seciliTalep && (
           <div>
             <div className="font-black text-2xl mb-1">Teslimata Gidiliyor 🎯</div>
-            <div className="text-gray-500 text-xs mb-5">Araç yüklendi, hedefe gidiyorsunuz.</div>
+            <div className="text-[var(--text-3)] text-xs mb-5">Araç yüklendi, hedefe gidiyorsunuz.</div>
             <div className="grid grid-cols-2 gap-3 mb-5">
-              <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 text-center"><div className="text-2xl font-black text-[#00D4FF]">{gecenSure}</div><div className="text-[10px] text-gray-500 mt-1">Toplam Süre</div></div>
-              <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-4 text-center"><div className="text-2xl font-black">{toplamKm.toFixed(1)}<span className="text-sm font-normal text-gray-500"> km</span></div><div className="text-[10px] text-gray-500 mt-1">Kilometre</div></div>
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 text-center"><div className="text-2xl font-black text-[var(--accent-text)]">{gecenSure}</div><div className="text-[10px] text-[var(--text-3)] mt-1">Toplam Süre</div></div>
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 text-center"><div className="text-2xl font-black">{toplamKm.toFixed(1)}<span className="text-sm font-normal text-[var(--text-3)]"> km</span></div><div className="text-[10px] text-[var(--text-3)] mt-1">Kilometre</div></div>
             </div>
-            {seciliTalep.hedef_adres && <div className="bg-[#1A1A1A] border border-white/8 rounded-xl p-3 mb-4 flex items-center gap-2"><span>🎯</span><div><div className="text-[10px] text-gray-500 uppercase font-bold">Hedef</div><div className="text-sm font-semibold">{seciliTalep.hedef_adres}</div></div></div>}
+            {seciliTalep.hedef_adres && <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3 mb-4 flex items-center gap-2"><span>🎯</span><div><div className="text-[10px] text-[var(--text-3)] uppercase font-bold">Hedef</div><div className="text-sm font-semibold">{seciliTalep.hedef_adres}</div></div></div>}
             {sonKonum && <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl p-3 mb-6 text-xs text-blue-300 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse flex-shrink-0"></span>GPS aktif</div>}
             <button onClick={teslimEttim} className="w-full bg-[#00C853] hover:bg-[#00a844] text-black font-bold py-4 rounded-xl transition text-sm">✅ Teslim Ettim</button>
           </div>
@@ -659,7 +659,7 @@ export default function SoforPanel() {
         {adim === "tutanak" && seciliTalep && (
           <div>
             <div className="font-black text-lg mb-1">📄 Teslim Tutanağı</div>
-            <div className="text-gray-500 text-xs mb-5">Müşteri teslim tutanağı imzaladıysa fotoğrafını ekleyin. İsteğe bağlıdır.</div>
+            <div className="text-[var(--text-3)] text-xs mb-5">Müşteri teslim tutanağı imzaladıysa fotoğrafını ekleyin. İsteğe bağlıdır.</div>
 
             {fotoHata && (
               <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl mb-3 flex items-center justify-between">
@@ -671,7 +671,7 @@ export default function SoforPanel() {
             <button
               onClick={() => fotoSec("tutanak")}
               disabled={fotoYukleniyor}
-              className="w-full flex items-center justify-center gap-3 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border-2 border-dashed border-[#00D4FF]/50 hover:border-[#00D4FF] text-[#00D4FF] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
+              className="w-full flex items-center justify-center gap-3 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border-2 border-dashed border-[#00D4FF]/50 hover:border-[#00D4FF] text-[var(--accent-text)] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
             >
               {fotoYukleniyor ? <><span className="animate-spin">⏳</span> Yükleniyor...</> : <><span className="text-xl">📄</span> Tutanak Fotoğrafı Ekle</>}
             </button>
@@ -682,7 +682,7 @@ export default function SoforPanel() {
                   <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-[#00C853]/30">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={url} alt="tutanak" className="w-full h-full object-cover cursor-pointer" onClick={() => setLightbox({ urls: fotolar.tutanak, idx: i })} />
-                    <button onClick={() => fotoCikar("tutanak", i)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-white text-[10px] flex items-center justify-center hover:bg-red-500">✕</button>
+                    <button onClick={() => fotoCikar("tutanak", i)} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 text-[var(--text)] text-[10px] flex items-center justify-center hover:bg-red-500">✕</button>
                   </div>
                 ))}
               </div>
@@ -702,32 +702,32 @@ export default function SoforPanel() {
           <div className="text-center">
             <div className="text-6xl mb-4">🎉</div>
             <div className="font-black text-2xl mb-2">İş Tamamlandı!</div>
-            <div className="text-gray-500 text-sm mb-8">Tüm bilgiler sisteme kaydedildi.</div>
-            <div className="bg-[#1A1A1A] border border-white/8 rounded-2xl p-5 text-left space-y-3 mb-6">
-              <div className="flex items-center gap-3 pb-3 border-b border-white/5">
-                <span className="text-xl">👤</span><div className="flex-1"><div className="text-xs text-gray-500">Müşteri</div><div className="font-bold">{seciliTalep.musteri_ad || "—"}</div></div>
+            <div className="text-[var(--text-3)] text-sm mb-8">Tüm bilgiler sisteme kaydedildi.</div>
+            <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 text-left space-y-3 mb-6">
+              <div className="flex items-center gap-3 pb-3 border-b border-[var(--border)]">
+                <span className="text-xl">👤</span><div className="flex-1"><div className="text-xs text-[var(--text-3)]">Müşteri</div><div className="font-bold">{seciliTalep.musteri_ad || "—"}</div></div>
               </div>
-              <div className="flex items-center gap-3 pb-3 border-b border-white/5">
-                <span className="text-xl">🚗</span><div className="flex-1"><div className="text-xs text-gray-500">Araç</div><div className="font-bold">{seciliTalep.arac_plaka || "—"}</div></div>
+              <div className="flex items-center gap-3 pb-3 border-b border-[var(--border)]">
+                <span className="text-xl">🚗</span><div className="flex-1"><div className="text-xs text-[var(--text-3)]">Araç</div><div className="font-bold">{seciliTalep.arac_plaka || "—"}</div></div>
               </div>
-              <div className="grid grid-cols-2 gap-4 pb-3 border-b border-white/5">
-                <div><div className="text-xs text-gray-500">Toplam KM</div><div className="font-black text-xl text-[#00D4FF]">{toplamKm.toFixed(1)} km</div></div>
-                <div><div className="text-xs text-gray-500">Süre</div><div className="font-black text-xl">{seciliTalep.ise_baslama_zamani && seciliTalep.ise_bitis_zamani ? formatSure(new Date(seciliTalep.ise_bitis_zamani).getTime() - new Date(seciliTalep.ise_baslama_zamani).getTime()) : gecenSure}</div></div>
+              <div className="grid grid-cols-2 gap-4 pb-3 border-b border-[var(--border)]">
+                <div><div className="text-xs text-[var(--text-3)]">Toplam KM</div><div className="font-black text-xl text-[var(--accent-text)]">{toplamKm.toFixed(1)} km</div></div>
+                <div><div className="text-xs text-[var(--text-3)]">Süre</div><div className="font-black text-xl">{seciliTalep.ise_baslama_zamani && seciliTalep.ise_bitis_zamani ? formatSure(new Date(seciliTalep.ise_bitis_zamani).getTime() - new Date(seciliTalep.ise_baslama_zamani).getTime()) : gecenSure}</div></div>
               </div>
               <div>
-                <div className="text-xs text-gray-500 mb-2">Fotoğraflar</div>
+                <div className="text-xs text-[var(--text-3)] mb-2">Fotoğraflar</div>
                 <div className="grid grid-cols-4 gap-2 text-center">
                   {([["Teslim Alma","teslim_alma"],["Yükleme","yukleme"],["Teslim","teslim"],["Tutanak","tutanak"]] as [string, FotoStep][]).map(([l, k]) => (
-                    <div key={k} className="bg-[#2A2A2A] rounded-xl p-2">
+                    <div key={k} className="bg-[var(--surface-2)] rounded-xl p-2">
                       <div className="font-black text-lg text-[#00C853]">{fotolar[k].length}</div>
-                      <div className="text-[9px] text-gray-500 mt-0.5">{l}</div>
+                      <div className="text-[9px] text-[var(--text-3)] mt-0.5">{l}</div>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
             <button onClick={() => { setSeciliTalep(null); setAdim("liste"); if (sofor) taleplerYukle(sofor.id); }}
-              className="w-full bg-[#1A1A1A] border border-white/10 hover:border-white/30 text-white font-bold py-3 rounded-xl transition">
+              className="w-full bg-[var(--surface)] border border-[var(--border)] hover:border-white/30 text-[var(--text)] font-bold py-3 rounded-xl transition">
               Ana Sayfaya Dön
             </button>
           </div>
@@ -738,8 +738,8 @@ export default function SoforPanel() {
       {lightbox && (
         <div className="fixed inset-0 bg-black z-[200] flex flex-col" onClick={() => setLightbox(null)}>
           <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" onClick={e => e.stopPropagation()}>
-            <span className="text-sm text-gray-400">{lightbox.idx + 1} / {lightbox.urls.length}</span>
-            <button onClick={() => setLightbox(null)} className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white text-lg">✕</button>
+            <span className="text-sm text-[var(--text-2)]">{lightbox.idx + 1} / {lightbox.urls.length}</span>
+            <button onClick={() => setLightbox(null)} className="w-9 h-9 rounded-full bg-[var(--hover)] flex items-center justify-center text-[var(--text)] text-lg">✕</button>
           </div>
           <div className="flex-1 flex items-center justify-center px-2 overflow-hidden" onClick={e => e.stopPropagation()}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -749,7 +749,7 @@ export default function SoforPanel() {
             <div className="flex justify-center gap-4 py-4 flex-shrink-0" onClick={e => e.stopPropagation()}>
               <button onClick={() => setLightbox(l => l && l.idx > 0 ? { ...l, idx: l.idx - 1 } : l)}
                 disabled={lightbox.idx === 0}
-                className="w-12 h-12 rounded-full bg-white/10 disabled:opacity-20 flex items-center justify-center text-xl">‹</button>
+                className="w-12 h-12 rounded-full bg-[var(--hover)] disabled:opacity-20 flex items-center justify-center text-xl">‹</button>
               <div className="flex items-center gap-1.5">
                 {lightbox.urls.map((_, i) => (
                   <button key={i} onClick={() => setLightbox(l => l ? { ...l, idx: i } : l)}
@@ -758,7 +758,7 @@ export default function SoforPanel() {
               </div>
               <button onClick={() => setLightbox(l => l && l.idx < l.urls.length - 1 ? { ...l, idx: l.idx + 1 } : l)}
                 disabled={lightbox.idx === lightbox.urls.length - 1}
-                className="w-12 h-12 rounded-full bg-white/10 disabled:opacity-20 flex items-center justify-center text-xl">›</button>
+                className="w-12 h-12 rounded-full bg-[var(--hover)] disabled:opacity-20 flex items-center justify-center text-xl">›</button>
             </div>
           )}
         </div>

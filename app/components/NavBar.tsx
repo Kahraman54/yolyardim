@@ -12,20 +12,20 @@ export default function NavBar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0B0F14]/95 backdrop-blur-md border-b border-[#5C7386]/20">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[var(--bg-trans)] backdrop-blur-md border-b border-[var(--border)]">
       <div className="flex items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/tulpar-logo-v3.png" alt="Tulpar" className="h-11 w-auto" />
           <div className="font-black text-2xl italic tracking-tight">
-            Tulpar<span className="text-[#00D4FF]">Assist</span>
+            Tulpar<span className="text-[var(--accent-text)]">Assist</span>
           </div>
         </Link>
 
         {/* Desktop links */}
         <div className="hidden md:flex gap-2">
           {links.map((l) => (
-            <a key={l.href} href={l.href} className="px-5 py-2.5 rounded-lg text-sm font-semibold text-[#9DB4C6] border border-[#5C7386]/40 hover:border-[#9DB4C6] hover:text-[#F5F8FA] transition tracking-wide">
+            <a key={l.href} href={l.href} className="px-5 py-2.5 rounded-lg text-sm font-semibold text-[var(--text-2)] border border-[var(--border-2)] hover:border-[var(--text-3)] hover:text-[var(--text)] transition tracking-wide">
               {l.label}
             </a>
           ))}
@@ -41,7 +41,7 @@ export default function NavBar() {
           </a>
           <button
             onClick={() => setOpen(!open)}
-            className="p-2 rounded-lg border border-[#5C7386]/40 text-[#9DB4C6] hover:border-[#9DB4C6] transition"
+            className="p-2 rounded-lg border border-[var(--border-2)] text-[var(--text-2)] hover:border-[var(--text-3)] transition"
             aria-label="Menü"
           >
             {open ? (
@@ -59,13 +59,13 @@ export default function NavBar() {
 
       {/* Mobile dropdown */}
       {open && (
-        <div className="md:hidden border-t border-[#5C7386]/20 px-6 py-4 flex flex-col gap-2 bg-[#0B0F14]/98">
+        <div className="md:hidden border-t border-[var(--border)] px-6 py-4 flex flex-col gap-2 bg-[var(--bg-trans)]">
           {links.map((l) => (
             <a
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="px-4 py-3 rounded-lg text-sm font-semibold text-[#9DB4C6] border border-[#5C7386]/40 hover:border-[#9DB4C6] hover:text-[#F5F8FA] transition"
+              className="px-4 py-3 rounded-lg text-sm font-semibold text-[var(--text-2)] border border-[var(--border-2)] hover:border-[var(--text-3)] hover:text-[var(--text)] transition"
             >
               {l.label}
             </a>
