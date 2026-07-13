@@ -18,6 +18,9 @@
   --border-2: rgba(255, 255, 255, 0.16);
   --hover: rgba(255, 255, 255, 0.06);
   --accent-text: #00d4ff;   /* açık zeminde koyulaşan vurgu metni */
+  --accent: #00d4ff;        /* buton / seçili durum zemini */
+  --accent-hover: #0099bb;
+  --accent-soft: #00d4ff;   /* saydam cyan chip ve kenarlıklar */
 
   --background: var(--bg);
   --foreground: var(--text);
@@ -36,6 +39,9 @@
   --border-2: rgba(12, 32, 50, 0.22);
   --hover: rgba(12, 32, 50, 0.06);
   --accent-text: #007fa3;
+  --accent: #00a9d4;
+  --accent-hover: #008cb3;
+  --accent-soft: #0090b8;
 }
 
 @theme inline {

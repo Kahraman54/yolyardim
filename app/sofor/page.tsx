@@ -56,7 +56,7 @@ export default function SoforGiris() {
                 onChange={e => { let v = e.target.value.replace(/\D/g, ""); if (v.startsWith("0")) v = v.slice(1); setTel(v.slice(0, 10)); setHata(""); }}
                 onKeyDown={e => e.key === "Enter" && giris()}
                 placeholder="5XX XXX XX XX"
-                className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-r-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition"
+                className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-r-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition"
               />
             </div>
           </div>
@@ -64,7 +64,7 @@ export default function SoforGiris() {
           <button
             onClick={giris}
             disabled={yukleniyor || tel.replace(/\D/g, "").length < 10}
-            className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[#0B0F14] font-bold py-3 rounded-xl transition text-sm"
+            className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[#0B0F14] font-bold py-3 rounded-xl transition text-sm"
           >
             {yukleniyor ? "Giriş yapılıyor..." : "Devam Et →"}
           </button>

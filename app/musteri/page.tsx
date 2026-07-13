@@ -380,19 +380,19 @@ export default function MusteriAna() {
         {sayfa === "ana" && (
           <div className="h-full flex flex-col">
             <div className="bg-[var(--surface)] border-b border-[var(--border)] flex-shrink-0 px-3 pt-2 pb-2.5 grid grid-cols-2 gap-2">
-              <button onClick={() => setGorunum("harita")} className={`flex items-center justify-center gap-3 py-3 rounded-2xl transition font-semibold text-sm ${gorunum==="harita" ? "bg-[#00D4FF] text-[#0B0F14]" : "bg-[var(--surface-2)] text-[var(--text-2)]"}`}>
+              <button onClick={() => setGorunum("harita")} className={`flex items-center justify-center gap-3 py-3 rounded-2xl transition font-semibold text-sm ${gorunum==="harita" ? "bg-[var(--accent)] text-[#0B0F14]" : "bg-[var(--surface-2)] text-[var(--text-2)]"}`}>
                 <FlatIcon src="/icons/svg/002-map.svg" size={26} />
                 Harita
               </button>
-              <button onClick={() => setGorunum("liste")} className={`flex items-center justify-center gap-3 py-3 rounded-2xl transition font-semibold text-sm ${gorunum==="liste" ? "bg-[#00D4FF] text-[#0B0F14]" : "bg-[var(--surface-2)] text-[var(--text-2)]"}`}>
+              <button onClick={() => setGorunum("liste")} className={`flex items-center justify-center gap-3 py-3 rounded-2xl transition font-semibold text-sm ${gorunum==="liste" ? "bg-[var(--accent)] text-[#0B0F14]" : "bg-[var(--surface-2)] text-[var(--text-2)]"}`}>
                 <FlatIcon src="/icons/svg/007-business-and-trade.svg" size={26} />
                 Firmalar ({firmaFiltreli.length})
               </button>
-              <button onClick={() => setSeciliHizmet(s => s === "cekici" ? null : "cekici")} className={`flex items-center justify-center gap-3 py-3 rounded-2xl transition font-semibold text-sm ${seciliHizmet === "cekici" ? "bg-[#00D4FF] text-[#0B0F14]" : "bg-[var(--surface-2)] text-[var(--text-2)]"}`}>
+              <button onClick={() => setSeciliHizmet(s => s === "cekici" ? null : "cekici")} className={`flex items-center justify-center gap-3 py-3 rounded-2xl transition font-semibold text-sm ${seciliHizmet === "cekici" ? "bg-[var(--accent)] text-[#0B0F14]" : "bg-[var(--surface-2)] text-[var(--text-2)]"}`}>
                 <FlatIcon src="/icons/svg/006-shipping.svg" size={26} />
                 Çekici
               </button>
-              <button onClick={() => setSeciliHizmet(s => s === "lastikci" ? null : "lastikci")} className={`flex items-center justify-center gap-3 py-3 rounded-2xl transition font-semibold text-sm ${seciliHizmet === "lastikci" ? "bg-[#00D4FF] text-[#0B0F14]" : "bg-[var(--surface-2)] text-[var(--text-2)]"}`}>
+              <button onClick={() => setSeciliHizmet(s => s === "lastikci" ? null : "lastikci")} className={`flex items-center justify-center gap-3 py-3 rounded-2xl transition font-semibold text-sm ${seciliHizmet === "lastikci" ? "bg-[var(--accent)] text-[#0B0F14]" : "bg-[var(--surface-2)] text-[var(--text-2)]"}`}>
                 <FlatIcon src="/icons/svg/004-car.svg" size={26} />
                 Lastikçi
               </button>
@@ -443,7 +443,7 @@ export default function MusteriAna() {
                     <div className="absolute bottom-0 left-0 right-0 bg-[var(--surface)] border-t border-[var(--border)] p-4 z-20">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-11 h-11 rounded-xl bg-[#00D4FF]/15 border border-[#00D4FF]/20 flex items-center justify-center text-xl flex-shrink-0">🚛</div>
+                          <div className="w-11 h-11 rounded-xl bg-[var(--accent-soft)]/15 border border-[var(--accent-soft)]/20 flex items-center justify-center text-xl flex-shrink-0">🚛</div>
                           <div>
                             <div className="font-bold text-sm">{seciliFirma.firma_ad}</div>
                             {(seciliFirma.il || seciliFirma.ilce) && <div className="text-xs text-[var(--text-3)] mt-0.5">📍 {[seciliFirma.ilce, seciliFirma.il].filter(Boolean).join(" / ")}</div>}
@@ -455,7 +455,7 @@ export default function MusteriAna() {
                         </div>
                         <button onClick={() => setSeciliFirma(null)} className="w-7 h-7 bg-[var(--surface-2)] rounded-lg text-[var(--text-2)] text-sm flex items-center justify-center flex-shrink-0">✕</button>
                       </div>
-                      <button onClick={() => sosAc(seciliFirma)} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] text-[#0B0F14] font-bold py-3 rounded-xl transition text-sm">🆘 Bu Firmadan Yardım İste</button>
+                      <button onClick={() => sosAc(seciliFirma)} className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[#0B0F14] font-bold py-3 rounded-xl transition text-sm">🆘 Bu Firmadan Yardım İste</button>
                     </div>
                   )}
                 </>
@@ -478,7 +478,7 @@ export default function MusteriAna() {
                     return (
                       <div key={f.id} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 mb-3">
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="w-11 h-11 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center text-xl flex-shrink-0">{emoji}</div>
+                          <div className="w-11 h-11 rounded-xl bg-[var(--accent-soft)]/10 border border-[var(--accent-soft)]/20 flex items-center justify-center text-xl flex-shrink-0">{emoji}</div>
                           <div className="flex-1 min-w-0">
                             <div className="font-bold text-sm">{f.firma_ad}</div>
                             <div className="flex gap-2 mt-1 flex-wrap">
@@ -491,7 +491,7 @@ export default function MusteriAna() {
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                           <button onClick={() => setFirmaDetayModal(f)} className="border border-[var(--border)] text-[var(--text-2)] font-bold py-2.5 rounded-xl text-sm">Detay</button>
-                          <button onClick={() => sosAc(f)} className="bg-[#00D4FF] text-[#0B0F14] font-bold py-2.5 rounded-xl text-sm">🆘 Yardım İste</button>
+                          <button onClick={() => sosAc(f)} className="bg-[var(--accent)] text-[#0B0F14] font-bold py-2.5 rounded-xl text-sm">🆘 Yardım İste</button>
                         </div>
                       </div>
                     );
@@ -622,23 +622,23 @@ export default function MusteriAna() {
             <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 mb-4">
               <div className="text-[10px] text-[var(--text-3)] font-bold uppercase tracking-widest mb-3">Kişisel Bilgiler</div>
               <div className="grid grid-cols-2 gap-3 mb-3">
-                <div><label className="block text-xs text-[var(--text-3)] mb-1">Ad</label><input value={profilForm.ad || ""} onChange={e => setProfilForm(p => ({ ...p, ad: e.target.value }))} placeholder="Adın" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" /></div>
-                <div><label className="block text-xs text-[var(--text-3)] mb-1">Soyad</label><input value={profilForm.soyad || ""} onChange={e => setProfilForm(p => ({ ...p, soyad: e.target.value }))} placeholder="Soyadın" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" /></div>
+                <div><label className="block text-xs text-[var(--text-3)] mb-1">Ad</label><input value={profilForm.ad || ""} onChange={e => setProfilForm(p => ({ ...p, ad: e.target.value }))} placeholder="Adın" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" /></div>
+                <div><label className="block text-xs text-[var(--text-3)] mb-1">Soyad</label><input value={profilForm.soyad || ""} onChange={e => setProfilForm(p => ({ ...p, soyad: e.target.value }))} placeholder="Soyadın" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" /></div>
               </div>
               <div><label className="block text-xs text-[var(--text-3)] mb-1">Telefon</label><input value={profilForm.tel || ""} disabled className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-3)] cursor-not-allowed" /></div>
             </div>
             <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 mb-4">
               <div className="text-[10px] text-[var(--text-3)] font-bold uppercase tracking-widest mb-3">Araç Bilgileri</div>
               <div className="grid grid-cols-2 gap-3 mb-3">
-                <div><label className="block text-xs text-[var(--text-3)] mb-1">Marka</label><input value={profilForm.arac_marka || ""} onChange={e => setProfilForm(p => ({ ...p, arac_marka: e.target.value }))} placeholder="Ford..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" /></div>
-                <div><label className="block text-xs text-[var(--text-3)] mb-1">Model</label><input value={profilForm.arac_model || ""} onChange={e => setProfilForm(p => ({ ...p, arac_model: e.target.value }))} placeholder="Focus..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" /></div>
+                <div><label className="block text-xs text-[var(--text-3)] mb-1">Marka</label><input value={profilForm.arac_marka || ""} onChange={e => setProfilForm(p => ({ ...p, arac_marka: e.target.value }))} placeholder="Ford..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" /></div>
+                <div><label className="block text-xs text-[var(--text-3)] mb-1">Model</label><input value={profilForm.arac_model || ""} onChange={e => setProfilForm(p => ({ ...p, arac_model: e.target.value }))} placeholder="Focus..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" /></div>
               </div>
-              <div className="mb-3"><label className="block text-xs text-[var(--text-3)] mb-1">Plaka</label><input value={profilForm.arac_plaka || ""} onChange={e => setProfilForm(p => ({ ...p, arac_plaka: e.target.value.toUpperCase() }))} placeholder="34 ABC 123" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" /></div>
+              <div className="mb-3"><label className="block text-xs text-[var(--text-3)] mb-1">Plaka</label><input value={profilForm.arac_plaka || ""} onChange={e => setProfilForm(p => ({ ...p, arac_plaka: e.target.value.toUpperCase() }))} placeholder="34 ABC 123" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" /></div>
               <div className="mb-3">
                 <label className="block text-xs text-[var(--text-3)] mb-2">Çekiş Türü</label>
                 <div className="grid grid-cols-2 gap-2">
                   {["4x4 / AWD","Önden Çekiş","Arkadan İtiş","Diğer"].map(v => (
-                    <button key={v} onClick={() => setProfilForm(p => ({ ...p, cekis_turu: v }))} className={`py-2 px-3 rounded-lg border text-xs font-medium transition ${profilForm.cekis_turu === v ? "border-[#00D4FF] bg-[#00D4FF]/10 text-[var(--accent-text)]" : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)]"}`}>{v}</button>
+                    <button key={v} onClick={() => setProfilForm(p => ({ ...p, cekis_turu: v }))} className={`py-2 px-3 rounded-lg border text-xs font-medium transition ${profilForm.cekis_turu === v ? "border-[var(--accent)] bg-[var(--accent-soft)]/10 text-[var(--accent-text)]" : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)]"}`}>{v}</button>
                   ))}
                 </div>
               </div>
@@ -646,12 +646,12 @@ export default function MusteriAna() {
                 <label className="block text-xs text-[var(--text-3)] mb-2">Yakıt Tipi</label>
                 <div className="grid grid-cols-2 gap-2">
                   {["Benzin","Dizel","Benzin/LPG","Elektrik"].map(v => (
-                    <button key={v} onClick={() => setProfilForm(p => ({ ...p, yakit_tipi: v }))} className={`py-2 px-3 rounded-lg border text-xs font-medium transition ${profilForm.yakit_tipi === v ? "border-[#00D4FF] bg-[#00D4FF]/10 text-[var(--accent-text)]" : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)]"}`}>{v}</button>
+                    <button key={v} onClick={() => setProfilForm(p => ({ ...p, yakit_tipi: v }))} className={`py-2 px-3 rounded-lg border text-xs font-medium transition ${profilForm.yakit_tipi === v ? "border-[var(--accent)] bg-[var(--accent-soft)]/10 text-[var(--accent-text)]" : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)]"}`}>{v}</button>
                   ))}
                 </div>
               </div>
             </div>
-            <button onClick={profilKaydet} disabled={profilKayit} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-50 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm mb-3">{profilKayit ? "Kaydediliyor..." : "Kaydet"}</button>
+            <button onClick={profilKaydet} disabled={profilKayit} className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm mb-3">{profilKayit ? "Kaydediliyor..." : "Kaydet"}</button>
             <button onClick={() => { localStorage.removeItem("musteri"); router.push("/"); }} className="w-full border border-[var(--border)] text-[var(--text-3)] py-3 rounded-xl text-sm">Çıkış Yap</button>
           </div>
         )}
@@ -671,7 +671,7 @@ export default function MusteriAna() {
           <FlatIcon src="/icons/svg/008-approve.svg" size={24} />
           <span className="text-[10px] font-medium">Talepler</span>
           {(aktivTalepler.length > 0 || teklifBekleyen > 0) && (
-            <span className={`absolute top-2 right-[calc(50%-14px)] w-2 h-2 rounded-full ${teklifBekleyen > 0 ? "bg-purple-400 animate-pulse" : "bg-[#00D4FF]"}`}></span>
+            <span className={`absolute top-2 right-[calc(50%-14px)] w-2 h-2 rounded-full ${teklifBekleyen > 0 ? "bg-purple-400 animate-pulse" : "bg-[var(--accent)]"}`}></span>
           )}
         </button>
 
@@ -679,7 +679,7 @@ export default function MusteriAna() {
         <div className="flex-1 relative flex flex-col items-center justify-end pb-2">
           <button
             onClick={() => sosAc()}
-            className="absolute w-[68px] h-[68px] rounded-full bg-[#00D4FF] overflow-hidden active:scale-95 transition-transform left-1/2 -translate-x-1/2"
+            className="absolute w-[68px] h-[68px] rounded-full bg-[var(--accent)] overflow-hidden active:scale-95 transition-transform left-1/2 -translate-x-1/2"
             style={{ top: -34, boxShadow: "0 0 0 4px #111111, 0 0 0 6px rgba(0,212,255,0.5), 0 8px 24px rgba(0,212,255,0.4)" }}
           >
             <img src="/tulpar-logo-v3.png" alt="Tulpar" className="w-full h-full object-contain p-2.5" style={{ filter: "brightness(0)" }} />
@@ -710,7 +710,7 @@ export default function MusteriAna() {
               <>
                 <div className="font-black text-lg mb-1">🆘 Yardım İste</div>
                 {enYakinFirma ? (
-                  <div className="bg-[#00D4FF]/10 border border-[#00D4FF]/20 rounded-xl p-3 mb-4">
+                  <div className="bg-[var(--accent-soft)]/10 border border-[var(--accent-soft)]/20 rounded-xl p-3 mb-4">
                     <div className="text-[10px] text-[var(--accent-text)] font-bold mb-0.5 uppercase">En Yakın Aktif Firma</div>
                     <div className="font-bold text-sm">{enYakinFirma.firma_ad}</div>
                     {enYakinFirma.lat && enYakinFirma.lng && <div className="text-xs text-[var(--text-3)] mt-0.5">~{haversine(mapCenter.lat, mapCenter.lng, enYakinFirma.lat, enYakinFirma.lng).toFixed(1)} km uzakta</div>}
@@ -725,7 +725,7 @@ export default function MusteriAna() {
                   <label className="block text-xs font-bold text-[var(--text-2)] mb-2">Ne yardımı istiyorsun? *</label>
                   <div className="grid grid-cols-3 gap-2">
                     {[["🚛","Çekici"],["🔧","Kurtarma"],["🔄","Lastik"],["🔋","Akü"],["⛽","Yakıt"],["🔑","Çilingir"]].map(([ic, lb]) => (
-                      <button key={lb} onClick={() => setSorunTip(lb)} className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition ${sorunTip === lb ? "border-[#00D4FF] bg-[#00D4FF]/8 text-[var(--accent-text)]" : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)]"}`}>
+                      <button key={lb} onClick={() => setSorunTip(lb)} className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition ${sorunTip === lb ? "border-[var(--accent)] bg-[var(--accent-soft)]/8 text-[var(--accent-text)]" : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)]"}`}>
                         <span className="text-xl">{ic}</span><span className="text-[10px] font-bold">{lb}</span>
                       </button>
                     ))}
@@ -736,21 +736,21 @@ export default function MusteriAna() {
                   <div className="space-y-2">
                     {[["bilmiyorum","🤷","Henüz bilmiyorum","Sonradan düzenleyebilirsin"],["belirli","📍","Belirli bir adres","Servis veya ev adresi gir"],["onersin","💡","Firma önersin","En yakın servisi bulsun"]].map(([v, ic, lb, ac]) => (
                       <div key={v}>
-                        <div onClick={() => setHedef(v)} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${hedef === v ? "border-[#00D4FF] bg-[#00D4FF]/6" : "border-[var(--border)] bg-[var(--surface-2)]"}`}>
+                        <div onClick={() => setHedef(v)} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${hedef === v ? "border-[var(--accent)] bg-[var(--accent-soft)]/6" : "border-[var(--border)] bg-[var(--surface-2)]"}`}>
                           <span className="text-lg">{ic}</span>
                           <div className="flex-1"><div className="text-sm font-bold">{lb}</div><div className="text-xs text-[var(--text-3)]">{ac}</div></div>
-                          <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${hedef === v ? "border-[#00D4FF] bg-[#00D4FF]" : "border-[var(--border-2)]"}`} style={hedef === v ? { boxShadow: "inset 0 0 0 3px #2A2A2A" } : {}} />
+                          <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${hedef === v ? "border-[var(--accent)] bg-[var(--accent)]" : "border-[var(--border-2)]"}`} style={hedef === v ? { boxShadow: "inset 0 0 0 3px #2A2A2A" } : {}} />
                         </div>
-                        {v === "belirli" && hedef === "belirli" && <input value={hedefAdres} onChange={e => setHedefAdres(e.target.value)} placeholder="Örn: Kadıköy Ford Servisi" className="w-full mt-1.5 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" />}
+                        {v === "belirli" && hedef === "belirli" && <input value={hedefAdres} onChange={e => setHedefAdres(e.target.value)} placeholder="Örn: Kadıköy Ford Servisi" className="w-full mt-1.5 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" />}
                       </div>
                     ))}
                   </div>
                 </div>
                 <div className="mb-5">
                   <label className="block text-xs font-bold text-[var(--text-2)] mb-2">Not</label>
-                  <textarea value={sosNot} onChange={e => setSosNot(e.target.value)} placeholder="Araç sağ tarafında, lastik patlak..." rows={2} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] resize-none" />
+                  <textarea value={sosNot} onChange={e => setSosNot(e.target.value)} placeholder="Araç sağ tarafında, lastik patlak..." rows={2} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] resize-none" />
                 </div>
-                <button onClick={sosGonder} disabled={!sorunTip || sosYukleniyor} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold py-3.5 rounded-xl transition text-sm">{sosYukleniyor ? "Gönderiliyor..." : "🚨 Talebi Gönder"}</button>
+                <button onClick={sosGonder} disabled={!sorunTip || sosYukleniyor} className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[var(--text)] font-bold py-3.5 rounded-xl transition text-sm">{sosYukleniyor ? "Gönderiliyor..." : "🚨 Talebi Gönder"}</button>
                 <button onClick={() => setSosModal(false)} className="w-full mt-2 border border-[var(--border)] text-[var(--text-3)] py-3 rounded-xl text-sm">İptal</button>
               </>
             ) : (
@@ -759,7 +759,7 @@ export default function MusteriAna() {
                 <div className="font-black text-xl mb-2">Talep Gönderildi!</div>
                 {enYakinFirma && <p className="text-[var(--accent-text)] font-bold text-sm mb-2">{enYakinFirma.firma_ad}</p>}
                 <p className="text-[var(--text-3)] text-sm mb-6 leading-relaxed">Firma fiyat teklifi gönderdiğinde bildirim alacaksınız.</p>
-                <button onClick={() => { setSosModal(false); setGonderildi(false); setSorunTip(""); setSosNot(""); setHedefAdres(""); setHedef("bilmiyorum"); setSayfa("talepler"); }} className="w-full bg-[#00D4FF] text-[#0B0F14] font-bold py-3 rounded-xl">Talebi Görüntüle →</button>
+                <button onClick={() => { setSosModal(false); setGonderildi(false); setSorunTip(""); setSosNot(""); setHedefAdres(""); setHedef("bilmiyorum"); setSayfa("talepler"); }} className="w-full bg-[var(--accent)] text-[#0B0F14] font-bold py-3 rounded-xl">Talebi Görüntüle →</button>
               </div>
             )}
           </div>
@@ -780,8 +780,8 @@ export default function MusteriAna() {
                 <button key={s} onClick={() => setPuan(s)} className={`text-4xl transition-transform ${s <= puan ? "scale-110" : "opacity-30"}`}>★</button>
               ))}
             </div>
-            <textarea value={yorum} onChange={e => setYorum(e.target.value)} placeholder="Yorumunuz (isteğe bağlı)..." rows={3} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] resize-none mb-4" />
-            <button onClick={puanVer} disabled={puan === 0 || puanYukleniyor} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm">{puanYukleniyor ? "Kaydediliyor..." : "Değerlendirmeyi Gönder"}</button>
+            <textarea value={yorum} onChange={e => setYorum(e.target.value)} placeholder="Yorumunuz (isteğe bağlı)..." rows={3} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] resize-none mb-4" />
+            <button onClick={puanVer} disabled={puan === 0 || puanYukleniyor} className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm">{puanYukleniyor ? "Kaydediliyor..." : "Değerlendirmeyi Gönder"}</button>
             <button onClick={() => setPuanModal(null)} className="w-full mt-2 border border-[var(--border)] text-[var(--text-3)] py-2.5 rounded-xl text-sm">Vazgeç</button>
           </div>
         </div>
@@ -810,7 +810,7 @@ export default function MusteriAna() {
                 {ozetModal.hedef_adres && <div className="text-xs text-[var(--text-3)] mt-1">🎯 {ozetModal.hedef_adres}</div>}
               </div>
               {ozetModal.fiyat_teklifi && (
-                <div className="bg-[#00D4FF]/8 border border-[#00D4FF]/20 rounded-xl p-4">
+                <div className="bg-[var(--accent-soft)]/8 border border-[var(--accent-soft)]/20 rounded-xl p-4">
                   <div className="text-[10px] text-[var(--text-3)] uppercase font-bold mb-1">Ücret</div>
                   <div className="font-black text-2xl text-[var(--accent-text)]">{ozetModal.fiyat_teklifi.toLocaleString("tr-TR")} ₺</div>
                 </div>
@@ -872,7 +872,7 @@ export default function MusteriAna() {
         <div className="fixed inset-0 bg-black/80 z-[150] flex items-end" onClick={() => setFirmaDetayModal(null)}>
           <div className="w-full bg-[var(--surface)] rounded-t-3xl p-6 pb-10" onClick={e => e.stopPropagation()}>
             <div className="flex items-start gap-3 mb-5">
-              <div className="w-12 h-12 rounded-xl bg-[#00D4FF]/10 border border-[#00D4FF]/20 flex items-center justify-center text-2xl flex-shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-[var(--accent-soft)]/10 border border-[var(--accent-soft)]/20 flex items-center justify-center text-2xl flex-shrink-0">
                 {firmaDetayModal.hizmet_tipi === "lastikci" ? "🔧" : firmaDetayModal.hizmet_tipi === "her_ikisi" ? "🚛" : "🚗"}
               </div>
               <div className="flex-1 min-w-0">
@@ -924,7 +924,7 @@ export default function MusteriAna() {
               )}
             </div>
 
-            <button onClick={() => { setFirmaDetayModal(null); sosAc(firmaDetayModal); }} className="w-full bg-[#00D4FF] text-[#0B0F14] font-black py-3.5 rounded-xl text-sm">
+            <button onClick={() => { setFirmaDetayModal(null); sosAc(firmaDetayModal); }} className="w-full bg-[var(--accent)] text-[#0B0F14] font-black py-3.5 rounded-xl text-sm">
               🆘 Bu Firmadan Yardım İste
             </button>
           </div>

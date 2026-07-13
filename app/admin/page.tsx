@@ -55,7 +55,7 @@ export default function AdminGiris() {
               value={sifre}
               onChange={e => { setSifre(e.target.value); setHata(false); }}
               onKeyDown={e => e.key === "Enter" && giris()}
-              className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition"
+              className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition"
               placeholder="••••••••"
             />
           </div>
@@ -63,7 +63,7 @@ export default function AdminGiris() {
           <button
             onClick={giris}
             disabled={!sifre || yukleniyor}
-            className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[#0B0F14] font-bold py-3 rounded-xl transition text-sm"
+            className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[#0B0F14] font-bold py-3 rounded-xl transition text-sm"
           >
             {yukleniyor ? "Kontrol ediliyor..." : "Giriş Yap →"}
           </button>

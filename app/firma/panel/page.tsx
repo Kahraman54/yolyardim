@@ -221,8 +221,8 @@ export default function FirmaPanel() {
             </div>
             <div className="text-xs text-[var(--text-3)]">Tedarikçi Paneli</div>
           </div>
-          <button onClick={() => setSayfa("profil")} className={`p-3 border-b border-[var(--border)] flex items-center gap-2 w-full text-left hover:bg-[var(--hover)] transition ${sayfa === "profil" ? "bg-[#00D4FF]/8" : ""}`}>
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0 ${sayfa === "profil" ? "bg-[#00D4FF]/30" : "bg-[#00D4FF]/15"}`}>🚛</div>
+          <button onClick={() => setSayfa("profil")} className={`p-3 border-b border-[var(--border)] flex items-center gap-2 w-full text-left hover:bg-[var(--hover)] transition ${sayfa === "profil" ? "bg-[var(--accent-soft)]/8" : ""}`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0 ${sayfa === "profil" ? "bg-[var(--accent-soft)]/30" : "bg-[var(--accent-soft)]/15"}`}>🚛</div>
             <div className="flex-1 min-w-0">
               <div className="text-xs font-bold truncate">{firmaAd}</div>
               <div className="text-[10px] text-[#00C853] flex items-center gap-1">
@@ -233,9 +233,9 @@ export default function FirmaPanel() {
           </button>
           <nav className="flex-1 p-2">
             {navItems.map(m => (
-              <button key={m.id} onClick={() => setSayfa(m.id)} className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium mb-0.5 transition text-left ${sayfa === m.id ? "bg-[#00D4FF]/10 text-[var(--accent-text)] font-semibold" : "text-[var(--text-3)] hover:bg-[var(--hover)] hover:text-[var(--text)]"}`}>
+              <button key={m.id} onClick={() => setSayfa(m.id)} className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium mb-0.5 transition text-left ${sayfa === m.id ? "bg-[var(--accent-soft)]/10 text-[var(--accent-text)] font-semibold" : "text-[var(--text-3)] hover:bg-[var(--hover)] hover:text-[var(--text)]"}`}>
                 <span className="text-sm">{m.icon}</span>{m.label}
-                {m.badge ? <span className="ml-auto bg-[#00D4FF] text-[#0B0F14] text-[9px] font-bold px-1.5 py-0.5 rounded-full">{m.badge}</span> : null}
+                {m.badge ? <span className="ml-auto bg-[var(--accent)] text-[#0B0F14] text-[9px] font-bold px-1.5 py-0.5 rounded-full">{m.badge}</span> : null}
               </button>
             ))}
           </nav>
@@ -248,7 +248,7 @@ export default function FirmaPanel() {
         {mobil ? (
           <div className="bg-[var(--surface)] border-b border-[var(--border)] px-4 py-3 flex items-center justify-between flex-shrink-0">
             <button onClick={() => setSayfa("profil")} className="flex items-center gap-2 text-left">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0 ${sayfa === "profil" ? "bg-[#00D4FF]/30" : "bg-[#00D4FF]/15"}`}>🚛</div>
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0 ${sayfa === "profil" ? "bg-[var(--accent-soft)]/30" : "bg-[var(--accent-soft)]/15"}`}>🚛</div>
               <div>
                 <div className="font-black text-sm truncate max-w-[180px]">{firmaAd}</div>
                 <div className="text-[10px] text-[#00C853] flex items-center gap-1 mt-0.5">
@@ -267,7 +267,7 @@ export default function FirmaPanel() {
             </div>
             <div className="flex items-center gap-2">
               {yeniTalepler.length > 0 && (
-                <button onClick={() => setSayfa("talepler")} className="text-[11px] text-[var(--accent-text)] font-bold bg-[#00D4FF]/10 border border-[#00D4FF]/25 px-3 py-1.5 rounded-lg animate-pulse">
+                <button onClick={() => setSayfa("talepler")} className="text-[11px] text-[var(--accent-text)] font-bold bg-[var(--accent-soft)]/10 border border-[var(--accent-soft)]/25 px-3 py-1.5 rounded-lg animate-pulse">
                   🔴 {yeniTalepler.length} Yeni Talep
                 </button>
               )}
@@ -295,7 +295,7 @@ export default function FirmaPanel() {
 
           {/* Mobil yeni talep banner */}
           {mobil && yeniTalepler.length > 0 && sayfa === "panel" && (
-            <button onClick={() => setSayfa("talepler")} className="w-full bg-[#00D4FF]/10 border border-[#00D4FF]/30 rounded-xl px-4 py-3 flex items-center justify-between mb-4 animate-pulse">
+            <button onClick={() => setSayfa("talepler")} className="w-full bg-[var(--accent-soft)]/10 border border-[var(--accent-soft)]/30 rounded-xl px-4 py-3 flex items-center justify-between mb-4 animate-pulse">
               <span className="text-sm font-bold text-[var(--accent-text)]">🔴 {yeniTalepler.length} Yeni Talep</span>
               <span className="text-[var(--accent-text)]">→</span>
             </button>
@@ -305,7 +305,7 @@ export default function FirmaPanel() {
           {sayfa === "panel" && (
             <div>
               <div className="grid grid-cols-3 gap-3 mb-5">
-                <div className="bg-[var(--surface)] border border-[#00D4FF]/25 rounded-xl p-4">
+                <div className="bg-[var(--surface)] border border-[var(--accent-soft)]/25 rounded-xl p-4">
                   <div className="text-[11px] text-[var(--text-3)] mb-2">Bekleyen Talep</div>
                   <div className="font-black text-2xl text-[var(--accent-text)]">{yeniTalepler.length}</div>
                 </div>
@@ -319,7 +319,7 @@ export default function FirmaPanel() {
                 </div>
               </div>
               {yeniTalepler.length > 0 ? (
-                <div className="bg-[#00D4FF]/6 border border-[#00D4FF]/20 rounded-xl p-4 flex items-center justify-between cursor-pointer" onClick={() => setSayfa("talepler")}>
+                <div className="bg-[var(--accent-soft)]/6 border border-[var(--accent-soft)]/20 rounded-xl p-4 flex items-center justify-between cursor-pointer" onClick={() => setSayfa("talepler")}>
                   <div>
                     <div className="font-bold text-sm">🔴 Yeni Talep Var!</div>
                     <div className="text-xs text-[var(--text-3)] mt-1">{yeniTalepler.length} talep bekliyor</div>
@@ -342,17 +342,17 @@ export default function FirmaPanel() {
                   Henüz talep gelmedi. Talepler burada görünecek.
                 </div>
               ) : talepler.map(t => (
-                <div key={t.id} className={`bg-[var(--surface)] border rounded-2xl overflow-hidden ${t.durum === "yeni" ? "border-[#00D4FF]" : t.durum === "teklif" ? "border-purple-500/60" : "border-[var(--border)]"}`}>
+                <div key={t.id} className={`bg-[var(--surface)] border rounded-2xl overflow-hidden ${t.durum === "yeni" ? "border-[var(--accent)]" : t.durum === "teklif" ? "border-purple-500/60" : "border-[var(--border)]"}`}>
                   <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-[#00D4FF]/10 flex items-center justify-center text-base">🚛</div>
+                      <div className="w-9 h-9 rounded-lg bg-[var(--accent-soft)]/10 flex items-center justify-center text-base">🚛</div>
                       <div>
                         <div className="text-[11px] text-[var(--text-3)]">{new Date(t.created_at).toLocaleString("tr-TR")}</div>
                         <div className="font-bold text-sm">{t.tip || "Çekici"} Talebi</div>
                       </div>
                     </div>
                     <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${
-                      t.durum === "yeni" ? "bg-[#00D4FF]/12 text-[var(--accent-text)] border-[#00D4FF]/25 animate-pulse" :
+                      t.durum === "yeni" ? "bg-[var(--accent-soft)]/12 text-[var(--accent-text)] border-[var(--accent-soft)]/25 animate-pulse" :
                       t.durum === "teklif" ? "bg-purple-500/10 text-purple-300 border-purple-500/25" :
                       t.durum === "kabul" || t.durum === "yolda" ? "bg-[#00C853]/10 text-[#00C853] border-[#00C853]/25" :
                       t.durum === "tamamlandi" ? "bg-gray-500/10 text-[var(--text-2)] border-gray-500/20" :
@@ -396,7 +396,7 @@ export default function FirmaPanel() {
                               <div className="text-[10px] text-[var(--text-3)] uppercase font-bold">Bulunduğu Yer</div>
                               <div className="text-xs font-semibold mt-0.5 text-[var(--accent-text)] group-hover:underline">{t.konum_adres || `${t.konum_lat?.toFixed(5)}, ${t.konum_lng?.toFixed(5)}`}</div>
                             </div>
-                            <span className="text-[10px] bg-[#00D4FF]/10 text-[var(--accent-text)] border border-[#00D4FF]/20 px-2 py-1 rounded-lg font-bold">Haritada Aç →</span>
+                            <span className="text-[10px] bg-[var(--accent-soft)]/10 text-[var(--accent-text)] border border-[var(--accent-soft)]/20 px-2 py-1 rounded-lg font-bold">Haritada Aç →</span>
                           </a>
                         )}
                         {t.hedef_adres && <div className="flex items-start gap-2"><span>🎯</span><div><div className="text-[10px] text-[var(--text-3)] uppercase font-bold">Hedef</div><div className="text-xs font-semibold mt-0.5">{t.hedef_adres}</div></div></div>}
@@ -406,7 +406,7 @@ export default function FirmaPanel() {
                     {t.durum === "yeni" && (
                       <div className="flex gap-2">
                         <button onClick={() => { setSeciliTalep(t); setAtamaModal(true); setAtamaTamam(false); setSeciliSofor(""); setSeciliArac(""); setFiyatTeklifi(""); }}
-                          className="flex-1 bg-[#00D4FF] hover:bg-[#0099BB] text-[#0B0F14] font-bold py-3 rounded-xl transition text-sm">
+                          className="flex-1 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[#0B0F14] font-bold py-3 rounded-xl transition text-sm">
                           💰 Fiyat Teklif Et
                         </button>
                         <button onClick={() => talepReddet(t.id)} className="px-5 py-3 border border-red-500/25 text-red-400 hover:bg-red-500/8 rounded-xl font-bold transition text-sm">
@@ -479,7 +479,7 @@ export default function FirmaPanel() {
             <div>
               <div className="flex justify-between items-center mb-4">
                 <div className="font-bold">Araçlarım ({araclar.length})</div>
-                <button onClick={() => setAracModal(true)} className="bg-[#00D4FF] text-[#0B0F14] text-xs font-bold px-4 py-2 rounded-lg">+ Araç Ekle</button>
+                <button onClick={() => setAracModal(true)} className="bg-[var(--accent)] text-[#0B0F14] text-xs font-bold px-4 py-2 rounded-lg">+ Araç Ekle</button>
               </div>
               {araclar.length === 0 ? (
                 <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-10 text-center text-[var(--text-3)] text-sm">
@@ -509,7 +509,7 @@ export default function FirmaPanel() {
             <div>
               <div className="flex justify-between items-center mb-4">
                 <div className="font-bold">Şoförlerim ({soforler.length})</div>
-                <button onClick={() => setSoforModal(true)} className="bg-[#00D4FF] text-[#0B0F14] text-xs font-bold px-4 py-2 rounded-lg">+ Şoför Ekle</button>
+                <button onClick={() => setSoforModal(true)} className="bg-[var(--accent)] text-[#0B0F14] text-xs font-bold px-4 py-2 rounded-lg">+ Şoför Ekle</button>
               </div>
               {soforler.length === 0 ? (
                 <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-10 text-center text-[var(--text-3)] text-sm">
@@ -559,32 +559,32 @@ export default function FirmaPanel() {
                 <div className="text-[10px] text-[var(--text-3)] font-bold uppercase tracking-widest">Firma Bilgileri</div>
                 <div>
                   <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">Firma Adı</label>
-                  <input value={profil.firma_ad} onChange={e => setProfil({...profil, firma_ad: e.target.value})} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition" />
+                  <input value={profil.firma_ad} onChange={e => setProfil({...profil, firma_ad: e.target.value})} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">Telefon</label>
-                    <input value={profil.tel} onChange={e => setProfil({...profil, tel: e.target.value})} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition" />
+                    <input value={profil.tel} onChange={e => setProfil({...profil, tel: e.target.value})} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition" />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">E-posta</label>
-                    <input value={profil.email} onChange={e => setProfil({...profil, email: e.target.value})} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition" />
+                    <input value={profil.email} onChange={e => setProfil({...profil, email: e.target.value})} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">Adres</label>
-                  <textarea value={profil.adres} onChange={e => setProfil({...profil, adres: e.target.value})} rows={2} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition resize-none" />
+                  <textarea value={profil.adres} onChange={e => setProfil({...profil, adres: e.target.value})} rows={2} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition resize-none" />
                 </div>
 
                 <div className="pt-2 text-[10px] text-[var(--text-3)] font-bold uppercase tracking-widest">Vergi Bilgileri</div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">Vergi Numarası</label>
-                    <input value={profil.vergi_no} onChange={e => setProfil({...profil, vergi_no: e.target.value})} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition" />
+                    <input value={profil.vergi_no} onChange={e => setProfil({...profil, vergi_no: e.target.value})} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition" />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">Vergi Dairesi</label>
-                    <input value={profil.vergi_dairesi} onChange={e => setProfil({...profil, vergi_dairesi: e.target.value})} placeholder="Kadıköy VD" className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition" />
+                    <input value={profil.vergi_dairesi} onChange={e => setProfil({...profil, vergi_dairesi: e.target.value})} placeholder="Kadıköy VD" className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition" />
                   </div>
                 </div>
 
@@ -592,7 +592,7 @@ export default function FirmaPanel() {
                 <div>
                   <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">Banka</label>
                   <div className="relative">
-                    <select value={profil.banka} onChange={e => setProfil({...profil, banka: e.target.value})} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition appearance-none pr-8">
+                    <select value={profil.banka} onChange={e => setProfil({...profil, banka: e.target.value})} className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition appearance-none pr-8">
                       <option value="">Seçin...</option>
                       {["Ziraat Bankası","Halkbank","Vakıfbank","İş Bankası","Garanti BBVA","Yapı Kredi","Akbank","QNB Finansbank","Denizbank","TEB","İNG Bank","HSBC","Odeabank","Şekerbank","Albaraka Türk","Kuveyt Türk","Türkiye Finans","Ziraat Katılım","Vakıf Katılım"].map(b => (
                         <option key={b}>{b}</option>
@@ -603,7 +603,7 @@ export default function FirmaPanel() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">IBAN</label>
-                  <input value={profil.iban} onChange={e => setProfil({...profil, iban: e.target.value.toUpperCase()})} placeholder="TR00 0000 0000 0000 0000 0000 00" className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition font-mono tracking-wide" />
+                  <input value={profil.iban} onChange={e => setProfil({...profil, iban: e.target.value.toUpperCase()})} placeholder="TR00 0000 0000 0000 0000 0000 00" className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition font-mono tracking-wide" />
                 </div>
 
                 <div className="pt-2 text-[10px] text-[var(--text-3)] font-bold uppercase tracking-widest">Tedarikçi Türü</div>
@@ -620,7 +620,7 @@ export default function FirmaPanel() {
                         onClick={() => setProfil(p => ({ ...p, hizmet_tipi: v }))}
                         className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border cursor-pointer transition text-center ${
                           profil.hizmet_tipi === v
-                            ? "border-[#00D4FF] bg-[#00D4FF]/10"
+                            ? "border-[var(--accent)] bg-[var(--accent-soft)]/10"
                             : "border-[var(--border)] bg-[var(--surface)] hover:border-[var(--border-2)]"
                         }`}
                       >
@@ -640,17 +640,17 @@ export default function FirmaPanel() {
                 <div className="pt-2 text-[10px] text-[var(--text-3)] font-bold uppercase tracking-widest">Harita Konumu</div>
                 <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4">
                   <p className="text-xs text-[var(--text-3)] mb-3">Müşteriler firmanızı haritada görebilsin için konumunuzu belirleyin.</p>
-                  <button onClick={konumBelirle} className="w-full bg-[var(--surface-2)] border border-[var(--border)] hover:border-[#00D4FF]/40 text-[var(--text)] text-sm font-bold py-2.5 rounded-lg transition mb-3">
+                  <button onClick={konumBelirle} className="w-full bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--accent-soft)]/40 text-[var(--text)] text-sm font-bold py-2.5 rounded-lg transition mb-3">
                     📍 GPS ile Konum Belirle
                   </button>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">Enlem</label>
-                      <input value={profil.lat} onChange={e => setProfil({...profil, lat: e.target.value})} placeholder="41.01234" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] font-mono" />
+                      <input value={profil.lat} onChange={e => setProfil({...profil, lat: e.target.value})} placeholder="41.01234" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] font-mono" />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">Boylam</label>
-                      <input value={profil.lng} onChange={e => setProfil({...profil, lng: e.target.value})} placeholder="29.01234" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] font-mono" />
+                      <input value={profil.lng} onChange={e => setProfil({...profil, lng: e.target.value})} placeholder="29.01234" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] font-mono" />
                     </div>
                   </div>
                   {profil.lat && profil.lng && (
@@ -658,7 +658,7 @@ export default function FirmaPanel() {
                   )}
                 </div>
 
-                <button onClick={profilKaydet} disabled={profilKayit} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm mt-2">
+                <button onClick={profilKaydet} disabled={profilKayit} className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm mt-2">
                   {profilKayit ? "Kaydediliyor..." : "Değişiklikleri Kaydet →"}
                 </button>
               </div>
@@ -674,7 +674,7 @@ export default function FirmaPanel() {
               <button key={m.id} onClick={() => setSayfa(m.id)} className={`flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 relative transition ${sayfa === m.id ? "text-[var(--accent-text)]" : "text-[var(--text-3)]"}`}>
                 <span className="text-xl leading-none">{m.icon}</span>
                 <span className="text-[10px] font-semibold">{m.label}</span>
-                {m.badge ? <span className="absolute top-1.5 right-1/4 bg-[#00D4FF] text-[#0B0F14] text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{m.badge}</span> : null}
+                {m.badge ? <span className="absolute top-1.5 right-1/4 bg-[var(--accent)] text-[#0B0F14] text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{m.badge}</span> : null}
               </button>
             ))}
           </nav>
@@ -694,12 +694,12 @@ export default function FirmaPanel() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">Plaka *</label>
-                  <input value={yeniArac.plaka} onChange={e => setYeniArac({...yeniArac, plaka: e.target.value.toUpperCase()})} placeholder="34 XY 1234" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" />
+                  <input value={yeniArac.plaka} onChange={e => setYeniArac({...yeniArac, plaka: e.target.value.toUpperCase()})} placeholder="34 XY 1234" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">Araç Türü</label>
                   <div className="relative">
-                    <select value={yeniArac.arac_turu} onChange={e => setYeniArac({...yeniArac, arac_turu: e.target.value})} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] appearance-none pr-7">
+                    <select value={yeniArac.arac_turu} onChange={e => setYeniArac({...yeniArac, arac_turu: e.target.value})} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] appearance-none pr-7">
                       <option value="">Seçin</option>
                       <option>Kamyonet</option>
                       <option>Kamyon</option>
@@ -712,7 +712,7 @@ export default function FirmaPanel() {
               <div>
                 <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">Çekici Türü *</label>
                 <div className="relative">
-                  <select value={yeniArac.tur} onChange={e => setYeniArac({...yeniArac, tur: e.target.value})} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] appearance-none pr-7">
+                  <select value={yeniArac.tur} onChange={e => setYeniArac({...yeniArac, tur: e.target.value})} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] appearance-none pr-7">
                     <option value="">Seçin</option>
                     <option>Sabit Kasa</option>
                     <option>Kayar Kasa</option>
@@ -728,21 +728,21 @@ export default function FirmaPanel() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">Marka</label>
-                  <input value={yeniArac.marka} onChange={e => setYeniArac({...yeniArac, marka: e.target.value})} placeholder="Mercedes, MAN..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" />
+                  <input value={yeniArac.marka} onChange={e => setYeniArac({...yeniArac, marka: e.target.value})} placeholder="Mercedes, MAN..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">Model</label>
-                  <input value={yeniArac.model} onChange={e => setYeniArac({...yeniArac, model: e.target.value})} placeholder="Actros, TGX..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" />
+                  <input value={yeniArac.model} onChange={e => setYeniArac({...yeniArac, model: e.target.value})} placeholder="Actros, TGX..." className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-[var(--text-2)] mb-1.5">Model Yılı</label>
-                <input value={yeniArac.model_yili} onChange={e => setYeniArac({...yeniArac, model_yili: e.target.value})} placeholder="2021" maxLength={4} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" />
+                <input value={yeniArac.model_yili} onChange={e => setYeniArac({...yeniArac, model_yili: e.target.value})} placeholder="2021" maxLength={4} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" />
               </div>
             </div>
 
-            <button onClick={aracEkle} disabled={aracKayit || !yeniArac.plaka || !yeniArac.tur} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm mt-5">
+            <button onClick={aracEkle} disabled={aracKayit || !yeniArac.plaka || !yeniArac.tur} className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm mt-5">
               {aracKayit ? "Kaydediliyor..." : "Aracı Kaydet"}
             </button>
           </div>
@@ -760,18 +760,18 @@ export default function FirmaPanel() {
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
                 <label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Ad *</label>
-                <input value={yeniSofor.ad} onChange={e => setYeniSofor({ ...yeniSofor, ad: e.target.value })} placeholder="Mehmet" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" />
+                <input value={yeniSofor.ad} onChange={e => setYeniSofor({ ...yeniSofor, ad: e.target.value })} placeholder="Mehmet" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Soyad</label>
-                <input value={yeniSofor.soyad} onChange={e => setYeniSofor({ ...yeniSofor, soyad: e.target.value })} placeholder="Şahin" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" />
+                <input value={yeniSofor.soyad} onChange={e => setYeniSofor({ ...yeniSofor, soyad: e.target.value })} placeholder="Şahin" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" />
               </div>
             </div>
             <div className="mb-5">
               <label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Telefon *</label>
-              <input value={yeniSofor.tel} onChange={e => setYeniSofor({ ...yeniSofor, tel: e.target.value })} placeholder="0532 xxx xx xx" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF]" />
+              <input value={yeniSofor.tel} onChange={e => setYeniSofor({ ...yeniSofor, tel: e.target.value })} placeholder="0532 xxx xx xx" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" />
             </div>
-            <button onClick={soforEkle} disabled={soforKayit || !yeniSofor.ad || !yeniSofor.tel} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm">
+            <button onClick={soforEkle} disabled={soforKayit || !yeniSofor.ad || !yeniSofor.tel} className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm">
               {soforKayit ? "Kaydediliyor..." : "Şoförü Kaydet"}
             </button>
           </div>
@@ -795,7 +795,7 @@ export default function FirmaPanel() {
                     value={fiyatTeklifi}
                     onChange={e => setFiyatTeklifi(e.target.value)}
                     placeholder="Örn: 1500"
-                    className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-lg font-black text-[var(--text)] outline-none focus:border-[#00D4FF] transition"
+                    className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-4 py-3 text-lg font-black text-[var(--text)] outline-none focus:border-[var(--accent)] transition"
                   />
                   <p className="text-[10px] text-[var(--text-3)] mt-1">Müşteri bu fiyatı görüp onaylayacak. Boş bırakabilirsiniz.</p>
                 </div>
@@ -806,10 +806,10 @@ export default function FirmaPanel() {
                 ) : (
                   <div className="space-y-2 mb-4">
                     {soforler.map(s => (
-                      <div key={s.id} onClick={() => setSeciliSofor(s.id)} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${seciliSofor === s.id ? "border-[#00D4FF] bg-[#00D4FF]/8" : "border-[var(--border)] bg-[var(--surface-2)]"}`}>
+                      <div key={s.id} onClick={() => setSeciliSofor(s.id)} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${seciliSofor === s.id ? "border-[var(--accent)] bg-[var(--accent-soft)]/8" : "border-[var(--border)] bg-[var(--surface-2)]"}`}>
                         <div className="w-8 h-8 rounded-full bg-[var(--surface)] flex items-center justify-center text-xs font-bold">{s.ad[0]}{s.soyad?.[0] || ""}</div>
                         <div className="flex-1"><div className="text-sm font-bold">{s.ad} {s.soyad}</div><div className="text-xs text-[var(--text-3)]">{s.tel}</div></div>
-                        <div className={`w-4 h-4 rounded-full border-2 transition ${seciliSofor === s.id ? "border-[#00D4FF] bg-[#00D4FF]" : "border-[var(--border-2)]"}`}></div>
+                        <div className={`w-4 h-4 rounded-full border-2 transition ${seciliSofor === s.id ? "border-[var(--accent)] bg-[var(--accent)]" : "border-[var(--border-2)]"}`}></div>
                       </div>
                     ))}
                   </div>
@@ -821,15 +821,15 @@ export default function FirmaPanel() {
                 ) : (
                   <div className="space-y-2 mb-5">
                     {araclar.map(a => (
-                      <div key={a.id} onClick={() => setSeciliArac(a.id)} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${seciliArac === a.id ? "border-[#00D4FF] bg-[#00D4FF]/8" : "border-[var(--border)] bg-[var(--surface-2)]"}`}>
+                      <div key={a.id} onClick={() => setSeciliArac(a.id)} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${seciliArac === a.id ? "border-[var(--accent)] bg-[var(--accent-soft)]/8" : "border-[var(--border)] bg-[var(--surface-2)]"}`}>
                         <span className="text-xl">🚛</span>
                         <div className="flex-1"><div className="text-sm font-black tracking-wider">{a.plaka}</div><div className="text-xs text-[var(--text-3)]">{a.tur}</div></div>
-                        <div className={`w-4 h-4 rounded-full border-2 transition ${seciliArac === a.id ? "border-[#00D4FF] bg-[#00D4FF]" : "border-[var(--border-2)]"}`}></div>
+                        <div className={`w-4 h-4 rounded-full border-2 transition ${seciliArac === a.id ? "border-[var(--accent)] bg-[var(--accent)]" : "border-[var(--border-2)]"}`}></div>
                       </div>
                     ))}
                   </div>
                 )}
-                <button onClick={teklifGonder} disabled={!seciliSofor || !seciliArac || yukleniyor} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm">
+                <button onClick={teklifGonder} disabled={!seciliSofor || !seciliArac || yukleniyor} className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm">
                   {yukleniyor ? "Gönderiliyor..." : "💰 Teklifi Gönder"}
                 </button>
               </>
@@ -850,11 +850,11 @@ export default function FirmaPanel() {
                     if (navigator.share) { navigator.share({ title: "Şoför Girişi", url }); }
                     else { navigator.clipboard.writeText(url); }
                   }}
-                  className="w-full bg-[var(--surface-2)] border border-[var(--border)] hover:border-[#00D4FF]/40 text-[var(--text)] font-bold py-2.5 rounded-xl transition text-sm mb-2"
+                  className="w-full bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--accent-soft)]/40 text-[var(--text)] font-bold py-2.5 rounded-xl transition text-sm mb-2"
                 >
                   📤 Linki Paylaş / Kopyala
                 </button>
-                <button onClick={() => { setAtamaModal(false); setSayfa("talepler"); }} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] text-[#0B0F14] font-bold py-3 rounded-xl transition text-sm">Tamam →</button>
+                <button onClick={() => { setAtamaModal(false); setSayfa("talepler"); }} className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[#0B0F14] font-bold py-3 rounded-xl transition text-sm">Tamam →</button>
               </div>
             )}
           </div>
@@ -875,7 +875,7 @@ export default function FirmaPanel() {
             <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl w-full max-w-md p-5" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-full bg-[#00D4FF]/15 flex items-center justify-center font-black text-lg">{s.ad[0]}{s.soyad?.[0] || ""}</div>
+                  <div className="w-11 h-11 rounded-full bg-[var(--accent-soft)]/15 flex items-center justify-center font-black text-lg">{s.ad[0]}{s.soyad?.[0] || ""}</div>
                   <div><div className="font-black">{s.ad} {s.soyad}</div><div className="text-xs text-[var(--text-3)]">{s.tel}</div></div>
                 </div>
                 <button onClick={() => setSoforPerformansModal(null)} className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-[var(--text-2)]">✕</button>

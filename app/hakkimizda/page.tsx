@@ -47,8 +47,8 @@ export default function Hakkimizda() {
 
         {/* İKİ TARAF İÇİN ÖZEN */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-[var(--panel)] border border-[#00D4FF]/20 rounded-2xl p-8">
-            <div className="text-xs font-black tracking-widest uppercase bg-[#00D4FF]/10 text-[var(--accent-text)] border border-[#00D4FF]/20 px-3 py-1.5 rounded-full inline-block mb-6">
+          <div className="bg-[var(--panel)] border border-[var(--accent-soft)]/20 rounded-2xl p-8">
+            <div className="text-xs font-black tracking-widest uppercase bg-[var(--accent-soft)]/10 text-[var(--accent-text)] border border-[var(--accent-soft)]/20 px-3 py-1.5 rounded-full inline-block mb-6">
               Sürücülere Özenimiz
             </div>
             <ul className="space-y-3 text-sm text-[var(--text-2)]">
@@ -59,7 +59,7 @@ export default function Hakkimizda() {
                 "Her hizmet sonrası değerlendirmeniz sistemde iz bırakır",
               ].map((m) => (
                 <li key={m} className="flex items-start gap-3">
-                  <span className="w-5 h-5 rounded-full bg-[#00D4FF]/10 border border-[#00D4FF]/30 text-[var(--accent-text)] text-xs flex items-center justify-center font-black flex-shrink-0 mt-0.5">✓</span>
+                  <span className="w-5 h-5 rounded-full bg-[var(--accent-soft)]/10 border border-[var(--accent-soft)]/30 text-[var(--accent-text)] text-xs flex items-center justify-center font-black flex-shrink-0 mt-0.5">✓</span>
                   {m}
                 </li>
               ))}
@@ -92,7 +92,7 @@ export default function Hakkimizda() {
             { baslik: "İki Taraflı Güven", desc: "Sürücü de tedarikçi de korunur. Sistemimizdeki her kayıt iki tarafın da güvencesidir." },
             { baslik: "Dürüst Teknoloji", desc: "Gizli ücret, sahte yorum, şişirilmiş rakam yok. Ne görüyorsanız o." },
           ].map((d) => (
-            <div key={d.baslik} className="bg-[var(--bg)] border border-[var(--border)] rounded-2xl p-6 hover:border-[#00D4FF]/20 transition">
+            <div key={d.baslik} className="bg-[var(--bg)] border border-[var(--border)] rounded-2xl p-6 hover:border-[var(--accent-soft)]/20 transition">
               <div className="font-black text-base uppercase tracking-tight text-[var(--text)] mb-2">{d.baslik}</div>
               <div className="text-[var(--text-2)] text-sm leading-relaxed">{d.desc}</div>
             </div>
@@ -103,7 +103,7 @@ export default function Hakkimizda() {
         <div className="text-center border-t border-[var(--border)] pt-12">
           <h2 className="font-black text-3xl uppercase italic mb-6">Yolda buluşalım.</h2>
           <div className="flex gap-4 flex-wrap justify-center">
-            <a href="/giris" className="px-8 py-4 bg-[#00D4FF] text-[#0B0F14] rounded-xl font-black text-base hover:bg-[#0099BB] transition uppercase tracking-wide">
+            <a href="/giris" className="px-8 py-4 bg-[var(--accent)] text-[#0B0F14] rounded-xl font-black text-base hover:bg-[var(--accent-hover)] transition uppercase tracking-wide">
               Hemen Kayıt Ol!
             </a>
             <a href="/firma/kayit" className="px-8 py-4 rounded-xl font-bold text-base border border-[var(--border-2)] text-[var(--text-2)] hover:border-[var(--text-3)] hover:text-[var(--text)] transition uppercase tracking-wide">

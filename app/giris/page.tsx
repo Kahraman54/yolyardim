@@ -76,12 +76,12 @@ export default function Giris() {
                     onChange={e => { let v = e.target.value.replace(/\D/g, ""); if (v.startsWith("0")) v = v.slice(1); setTel(v.slice(0, 10)); setHata(""); }}
                     onKeyDown={e => e.key === "Enter" && telKontrol()}
                     placeholder="5XX XXX XX XX"
-                    className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-r-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition"
+                    className="flex-1 bg-[var(--surface-2)] border border-[var(--border)] rounded-r-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition"
                   />
                 </div>
               </div>
               <button onClick={telKontrol} disabled={tel.replace(/\D/g,"").length < 10 || yukleniyor}
-                className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm">
+                className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm">
                 {yukleniyor ? "Kontrol ediliyor..." : "Devam Et →"}
               </button>
               <div className="text-center mt-4">
@@ -98,15 +98,15 @@ export default function Giris() {
               <div className="grid grid-cols-2 gap-3 mb-5">
                 <div>
                   <label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Ad *</label>
-                  <input type="text" value={ad} onChange={e => setAd(e.target.value)} onKeyDown={e => e.key === "Enter" && kayitOl()} placeholder="Adın" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition" />
+                  <input type="text" value={ad} onChange={e => setAd(e.target.value)} onKeyDown={e => e.key === "Enter" && kayitOl()} placeholder="Adın" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[var(--text-2)] mb-2">Soyad</label>
-                  <input type="text" value={soyad} onChange={e => setSoyad(e.target.value)} onKeyDown={e => e.key === "Enter" && kayitOl()} placeholder="Soyadın" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[#00D4FF] transition" />
+                  <input type="text" value={soyad} onChange={e => setSoyad(e.target.value)} onKeyDown={e => e.key === "Enter" && kayitOl()} placeholder="Soyadın" className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-3 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] transition" />
                 </div>
               </div>
               <button onClick={kayitOl} disabled={!ad || yukleniyor}
-                className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm">
+                className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[var(--text)] font-bold py-3 rounded-xl transition text-sm">
                 {yukleniyor ? "Kaydediliyor..." : "Devam Et →"}
               </button>
             </div>

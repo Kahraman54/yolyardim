@@ -58,7 +58,7 @@ function FotoBlok({ step, baslik, aciklama, devamButon, devamAksiyon, devamDisab
       <button
         onClick={() => onFotoSec(step)}
         disabled={fotoYukleniyor}
-        className="w-full flex items-center justify-center gap-3 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border-2 border-dashed border-[#00D4FF]/50 hover:border-[#00D4FF] text-[var(--accent-text)] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
+        className="w-full flex items-center justify-center gap-3 bg-[var(--accent-soft)]/10 hover:bg-[var(--accent-soft)]/20 border-2 border-dashed border-[var(--accent-soft)]/50 hover:border-[var(--accent)] text-[var(--accent-text)] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
       >
         {fotoYukleniyor ? (
           <><span className="animate-spin">⏳</span> Yükleniyor {fotoProgress.done}/{fotoProgress.total}...</>
@@ -94,7 +94,7 @@ function FotoBlok({ step, baslik, aciklama, devamButon, devamAksiyon, devamDisab
       <button
         onClick={devamAksiyon}
         disabled={devamDisabled || islemYapiliyor || arr.length === 0}
-        className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold py-4 rounded-xl transition text-sm"
+        className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[var(--text)] font-bold py-4 rounded-xl transition text-sm"
       >
         {islemYapiliyor ? "Kaydediliyor..." : devamButon}
       </button>
@@ -337,7 +337,7 @@ export default function SoforPanel() {
       {/* HEADER */}
       <header className="flex items-center justify-between px-4 py-3 bg-[var(--surface)] border-b border-[var(--border)] flex-shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-[#00D4FF] flex items-center justify-center text-xs font-black">
+          <div className="w-8 h-8 rounded-full bg-[var(--accent)] flex items-center justify-center text-xs font-black">
             {sofor.ad[0]}{sofor.soyad?.[0] || ""}
           </div>
           <div>
@@ -351,7 +351,12 @@ export default function SoforPanel() {
               <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>GPS
             </div>
           )}
-          <button onClick={cikis} className="text-[10px] text-[var(--text-3)] bg-[var(--surface-2)] border border-[var(--border)] px-2.5 py-1.5 rounded-lg">Çıkış</button>
+          <button onClick={cikis} title="Çıkış Yap" className="w-9 h-9 bg-[var(--surface-2)] rounded-xl flex items-center justify-center flex-shrink-0 text-[var(--text-3)] hover:text-[var(--text)] transition">
+            <span
+              className="flex-shrink-0 bg-current block"
+              style={{ width: 18, height: 18, maskImage: "url('/icons/svg/003-exit.svg')", maskSize: "contain", maskRepeat: "no-repeat", maskPosition: "center", WebkitMaskImage: "url('/icons/svg/003-exit.svg')", WebkitMaskSize: "contain", WebkitMaskRepeat: "no-repeat", WebkitMaskPosition: "center" }}
+            />
+          </button>
         </div>
       </header>
 
@@ -365,7 +370,7 @@ export default function SoforPanel() {
               return (
                 <div key={s} className="flex items-center flex-1">
                   <div className="flex flex-col items-center flex-shrink-0">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${gecildi ? "bg-[#00C853] border-[#00C853] text-black" : aktif ? "border-[#00D4FF] text-[var(--accent-text)] bg-[#00D4FF]/10" : "border-[var(--border)] text-[var(--text-3)]"}`}>
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${gecildi ? "bg-[#00C853] border-[#00C853] text-black" : aktif ? "border-[var(--accent)] text-[var(--accent-text)] bg-[var(--accent-soft)]/10" : "border-[var(--border)] text-[var(--text-3)]"}`}>
                       {gecildi ? "✓" : i+1}
                     </div>
                     <div className={`text-[8px] font-bold mt-0.5 ${aktif ? "text-[var(--accent-text)]" : gecildi ? "text-[#00C853]" : "text-[var(--text-3)]"}`}>{ADIM_ETIKET[s]}</div>
@@ -387,7 +392,7 @@ export default function SoforPanel() {
         {adim === "liste" && (
           <div>
             <div className="flex gap-2 mb-4">
-              <button className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#00D4FF] text-[#0B0F14]">Aktif Görevler</button>
+              <button className="flex-1 py-2 rounded-xl text-sm font-bold bg-[var(--accent)] text-[#0B0F14]">Aktif Görevler</button>
               <button onClick={() => { setAdim("gecmis"); if (sofor) gecmisYukle(sofor.id); }} className="flex-1 py-2 rounded-xl text-sm font-bold bg-[var(--surface)] text-[var(--text-2)] border border-[var(--border)]">Geçmiş</button>
             </div>
             {yukleniyor ? (
@@ -398,10 +403,10 @@ export default function SoforPanel() {
                 <div className="text-[var(--text-3)] text-sm">Atanmış görev yok</div>
               </div>
             ) : talepler.map(t => (
-              <div key={t.id} onClick={() => talepSec(t)} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 mb-3 cursor-pointer hover:border-[#00D4FF]/40 transition">
+              <div key={t.id} onClick={() => talepSec(t)} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 mb-3 cursor-pointer hover:border-[var(--accent-soft)]/40 transition">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#00D4FF]/10 flex items-center justify-center">🚛</div>
+                    <div className="w-9 h-9 rounded-lg bg-[var(--accent-soft)]/10 flex items-center justify-center">🚛</div>
                     <div>
                       <div className="font-bold text-sm">{t.tip} Talebi</div>
                       <div className="text-[11px] text-[var(--text-3)]">{new Date(t.created_at).toLocaleString("tr-TR")}</div>
@@ -423,7 +428,7 @@ export default function SoforPanel() {
           <div>
             <div className="flex gap-2 mb-4">
               <button onClick={() => setAdim("liste")} className="flex-1 py-2 rounded-xl text-sm font-bold bg-[var(--surface)] text-[var(--text-2)] border border-[var(--border)]">Aktif Görevler</button>
-              <button className="flex-1 py-2 rounded-xl text-sm font-bold bg-[#00D4FF] text-[#0B0F14]">Geçmiş</button>
+              <button className="flex-1 py-2 rounded-xl text-sm font-bold bg-[var(--accent)] text-[#0B0F14]">Geçmiş</button>
             </div>
             {gecmisTalepler.length === 0 ? (
               <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-10 text-center">
@@ -436,7 +441,7 @@ export default function SoforPanel() {
                 : null;
               const toplamFoto = (t.foto_teslim_alma?.length||0)+(t.foto_yukleme?.length||0)+(t.foto_teslim?.length||0)+(t.foto_tutanak?.length||0);
               return (
-                <div key={t.id} onClick={() => { setSeciliGecmis(t); setAdim("gecmis_detay"); }} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 mb-3 cursor-pointer hover:border-[#00D4FF]/40 transition">
+                <div key={t.id} onClick={() => { setSeciliGecmis(t); setAdim("gecmis_detay"); }} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 mb-3 cursor-pointer hover:border-[var(--accent-soft)]/40 transition">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-[#00C853]/10 flex items-center justify-center">✅</div>
@@ -582,7 +587,7 @@ export default function SoforPanel() {
             {seciliTalep.hedef_adres && <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3 mb-3 flex items-center gap-2"><span>🎯</span><div><div className="text-[10px] text-[var(--text-3)] uppercase font-bold">Hedef</div><div className="text-sm font-semibold">{seciliTalep.hedef_adres}</div></div></div>}
             {seciliTalep.aciklama && <div className="bg-yellow-500/5 border border-yellow-500/15 rounded-xl p-3 text-xs text-yellow-200 mb-4">💬 &ldquo;{seciliTalep.aciklama}&rdquo;</div>}
             {fotoHata && <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl mb-3">⚠️ {fotoHata}</div>}
-            <button onClick={iseBasla} disabled={islemYapiliyor} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] disabled:opacity-40 text-[var(--text)] font-bold py-4 rounded-xl transition text-sm">
+            <button onClick={iseBasla} disabled={islemYapiliyor} className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[var(--text)] font-bold py-4 rounded-xl transition text-sm">
               {islemYapiliyor ? "Başlatılıyor..." : "🚛 İşe Başla — Yola Çık"}
             </button>
           </div>
@@ -600,7 +605,7 @@ export default function SoforPanel() {
             {sonKonum && <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl p-3 mb-4 text-xs text-blue-300 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse flex-shrink-0"></span>Konumunuz müşteriye iletiliyor</div>}
             {seciliTalep.musteri_tel && <a href={`tel:${tel(seciliTalep.musteri_tel)}`} className="flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3 mb-3"><span className="text-xl">📞</span><div><div className="text-[10px] text-[var(--text-3)]">Müşteri</div><div className="font-bold text-blue-400">{seciliTalep.musteri_ad} · {tel(seciliTalep.musteri_tel)}</div></div></a>}
             {seciliTalep.konum_lat && <a href={`https://maps.google.com/?q=${seciliTalep.konum_lat},${seciliTalep.konum_lng}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-3 mb-6"><span className="text-xl">📍</span><div className="flex-1"><div className="text-[10px] text-[var(--text-3)]">Müşterinin Konumu</div><div className="text-sm font-semibold text-[var(--accent-text)]">{seciliTalep.konum_adres || "Haritada Aç"}</div></div><span className="text-[var(--text-2)]">→</span></a>}
-            <button onClick={() => dbAdimGec("arac_yaninda","teslim_alma")} className="w-full bg-[#00D4FF] hover:bg-[#0099BB] text-[#0B0F14] font-bold py-4 rounded-xl transition text-sm">📍 Araç Yanına Vardım</button>
+            <button onClick={() => dbAdimGec("arac_yaninda","teslim_alma")} className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[#0B0F14] font-bold py-4 rounded-xl transition text-sm">📍 Araç Yanına Vardım</button>
           </div>
         )}
 
@@ -671,7 +676,7 @@ export default function SoforPanel() {
             <button
               onClick={() => fotoSec("tutanak")}
               disabled={fotoYukleniyor}
-              className="w-full flex items-center justify-center gap-3 bg-[#00D4FF]/10 hover:bg-[#00D4FF]/20 border-2 border-dashed border-[#00D4FF]/50 hover:border-[#00D4FF] text-[var(--accent-text)] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
+              className="w-full flex items-center justify-center gap-3 bg-[var(--accent-soft)]/10 hover:bg-[var(--accent-soft)]/20 border-2 border-dashed border-[var(--accent-soft)]/50 hover:border-[var(--accent)] text-[var(--accent-text)] font-bold py-4 rounded-2xl transition disabled:opacity-40 mb-4"
             >
               {fotoYukleniyor ? <><span className="animate-spin">⏳</span> Yükleniyor...</> : <><span className="text-xl">📄</span> Tutanak Fotoğrafı Ekle</>}
             </button>

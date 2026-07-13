@@ -29,14 +29,14 @@ export default function NavBar() {
               {l.label}
             </a>
           ))}
-          <a href="/giris" className="px-5 py-2.5 rounded-lg bg-[#00D4FF] text-[#0B0F14] text-sm font-bold hover:bg-[#0099BB] transition tracking-wide">
+          <a href="/giris" className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-[#0B0F14] text-sm font-bold hover:bg-[var(--accent-hover)] transition tracking-wide">
             Giriş Yap
           </a>
         </div>
 
         {/* Mobile: Giriş + hamburger */}
         <div className="md:hidden flex items-center gap-2">
-          <a href="/giris" className="px-4 py-2 rounded-lg bg-[#00D4FF] text-[#0B0F14] text-sm font-bold">
+          <a href="/giris" className="px-4 py-2 rounded-lg bg-[var(--accent)] text-[#0B0F14] text-sm font-bold">
             Giriş
           </a>
           <button

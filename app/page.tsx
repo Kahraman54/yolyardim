@@ -25,7 +25,7 @@ export default function Home() {
             </p>
 
             <div className="flex gap-4 flex-wrap">
-              <a href="/giris" className="flex-1 text-center px-8 py-4 bg-[#00D4FF] text-[#0B0F14] rounded-xl font-black text-base hover:bg-[#0099BB] transition hover:-translate-y-0.5 uppercase tracking-wide">
+              <a href="/giris" className="flex-1 text-center px-8 py-4 bg-[var(--accent)] text-[#0B0F14] rounded-xl font-black text-base hover:bg-[var(--accent-hover)] transition hover:-translate-y-0.5 uppercase tracking-wide">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/tulpar-logo-v3.png" alt="" className="h-7 w-7 object-contain inline-block mr-2" style={{ filter: "brightness(0)" }} />
                 Hemen Yardım İste!
@@ -112,8 +112,8 @@ export default function Home() {
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-[var(--panel)] border border-[#00D4FF]/20 rounded-2xl p-10">
-              <div className="text-xs font-black tracking-widest uppercase bg-[#00D4FF]/10 text-[var(--accent-text)] border border-[#00D4FF]/20 px-3 py-1.5 rounded-full inline-block mb-8">
+            <div className="bg-[var(--panel)] border border-[var(--accent-soft)]/20 rounded-2xl p-10">
+              <div className="text-xs font-black tracking-widest uppercase bg-[var(--accent-soft)]/10 text-[var(--accent-text)] border border-[var(--accent-soft)]/20 px-3 py-1.5 rounded-full inline-block mb-8">
                 Sürücüler İçin
               </div>
               <h3 className="font-black text-3xl uppercase italic leading-tight text-[var(--text)] mb-8" style={{ letterSpacing: "-0.01em" }}>
@@ -122,7 +122,7 @@ export default function Home() {
               <ul className="space-y-4">
                 {["En yakın firmayı saniyeler içinde bul","Fiyat teklifini önceden gör","Çekiciyi haritada canlı takip et","3 aşamalı fotoğraf ile güvende ol","7/24 aktif hizmet"].map((item) => (
                   <li key={item} className="flex items-center gap-3 text-[var(--text-2)] text-sm font-semibold">
-                    <span className="w-5 h-5 rounded-full bg-[#00D4FF]/10 border border-[#00D4FF]/30 text-[var(--accent-text)] text-xs flex items-center justify-center font-black flex-shrink-0">✓</span>
+                    <span className="w-5 h-5 rounded-full bg-[var(--accent-soft)]/10 border border-[var(--accent-soft)]/30 text-[var(--accent-text)] text-xs flex items-center justify-center font-black flex-shrink-0">✓</span>
                     {item}
                   </li>
                 ))}
@@ -166,8 +166,8 @@ export default function Home() {
               { icon: "🏢", title: "Kurumsal Çözüm", desc: "Sigorta ve garanti şirketleri için özel tarife sistemi." },
               { icon: "🌙", title: "7/24 Aktif", desc: "Gece 03:00'te de sistem çalışıyor. Kesintisiz hizmet." },
             ].map((f, i) => (
-              <div key={i} className="bg-[var(--bg)] border border-[var(--border)] rounded-2xl p-7 hover:border-[#00D4FF]/20 transition group">
-                <div className="w-11 h-11 rounded-xl bg-[var(--panel)] border border-[var(--border)] flex items-center justify-center text-xl mb-6 group-hover:border-[#00D4FF]/30 transition">{f.icon}</div>
+              <div key={i} className="bg-[var(--bg)] border border-[var(--border)] rounded-2xl p-7 hover:border-[var(--accent-soft)]/20 transition group">
+                <div className="w-11 h-11 rounded-xl bg-[var(--panel)] border border-[var(--border)] flex items-center justify-center text-xl mb-6 group-hover:border-[var(--accent-soft)]/30 transition">{f.icon}</div>
                 <div className="font-black text-base uppercase tracking-tight text-[var(--text)] mb-2">{f.title}</div>
                 <div className="text-[var(--text-2)] text-sm leading-relaxed font-normal">{f.desc}</div>
               </div>
@@ -188,7 +188,7 @@ export default function Home() {
               Ücretsiz kayıt ol. Umarız hiç kullanman gerekmez ama gerekirse hazır olsun.
             </p>
             <div className="flex gap-4 flex-wrap justify-center">
-              <a href="/giris" className="w-56 text-center px-6 py-4 bg-[#00D4FF] text-[#0B0F14] rounded-xl font-black text-base hover:bg-[#0099BB] transition hover:-translate-y-0.5 uppercase tracking-wide">
+              <a href="/giris" className="w-56 text-center px-6 py-4 bg-[var(--accent)] text-[#0B0F14] rounded-xl font-black text-base hover:bg-[var(--accent-hover)] transition hover:-translate-y-0.5 uppercase tracking-wide">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/tulpar-logo-v3.png" alt="" className="h-7 w-7 object-contain inline-block mr-2" style={{ filter: "brightness(0)" }} />
                 Hemen Kayıt Ol!
