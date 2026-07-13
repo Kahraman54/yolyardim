@@ -146,6 +146,13 @@ export default function MusteriAna() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
+  // Açık temada Google Haritalar varsayılan (gündüz) stiliyle gösterilir
+  const [temaAcik, setTemaAcik] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTemaAcik(document.documentElement.getAttribute("data-theme") === "light");
+  }, []);
+
   useEffect(() => {
     const kayit = localStorage.getItem("musteri");
     if (!kayit) { router.replace("/giris"); return; }
@@ -405,7 +412,7 @@ export default function MusteriAna() {
                       <div className="text-4xl">🗺️</div><div className="text-[var(--text)] font-bold text-sm">Harita yüklenemedi</div>
                     </div>
                   ) : isLoaded ? (
-                    <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={mapCenter} zoom={13} onLoad={onLoad} onUnmount={onUnmount} options={{ styles: MAP_STYLE, disableDefaultUI: true }}>
+                    <GoogleMap mapContainerStyle={{ width: "100%", height: "100%" }} center={mapCenter} zoom={13} onLoad={onLoad} onUnmount={onUnmount} options={{ styles: temaAcik ? undefined : MAP_STYLE, disableDefaultUI: true }}>
                       {userKonum && <Marker position={userKonum} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: "#0A84FF", fillOpacity: 1, strokeColor: "#ffffff", strokeWeight: 3 }} />}
                       {firmaFiltreli.filter(f => f.lat && f.lng).map(f => {
                         const emoji = f.hizmet_tipi === "lastikci" ? "🔧" : "🚛";
@@ -551,7 +558,7 @@ export default function MusteriAna() {
                       <span className="text-[10px] font-bold text-blue-400 uppercase">Şoför Canlı Konum</span>
                       {t.sofor_konum_updated_at && <span className="text-[10px] text-[var(--text-3)] ml-auto">⏱ {new Date(t.sofor_konum_updated_at).toLocaleTimeString("tr-TR")}</span>}
                     </div>
-                    <GoogleMap mapContainerStyle={{ width: "100%", height: "200px" }} center={{ lat: t.sofor_konum_lat, lng: t.sofor_konum_lng }} zoom={14} options={{ styles: MAP_STYLE, disableDefaultUI: true, zoomControl: false }}>
+                    <GoogleMap mapContainerStyle={{ width: "100%", height: "200px" }} center={{ lat: t.sofor_konum_lat, lng: t.sofor_konum_lng }} zoom={14} options={{ styles: temaAcik ? undefined : MAP_STYLE, disableDefaultUI: true, zoomControl: false }}>
                       <Marker position={{ lat: t.sofor_konum_lat, lng: t.sofor_konum_lng }}
                         icon={{ url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36"><circle cx="18" cy="18" r="16" fill="#00D4FF" stroke="#fff" stroke-width="3"/><text x="18" y="24" text-anchor="middle" font-size="16">🚛</text></svg>')}`, scaledSize: new google.maps.Size(36, 36), anchor: new google.maps.Point(18, 18) }} />
                       {t.konum_lat && t.konum_lng && (
