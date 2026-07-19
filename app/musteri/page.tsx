@@ -133,6 +133,8 @@ export default function MusteriAna() {
     }, 300);
   }
   const [enYakinFirma, setEnYakinFirma] = useState<Firma | null>(null);
+  const [secilenFirma, setSecilenFirma] = useState<Firma | null>(null);
+  const [firmaSecimAcik, setFirmaSecimAcik] = useState(false);
   const [sosYukleniyor, setSosYukleniyor] = useState(false);
 
   // Puan modal
@@ -275,8 +277,25 @@ export default function MusteriAna() {
   const onUnmount = useCallback(() => { mapRef.current = null; setMap(null); }, []);
 
   // SOS
+  // Seçilen hizmet tipini (Çekici/Lastik) firma hizmet_tipi ile eşleştirir
+  function firmaUygunMu(f: Firma, tip: string) {
+    if (!f.hizmet_tipi || f.hizmet_tipi === "her_ikisi") return true;
+    return tip === "Çekici" ? f.hizmet_tipi === "cekici" : f.hizmet_tipi === "lastikci";
+  }
+
+  // Seçilen hizmeti verebilen firmalar, en yakından uzağa
+  function uygunFirmalar(tip: string) {
+    const ref = userKonum || mapCenter;
+    return firmalar
+      .filter(f => f.lat && f.lng && firmaUygunMu(f, tip))
+      .filter(f => !userKonum || haversine(userKonum.lat, userKonum.lng, f.lat!, f.lng!) <= 200)
+      .sort((a, b) =>
+        haversine(ref.lat, ref.lng, a.lat!, a.lng!) - haversine(ref.lat, ref.lng, b.lat!, b.lng!)
+      );
+  }
+
   function sosAc(belirli?: Firma) {
-    if (belirli) { setEnYakinFirma(belirli); }
+    if (belirli) { setEnYakinFirma(belirli); setSecilenFirma(belirli); }
     else {
       const ref = userKonum || mapCenter;
       const lokasyonlu = firmalar
@@ -290,7 +309,9 @@ export default function MusteriAna() {
           haversine(ref.lat, ref.lng, a.lat!, a.lng!) - haversine(ref.lat, ref.lng, b.lat!, b.lng!)
         );
       setEnYakinFirma(lokasyonlu[0] || null);
+      setSecilenFirma(null);
     }
+    setFirmaSecimAcik(false);
     setSeciliFirma(null); setSosModal(true);
   }
 
@@ -309,7 +330,7 @@ export default function MusteriAna() {
         musteri_ad: musteri.ad ? `${musteri.ad} ${musteri.soyad || ""}`.trim() : null,
         musteri_tel: musteri.tel,
         arac_plaka: musteri.arac_plaka || null,
-        firma_id: enYakinFirma?.id || null,
+        firma_id: atananFirma?.id || null,
         tip: sorunTip, durum: "yeni",
         hedef_adres: cekiciMi ? (hedef === "belirli" ? (hedefAdres || null) : (hedef === "onersin" ? "Firma önersin" : null)) : null,
         aciklama: [!cekiciMi && lastikDurum ? `Lastik: ${lastikDurum}` : null, sosNot || null].filter(Boolean).join(" · ") || null,
@@ -361,6 +382,9 @@ export default function MusteriAna() {
     } catch { /* sessiz */ }
     setProfilKayit(false);
   }
+
+  // Modalda gösterilen firma: manuel seçim > hizmete uygun en yakın > genel en yakın
+  const atananFirma = secilenFirma ?? (sorunTip ? (uygunFirmalar(sorunTip)[0] ?? null) : enYakinFirma);
 
   const aktivTalepler = talepler.filter(t => !["tamamlandi", "reddedildi"].includes(t.durum));
   const gecmisTalepler = talepler.filter(t => ["tamamlandi", "reddedildi"].includes(t.durum));
@@ -749,18 +773,44 @@ export default function MusteriAna() {
                   <img src="/tulpar-logo-v3.png" alt="" className="h-8 w-auto object-contain flex-shrink-0" />
                   <div className="font-black text-lg">Tulpar&apos;dan Yardım Çağır</div>
                 </div>
-                {enYakinFirma ? (
-                  <div className="bg-[var(--accent-soft)]/10 border border-[var(--accent-soft)]/20 rounded-xl p-3 mb-4 flex items-center gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[10px] text-[var(--accent-text)] font-bold mb-0.5 uppercase">Atanan En Yakın Firma</div>
-                      <div className="font-bold text-sm truncate">{enYakinFirma.firma_ad}</div>
-                      {enYakinFirma.lat && enYakinFirma.lng && <div className="text-xs text-[var(--text-3)] mt-0.5">~{haversine(mapCenter.lat, mapCenter.lng, enYakinFirma.lat, enYakinFirma.lng).toFixed(1)} km uzakta</div>}
+                {atananFirma ? (
+                  <div className="mb-4">
+                    <div className="bg-[var(--accent-soft)]/10 border border-[var(--accent-soft)]/20 rounded-xl p-3 flex items-center gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[10px] text-[var(--accent-text)] font-bold mb-0.5 uppercase">{secilenFirma ? "Seçilen Firma" : "Atanan En Yakın Firma"}</div>
+                        <div className="font-bold text-sm truncate">{atananFirma.firma_ad}</div>
+                        {atananFirma.lat && atananFirma.lng && <div className="text-xs text-[var(--text-3)] mt-0.5">~{haversine(mapCenter.lat, mapCenter.lng, atananFirma.lat, atananFirma.lng).toFixed(1)} km uzakta</div>}
+                      </div>
+                      <div className="flex flex-col gap-1.5 flex-shrink-0">
+                        <button onClick={() => setFirmaDetayModal(atananFirma)} className="text-xs font-bold text-[var(--accent-text)] border border-[var(--accent-soft)]/40 hover:bg-[var(--accent-soft)]/10 px-3.5 py-1.5 rounded-lg transition">
+                          Firma Detayı
+                        </button>
+                        {sorunTip && uygunFirmalar(sorunTip).length > 1 && (
+                          <button onClick={() => setFirmaSecimAcik(v => !v)} className="text-xs font-bold text-[var(--text-2)] border border-[var(--border-2)] hover:bg-[var(--hover)] px-3.5 py-1.5 rounded-lg transition">
+                            {firmaSecimAcik ? "Kapat" : "Değiştir"}
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <button onClick={() => setFirmaDetayModal(enYakinFirma)} className="flex-shrink-0 text-xs font-bold text-[var(--accent-text)] border border-[var(--accent-soft)]/40 hover:bg-[var(--accent-soft)]/10 px-3.5 py-2 rounded-lg transition">
-                      Firma Detayı
-                    </button>
+                    {firmaSecimAcik && sorunTip && (
+                      <div className="mt-1.5 bg-[var(--surface)] border border-[var(--border-2)] rounded-xl overflow-hidden">
+                        {uygunFirmalar(sorunTip).slice(0, 6).map(f => (
+                          <button key={f.id} onClick={() => { setSecilenFirma(f); setFirmaSecimAcik(false); }}
+                            className={`w-full text-left px-3 py-2.5 flex items-center gap-2 border-b border-[var(--border)] last:border-b-0 transition ${atananFirma.id === f.id ? "bg-[var(--accent-soft)]/8" : "hover:bg-[var(--hover)]"}`}>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-bold truncate">{f.firma_ad}</div>
+                              <div className="text-[10px] text-[var(--text-3)]">
+                                {f.hizmet_tipi === "lastikci" ? "Lastikçi" : f.hizmet_tipi === "her_ikisi" ? "Çekici & Lastikçi" : f.hizmet_tipi === "cekici" ? "Çekici" : "Çekici & Lastikçi"}
+                              </div>
+                            </div>
+                            {f.lat && f.lng && <span className="text-xs text-[var(--text-3)] flex-shrink-0">{haversine((userKonum || mapCenter).lat, (userKonum || mapCenter).lng, f.lat, f.lng).toFixed(1)} km</span>}
+                            {atananFirma.id === f.id && <span className="text-[var(--accent-text)] text-sm flex-shrink-0">✓</span>}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                ) : <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 mb-4 text-xs text-yellow-300">⚠️ Yakında aktif firma bulunamadı. Talep yine de iletilecek.</div>}
+                ) : <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 mb-4 text-xs text-yellow-300">⚠️ {sorunTip ? "Bu hizmeti veren yakın firma bulunamadı." : "Yakında aktif firma bulunamadı."} Talep yine de iletilecek.</div>}
                 {(musteri?.arac_marka || musteri?.arac_plaka) && (
                   <div className="bg-[var(--surface-2)] rounded-xl p-3 mb-4 text-xs text-[var(--text-2)] flex items-center gap-2">
                     <span className="text-base">🚗</span><span>{[musteri?.arac_marka, musteri?.arac_model, musteri?.arac_plaka, musteri?.yakit_tipi].filter(Boolean).join(" · ")}</span>
@@ -773,7 +823,7 @@ export default function MusteriAna() {
                       { v: "Çekici", lb: "Çekici", ikon: "/icons/svg/006-shipping.svg" },
                       { v: "Lastik", lb: "Lastikçi", ikon: "/icons/svg/004-car.svg" },
                     ].map(o => (
-                      <button key={o.v} onClick={() => setSorunTip(o.v)} className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition ${sorunTip === o.v ? "border-[var(--accent)] bg-[var(--accent-soft)]/8 text-[var(--accent-text)]" : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)]"}`}>
+                      <button key={o.v} onClick={() => { setSorunTip(o.v); setSecilenFirma(p => p && firmaUygunMu(p, o.v) ? p : null); setFirmaSecimAcik(false); }} className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition ${sorunTip === o.v ? "border-[var(--accent)] bg-[var(--accent-soft)]/8 text-[var(--accent-text)]" : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)]"}`}>
                         <FlatIcon src={o.ikon} size={30} />
                         <span className="text-xs font-bold">{o.lb}</span>
                       </button>
@@ -836,9 +886,9 @@ export default function MusteriAna() {
               <div className="text-center py-8">
                 <div className="text-5xl mb-3">✅</div>
                 <div className="font-black text-xl mb-2">Talep Gönderildi!</div>
-                {enYakinFirma && <p className="text-[var(--accent-text)] font-bold text-sm mb-2">{enYakinFirma.firma_ad}</p>}
+                {atananFirma && <p className="text-[var(--accent-text)] font-bold text-sm mb-2">{atananFirma.firma_ad}</p>}
                 <p className="text-[var(--text-3)] text-sm mb-6 leading-relaxed">Firma fiyat teklifi gönderdiğinde bildirim alacaksınız.</p>
-                <button onClick={() => { setSosModal(false); setGonderildi(false); setSorunTip(""); setSosNot(""); setHedefAdres(""); setHedef("bilmiyorum"); setLastikDurum(""); setSayfa("talepler"); }} className="w-full bg-[var(--accent)] text-[#0B0F14] font-bold py-3 rounded-xl">Talebi Görüntüle →</button>
+                <button onClick={() => { setSosModal(false); setGonderildi(false); setSorunTip(""); setSosNot(""); setHedefAdres(""); setHedef("bilmiyorum"); setLastikDurum(""); setSecilenFirma(null); setFirmaSecimAcik(false); setSayfa("talepler"); }} className="w-full bg-[var(--accent)] text-[#0B0F14] font-bold py-3 rounded-xl">Talebi Görüntüle →</button>
               </div>
             )}
           </div>
