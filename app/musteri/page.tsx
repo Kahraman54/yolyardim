@@ -3,6 +3,8 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
+
+const MAP_LIBRARIES: "places"[] = ["places"];
 import { supabase } from "../../lib/supabase";
 import { apiPost, apiPatch } from "../../lib/api";
 
@@ -104,7 +106,32 @@ export default function MusteriAna() {
   const [hedef, setHedef] = useState("bilmiyorum");
   const [hedefAdres, setHedefAdres] = useState("");
   const [sosNot, setSosNot] = useState("");
+  const [lastikDurum, setLastikDurum] = useState("");
+  const [adresOneriler, setAdresOneriler] = useState<string[]>([]);
+  const adresAramaRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [gonderildi, setGonderildi] = useState(false);
+
+  // Google Places (yeni API) ile adres önerisi — 300ms gecikmeli arama
+  function adresAra(metin: string) {
+    setHedefAdres(metin);
+    if (adresAramaRef.current) clearTimeout(adresAramaRef.current);
+    if (metin.trim().length < 3 || !window.google?.maps?.places?.AutocompleteSuggestion) {
+      setAdresOneriler([]);
+      return;
+    }
+    adresAramaRef.current = setTimeout(async () => {
+      try {
+        const { suggestions } = await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+          input: metin,
+          includedRegionCodes: ["tr"],
+          language: "tr",
+        });
+        setAdresOneriler(suggestions.map(s => s.placePrediction?.text?.toString() || "").filter(Boolean).slice(0, 5));
+      } catch {
+        setAdresOneriler([]);
+      }
+    }, 300);
+  }
   const [enYakinFirma, setEnYakinFirma] = useState<Firma | null>(null);
   const [sosYukleniyor, setSosYukleniyor] = useState(false);
 
@@ -131,6 +158,7 @@ export default function MusteriAna() {
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!,
+    libraries: MAP_LIBRARIES,
   });
 
   function addToast(mesaj: string, tip: Toast["tip"] = "bilgi") {
@@ -275,6 +303,7 @@ export default function MusteriAna() {
     }
     setSosYukleniyor(true);
     try {
+      const cekiciMi = sorunTip === "Çekici";
       await apiPost("talepler", {
         musteri_id: musteri.id,
         musteri_ad: musteri.ad ? `${musteri.ad} ${musteri.soyad || ""}`.trim() : null,
@@ -282,8 +311,8 @@ export default function MusteriAna() {
         arac_plaka: musteri.arac_plaka || null,
         firma_id: enYakinFirma?.id || null,
         tip: sorunTip, durum: "yeni",
-        hedef_adres: hedef === "belirli" ? (hedefAdres || null) : (hedef === "onersin" ? "Firma önersin" : null),
-        aciklama: sosNot || null,
+        hedef_adres: cekiciMi ? (hedef === "belirli" ? (hedefAdres || null) : (hedef === "onersin" ? "Firma önersin" : null)) : null,
+        aciklama: [!cekiciMi && lastikDurum ? `Lastik: ${lastikDurum}` : null, sosNot || null].filter(Boolean).join(" · ") || null,
         konum_lat: konum.lat, konum_lng: konum.lng,
         konum_adres: `${konum.lat.toFixed(5)}, ${konum.lng.toFixed(5)}`,
       });
@@ -715,12 +744,21 @@ export default function MusteriAna() {
             <div className="w-9 h-1 bg-[var(--surface-2)] rounded-full mx-auto mb-4"></div>
             {!gonderildi ? (
               <>
-                <div className="font-black text-lg mb-1">🆘 Yardım İste</div>
+                <div className="flex items-center gap-2.5 mb-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/tulpar-logo-v3.png" alt="" className="h-8 w-auto object-contain flex-shrink-0" />
+                  <div className="font-black text-lg">Tulpar&apos;dan Yardım Çağır</div>
+                </div>
                 {enYakinFirma ? (
-                  <div className="bg-[var(--accent-soft)]/10 border border-[var(--accent-soft)]/20 rounded-xl p-3 mb-4">
-                    <div className="text-[10px] text-[var(--accent-text)] font-bold mb-0.5 uppercase">En Yakın Aktif Firma</div>
-                    <div className="font-bold text-sm">{enYakinFirma.firma_ad}</div>
-                    {enYakinFirma.lat && enYakinFirma.lng && <div className="text-xs text-[var(--text-3)] mt-0.5">~{haversine(mapCenter.lat, mapCenter.lng, enYakinFirma.lat, enYakinFirma.lng).toFixed(1)} km uzakta</div>}
+                  <div className="bg-[var(--accent-soft)]/10 border border-[var(--accent-soft)]/20 rounded-xl p-3 mb-4 flex items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[10px] text-[var(--accent-text)] font-bold mb-0.5 uppercase">Atanan En Yakın Firma</div>
+                      <div className="font-bold text-sm truncate">{enYakinFirma.firma_ad}</div>
+                      {enYakinFirma.lat && enYakinFirma.lng && <div className="text-xs text-[var(--text-3)] mt-0.5">~{haversine(mapCenter.lat, mapCenter.lng, enYakinFirma.lat, enYakinFirma.lng).toFixed(1)} km uzakta</div>}
+                    </div>
+                    <button onClick={() => setFirmaDetayModal(enYakinFirma)} className="flex-shrink-0 text-xs font-bold text-[var(--accent-text)] border border-[var(--accent-soft)]/40 hover:bg-[var(--accent-soft)]/10 px-3.5 py-2 rounded-lg transition">
+                      Firma Detayı
+                    </button>
                   </div>
                 ) : <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 mb-4 text-xs text-yellow-300">⚠️ Yakında aktif firma bulunamadı. Talep yine de iletilecek.</div>}
                 {(musteri?.arac_marka || musteri?.arac_plaka) && (
@@ -729,35 +767,69 @@ export default function MusteriAna() {
                   </div>
                 )}
                 <div className="mb-4">
-                  <label className="block text-xs font-bold text-[var(--text-2)] mb-2">Ne yardımı istiyorsun? *</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[["🚛","Çekici"],["🔧","Kurtarma"],["🔄","Lastik"],["🔋","Akü"],["⛽","Yakıt"],["🔑","Çilingir"]].map(([ic, lb]) => (
-                      <button key={lb} onClick={() => setSorunTip(lb)} className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition ${sorunTip === lb ? "border-[var(--accent)] bg-[var(--accent-soft)]/8 text-[var(--accent-text)]" : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)]"}`}>
-                        <span className="text-xl">{ic}</span><span className="text-[10px] font-bold">{lb}</span>
+                  <label className="block text-xs font-bold text-[var(--text-2)] mb-2">Hangi yardıma ihtiyacın var? *</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { v: "Çekici", lb: "Çekici", ikon: "/icons/svg/006-shipping.svg" },
+                      { v: "Lastik", lb: "Lastikçi", ikon: "/icons/svg/004-car.svg" },
+                    ].map(o => (
+                      <button key={o.v} onClick={() => setSorunTip(o.v)} className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition ${sorunTip === o.v ? "border-[var(--accent)] bg-[var(--accent-soft)]/8 text-[var(--accent-text)]" : "border-[var(--border)] bg-[var(--surface-2)] text-[var(--text-2)]"}`}>
+                        <FlatIcon src={o.ikon} size={30} />
+                        <span className="text-xs font-bold">{o.lb}</span>
                       </button>
                     ))}
                   </div>
                 </div>
-                <div className="mb-4">
-                  <label className="block text-xs font-bold text-[var(--text-2)] mb-2">Araç nereye çekilsin?</label>
-                  <div className="space-y-2">
-                    {[["bilmiyorum","🤷","Henüz bilmiyorum","Sonradan düzenleyebilirsin"],["belirli","📍","Belirli bir adres","Servis veya ev adresi gir"],["onersin","💡","Firma önersin","En yakın servisi bulsun"]].map(([v, ic, lb, ac]) => (
-                      <div key={v}>
-                        <div onClick={() => setHedef(v)} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${hedef === v ? "border-[var(--accent)] bg-[var(--accent-soft)]/6" : "border-[var(--border)] bg-[var(--surface-2)]"}`}>
+                {sorunTip === "Çekici" && (
+                  <div className="mb-4">
+                    <label className="block text-xs font-bold text-[var(--text-2)] mb-2">Araç nereye çekilsin?</label>
+                    <div className="space-y-2">
+                      {[["bilmiyorum","🤷","Henüz bilmiyorum","Sonradan düzenleyebilirsin"],["belirli","📍","Belirli bir adres","Servis veya ev adresi gir"],["onersin","💡","Firma önersin","En yakın servisi bulsun"]].map(([v, ic, lb, ac]) => (
+                        <div key={v}>
+                          <div onClick={() => setHedef(v)} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${hedef === v ? "border-[var(--accent)] bg-[var(--accent-soft)]/6" : "border-[var(--border)] bg-[var(--surface-2)]"}`}>
+                            <span className="text-lg">{ic}</span>
+                            <div className="flex-1"><div className="text-sm font-bold">{lb}</div><div className="text-xs text-[var(--text-3)]">{ac}</div></div>
+                            <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${hedef === v ? "border-[var(--accent)] bg-[var(--accent)]" : "border-[var(--border-2)]"}`} style={hedef === v ? { boxShadow: "inset 0 0 0 3px var(--surface-2)" } : {}} />
+                          </div>
+                          {v === "belirli" && hedef === "belirli" && (
+                            <div className="relative">
+                              <input value={hedefAdres} onChange={e => adresAra(e.target.value)} placeholder="Adres ara: servis, işletme, mahalle..." className="w-full mt-1.5 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" />
+                              {adresOneriler.length > 0 && (
+                                <div className="absolute left-0 right-0 top-full mt-1 bg-[var(--surface)] border border-[var(--border-2)] rounded-xl overflow-hidden shadow-2xl z-30">
+                                  {adresOneriler.map(a => (
+                                    <button key={a} onClick={() => { setHedefAdres(a); setAdresOneriler([]); }} className="w-full text-left px-3 py-2.5 text-sm text-[var(--text-2)] hover:bg-[var(--hover)] border-b border-[var(--border)] last:border-b-0 flex items-start gap-2">
+                                      <span className="text-xs mt-0.5 flex-shrink-0">📍</span>
+                                      <span className="leading-snug">{a}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {sorunTip === "Lastik" && (
+                  <div className="mb-4">
+                    <label className="block text-xs font-bold text-[var(--text-2)] mb-2">Lastik durumu nedir?</label>
+                    <div className="space-y-2">
+                      {[["Patlak / hasarlı lastik","🔧","Patlak / hasarlı lastik","Yerinde tamir denensin"],["Yedek lastiğim var","🛞","Yedek lastiğim var","Takılması yeterli"],["Yedek lastiğim yok","🆕","Yedek lastiğim yok","Tamir ya da yeni lastik gerekli"]].map(([v, ic, lb, ac]) => (
+                        <div key={v} onClick={() => setLastikDurum(v)} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${lastikDurum === v ? "border-[var(--accent)] bg-[var(--accent-soft)]/6" : "border-[var(--border)] bg-[var(--surface-2)]"}`}>
                           <span className="text-lg">{ic}</span>
                           <div className="flex-1"><div className="text-sm font-bold">{lb}</div><div className="text-xs text-[var(--text-3)]">{ac}</div></div>
-                          <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${hedef === v ? "border-[var(--accent)] bg-[var(--accent)]" : "border-[var(--border-2)]"}`} style={hedef === v ? { boxShadow: "inset 0 0 0 3px #2A2A2A" } : {}} />
+                          <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${lastikDurum === v ? "border-[var(--accent)] bg-[var(--accent)]" : "border-[var(--border-2)]"}`} style={lastikDurum === v ? { boxShadow: "inset 0 0 0 3px var(--surface-2)" } : {}} />
                         </div>
-                        {v === "belirli" && hedef === "belirli" && <input value={hedefAdres} onChange={e => setHedefAdres(e.target.value)} placeholder="Örn: Kadıköy Ford Servisi" className="w-full mt-1.5 bg-[var(--surface-2)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]" />}
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
                 <div className="mb-5">
                   <label className="block text-xs font-bold text-[var(--text-2)] mb-2">Not</label>
-                  <textarea value={sosNot} onChange={e => setSosNot(e.target.value)} placeholder="Araç sağ tarafında, lastik patlak..." rows={2} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] resize-none" />
+                  <textarea value={sosNot} onChange={e => setSosNot(e.target.value)} placeholder="Araç sağ şeritte, sağ ön lastik patlak..." rows={2} className="w-full bg-[var(--surface-2)] border border-[var(--border)] rounded-xl px-3 py-2.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] resize-none" />
                 </div>
-                <button onClick={sosGonder} disabled={!sorunTip || sosYukleniyor} className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[var(--text)] font-bold py-3.5 rounded-xl transition text-sm">{sosYukleniyor ? "Gönderiliyor..." : "🚨 Talebi Gönder"}</button>
+                <button onClick={sosGonder} disabled={!sorunTip || sosYukleniyor} className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[#0B0F14] font-bold py-3.5 rounded-xl transition text-sm">{sosYukleniyor ? "Gönderiliyor..." : "Yardım Talebi Gönder"}</button>
                 <button onClick={() => setSosModal(false)} className="w-full mt-2 border border-[var(--border)] text-[var(--text-3)] py-3 rounded-xl text-sm">İptal</button>
               </>
             ) : (
@@ -766,7 +838,7 @@ export default function MusteriAna() {
                 <div className="font-black text-xl mb-2">Talep Gönderildi!</div>
                 {enYakinFirma && <p className="text-[var(--accent-text)] font-bold text-sm mb-2">{enYakinFirma.firma_ad}</p>}
                 <p className="text-[var(--text-3)] text-sm mb-6 leading-relaxed">Firma fiyat teklifi gönderdiğinde bildirim alacaksınız.</p>
-                <button onClick={() => { setSosModal(false); setGonderildi(false); setSorunTip(""); setSosNot(""); setHedefAdres(""); setHedef("bilmiyorum"); setSayfa("talepler"); }} className="w-full bg-[var(--accent)] text-[#0B0F14] font-bold py-3 rounded-xl">Talebi Görüntüle →</button>
+                <button onClick={() => { setSosModal(false); setGonderildi(false); setSorunTip(""); setSosNot(""); setHedefAdres(""); setHedef("bilmiyorum"); setLastikDurum(""); setSayfa("talepler"); }} className="w-full bg-[var(--accent)] text-[#0B0F14] font-bold py-3 rounded-xl">Talebi Görüntüle →</button>
               </div>
             )}
           </div>
