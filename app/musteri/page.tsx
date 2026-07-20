@@ -768,10 +768,12 @@ export default function MusteriAna() {
             <div className="w-9 h-1 bg-[var(--surface-2)] rounded-full mx-auto mb-4"></div>
             {!gonderildi ? (
               <>
-                <div className="flex items-center gap-2.5 mb-4">
+                <div className="flex items-center justify-center gap-2.5 mb-4">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/tulpar-logo-v3.png" alt="" className="h-8 w-auto object-contain flex-shrink-0" />
-                  <div className="font-black text-lg">Tulpar&apos;dan Yardım Çağır</div>
+                  <img src="/tulpar-logo-v3.png" alt="" className="h-10 w-auto object-contain flex-shrink-0" />
+                  <div className="font-black italic text-2xl tracking-tight" style={{ letterSpacing: "-0.02em" }}>
+                    <span className="text-[var(--accent-text)]">Tulpar&apos;dan</span> Yardım Çağır
+                  </div>
                 </div>
                 {atananFirma ? (
                   <div className="mb-4">
